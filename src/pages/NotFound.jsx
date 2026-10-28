@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom'
-import styles from './NotFound.module.css'
 
 function NotFound() {
   return (
-    <section className={styles.notFound}>
-      <Link to="/">
-      </Link>
+    <section style={{ padding: '32px' }}>
+      <h1>Página no encontrada</h1>
+      <Link to="/">Volver al inicio</Link>
     </section>
   )
 }

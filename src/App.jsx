@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar/Navbar'
 import Footer from './components/Footer/Footer'
 import Home from './pages/Home'
+import Reservation from './pages/Reservation/Reservation'
 import NotFound from './pages/NotFound'
 import styles from './App.module.css'
 
@@ -13,6 +14,7 @@ function App() {
         <main className={styles.content}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/reservas" element={<Reservation />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

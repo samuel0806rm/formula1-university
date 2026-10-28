@@ -1,2 +1,6 @@
 .footer {
+  margin-top: 32px;
+  padding: 22px;
+  background: #ddd;
+  text-align: center;
 }

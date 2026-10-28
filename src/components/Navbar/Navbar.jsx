@@ -3,14 +3,15 @@ import styles from './Navbar.module.css'
 
 function Navbar() {
   return (
-    <nav className={styles.navbar}>
-      <Link to="/" className={styles.logo} aria-label="Parking Tunja, inicio">
-      </Link>
-      <div className={styles.links}>
-        <NavLink to="/" end>
-        </NavLink>
-      </div>
-    </nav>
+    <header className={styles.header}>
+      <nav className={styles.navbar}>
+        <Link to="/" className={styles.brand}>PARKING TUNJA</Link>
+        <div className={styles.links}>
+          <NavLink to="/" end>Inicio</NavLink>
+          <NavLink to="/reservas">Reservar</NavLink>
+        </div>
+      </nav>
+    </header>
   )
 }
 
