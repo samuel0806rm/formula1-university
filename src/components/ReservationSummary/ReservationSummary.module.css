@@ -1,0 +1,78 @@
+.container {
+  min-width: 0;
+}
+
+.summary {
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  padding: 18px;
+  background: white;
+}
+
+.summary h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+
+.summary dl {
+  margin: 0;
+}
+
+.summary dl div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+}
+
+.summary dt {
+  color: #666;
+}
+
+.summary dd {
+  margin: 0;
+  text-align: right;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 8px 0;
+}
+
+.confirmButton {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 16px;
+  border: 1px solid #444;
+  border-radius: 3px;
+  background: #ddd;
+  color: #222;
+  font-weight: 700;
+}
+
+.confirmButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.validation {
+  margin-top: 8px;
+  color: #8a2d2d;
+  font-size: 12px;
+}
+
+.success {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid #8ab89d;
+  background: #edf8f0;
+  color: #205c38;
+  font-size: 12px;
+  line-height: 1.5;
+}
