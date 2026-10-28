@@ -46,7 +46,7 @@ function ReservationSummary({
         {!plaza && <p className={styles.validation}>Selecciona una plaza disponible para continuar.</p>}
         {confirmada && (
           <div className={styles.success} role="status">
-            Reserva de demostración confirmada para {plaza?.nombre}. No se realizó ningún pago.
+            Reserva de demostración confirmada para {plaza?.nombre}.
           </div>
         )}
       </section>

@@ -92,9 +92,6 @@ function Reservation() {
           confirmada={confirmada}
         />
       </div>
-      <p className={styles.disclaimer}>
-        Prototipo académico con plazas, tarifas y estados de ejemplo. No representa disponibilidad real y no procesa pagos.
-      </p>
     </div>
   )
 }

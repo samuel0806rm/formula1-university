@@ -18,7 +18,6 @@ function PaymentMethod({ metodoPago, setMetodoPago }) {
           {metodo}
         </label>
       ))}
-      <p className={styles.note}>Prototipo: no se realiza ningún cobro real.</p>
     </section>
   )
 }
