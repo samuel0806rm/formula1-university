@@ -22,6 +22,14 @@ function Navbar() {
           <NavLink to="/usuario">
             Usuario
           </NavLink>
+
+          <NavLink to="/recarga">
+            Recargar
+          </NavLink>
+
+          <NavLink to="/inicio-sesion">
+            Iniciar sesión
+          </NavLink>
           
           <NavLink to="/registro">
             Crear cuenta
