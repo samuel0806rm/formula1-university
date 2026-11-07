@@ -6,6 +6,8 @@ function Home() {
     <section className={styles.home}>
       <h1>Parking Tunja</h1>
       <p>Consulta y reserva una plaza de parqueadero.</p>
+      <Link to="/mapa">Ver el mapa de parqueaderos</Link>
+      <br />
       <Link to="/reservas">Ir al módulo de reservas</Link>
     </section>
   )

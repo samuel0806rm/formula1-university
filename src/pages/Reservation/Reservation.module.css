@@ -3,8 +3,17 @@
   margin: 24px auto 40px;
 }
 
+.back {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--azul);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .pageHeader {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .pageHeader h1 {
@@ -18,6 +27,7 @@
 }
 
 .layout {
+  margin-top: 24px;
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
   align-items: start;
@@ -38,6 +48,7 @@
 
 @media (max-width: 760px) {
   .layout {
+  margin-top: 24px;
     grid-template-columns: 1fr;
   }
 }

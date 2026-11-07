@@ -3,7 +3,7 @@ import { useState } from 'react'
 import styles from './UserNotifications.module.css'
 
 function UserNotifications() {
-  const [notificaciones, setNotificaciones] = useState([
+  const [notificaciones] = useState([
     {
       id: 1,
       mensaje: 'Tu reserva de parqueadero está activa.',
