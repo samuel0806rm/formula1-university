@@ -9,6 +9,7 @@ function Navbar() {
         <div className={styles.links}>
           <NavLink to="/" end>Inicio</NavLink>
           <NavLink to="/reservas">Reservar</NavLink>
+          <NavLink to="/registro">Crear cuenta</NavLink>
         </div>
       </nav>
     </header>

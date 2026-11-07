@@ -3,6 +3,7 @@ import Navbar from './components/Navbar/Navbar'
 import Footer from './components/Footer/Footer'
 import Home from './pages/Home'
 import Reservation from './pages/Reservation/Reservation'
+import RegisterAccount from './pages/RegisterAccount/RegisterAccount'
 import NotFound from './pages/NotFound'
 import styles from './App.module.css'
 
@@ -15,6 +16,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/reservas" element={<Reservation />} />
+            <Route path="/registro" element={<RegisterAccount />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

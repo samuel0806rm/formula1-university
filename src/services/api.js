@@ -29,6 +29,12 @@ export const verificarClave = () => pedir('/key')
 export const iniciarSesion = (email, contrasena) =>
   pedir('/auth/login', { metodo: 'POST', cuerpo: { email, contrasena } })
 
+export const registrarUsuario = ({ nombreCompleto, cedula, tipoVehiculo, contrasena }) =>
+  pedir('/auth/register', {
+    metodo: 'POST',
+    cuerpo: { nombreCompleto, cedula, tipoVehiculo, contrasena },
+  })
+
 export const obtenerBilletera = (acceso) => pedir('/wallet', { acceso })
 
 export const cobrarReserva = (acceso, monto, concepto) =>
