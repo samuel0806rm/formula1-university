@@ -53,3 +53,25 @@
     justify-content: flex-start;
   }
 }
+
+.links {
+  align-items: center;
+}
+
+.links a.saldo {
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--verde);
+  color: white;
+  font-weight: 700;
+}
+
+.salir {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  text-decoration: underline;
+}

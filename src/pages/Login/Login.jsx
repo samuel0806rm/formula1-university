@@ -1,13 +1,32 @@
 import { useState } from 'react'
+import { Link, Navigate, useLocation } from 'react-router-dom'
+import { useSesion } from '../../context/sesion'
+import { mensajeError } from '../../services/errores'
 import styles from './Login.module.css'
 
 function Login() {
-  const [mensaje, setMensaje] = useState('')
+  const { usuario, cargando, entrar } = useSesion()
+  const location = useLocation()
+  const [email, setEmail] = useState('')
+  const [contrasena, setContrasena] = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const [error, setError] = useState('')
 
-  function enviarFormulario(evento) {
+  async function enviarFormulario(evento) {
     evento.preventDefault()
-    setMensaje('La autenticación estará disponible cuando se conecte el servicio de inicio de sesión.')
+    if (enviando) return
+
+    setEnviando(true)
+    setError('')
+    try {
+      await entrar(email, contrasena)
+    } catch (errorLogin) {
+      setError(mensajeError(errorLogin))
+      setEnviando(false)
+    }
   }
+
+  if (!cargando && usuario) return <Navigate to={location.state?.desde ?? '/usuario'} replace />
 
   return (
     <section className={styles.page}>
@@ -17,44 +36,20 @@ function Login() {
       </header>
 
       <div className={styles.panel}>
-        <form className={styles.form} onSubmit={enviarFormulario}>
-          <fieldset>
-            <legend>Identificación del usuario</legend>
+        <form className={styles.form} onSubmit={enviarFormulario} aria-busy={enviando}>
+          <fieldset disabled={enviando}>
+            <legend>Tus datos de acceso</legend>
 
-            <label htmlFor="identificacionTarjeta">Identificación con tarjeta *</label>
+            <label htmlFor="email">Correo electrónico</label>
             <input
-              id="identificacionTarjeta"
-              name="identificacionTarjeta"
-              type="text"
-              autoComplete="off"
-              required
-              maxLength={40}
-              placeholder="Número o código de tarjeta"
-            />
-
-            <label htmlFor="nombre">Nombre</label>
-            <input
-              id="nombre"
-              name="nombre"
-              type="text"
-              autoComplete="name"
-              required
-              maxLength={120}
-              placeholder="Nombre completo"
-            />
-
-            <label htmlFor="cedula">Cédula</label>
-            <input
-              id="cedula"
-              name="cedula"
-              type="text"
-              inputMode="numeric"
+              id="email"
+              name="email"
+              type="email"
               autoComplete="username"
-              pattern="[0-9]+"
-              title="Ingresa tu cédula usando solo números."
               required
-              maxLength={15}
-              placeholder="Número de cédula"
+              value={email}
+              onChange={(evento) => setEmail(evento.target.value)}
+              placeholder="tu@correo.com"
             />
 
             <label htmlFor="contrasena">Contraseña</label>
@@ -64,15 +59,19 @@ function Login() {
               type="password"
               autoComplete="current-password"
               required
-              minLength={8}
+              value={contrasena}
+              onChange={(evento) => setContrasena(evento.target.value)}
               placeholder="Ingresa tu contraseña"
             />
           </fieldset>
 
-          <button className={styles.primaryButton} type="submit">
-            Ingresar
+          <button className={styles.primaryButton} type="submit" disabled={enviando}>
+            {enviando ? 'Ingresando…' : 'Ingresar'}
           </button>
-          {mensaje && <p className={styles.notice} role="status">{mensaje}</p>}
+          {error && <p className={styles.notice} role="alert">{error}</p>}
+          <p className={styles.alternativa}>
+            ¿No tienes cuenta? <Link to="/registro" state={location.state}>Crea una aquí</Link>
+          </p>
         </form>
 
         <aside className={styles.illustration} aria-label="Acceso seguro a Parking Tunja">

@@ -93,3 +93,9 @@
   font-size: 12px;
   line-height: 1.5;
 }
+
+a.confirmButton {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}

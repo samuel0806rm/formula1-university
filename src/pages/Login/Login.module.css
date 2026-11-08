@@ -136,3 +136,14 @@
     padding: 24px;
   }
 }
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alternativa {
+  margin: 16px 0 0;
+  font-size: 14px;
+  text-align: center;
+}

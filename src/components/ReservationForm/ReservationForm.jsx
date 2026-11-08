@@ -7,6 +7,7 @@ function ReservationForm({
   setDuracion,
   placa,
   setPlaca,
+  placaValida,
   horaInicio,
   horaFin,
 }) {
@@ -42,6 +43,7 @@ function ReservationForm({
             value={placa}
             maxLength={7}
             placeholder="Ej.: ABC 123"
+            aria-invalid={placa.length > 0 && !placaValida}
             onChange={(event) => setPlaca(event.target.value.toUpperCase())}
           />
         </label>

@@ -1,15 +1,18 @@
-import { useRef, useState } from 'react'
-import { registrarUsuario } from '../../services/api'
+import { useState } from 'react'
+import { Link, Navigate, useLocation } from 'react-router-dom'
+import { useSesion } from '../../context/sesion'
+import { tiposVehiculo } from '../../data/vehiculos'
+import { mensajeError } from '../../services/errores'
 import styles from './RegisterAccount.module.css'
 
-const tiposVehiculo = ['Carro', 'Moto', 'Camioneta', 'Bicicleta', 'Bicicleta eléctrica', 'Patineta eléctrica']
-const formularioInicial = { nombreCompleto: '', cedula: '', tipoVehiculo: '', contrasena: '' }
+const formularioInicial = { nombreCompleto: '', email: '', cedula: '', tipoVehiculo: '', contrasena: '' }
 
 function RegisterAccount() {
+  const { usuario, cargando, crearCuenta } = useSesion()
+  const location = useLocation()
   const [formulario, setFormulario] = useState(formularioInicial)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
-  const ventanaExito = useRef(null)
 
   function actualizarCampo(evento) {
     const { name, value } = evento.target
@@ -21,8 +24,8 @@ function RegisterAccount() {
     evento.preventDefault()
     if (enviando) return
 
-    const nombreCompleto = formulario.nombreCompleto.trim().replace(/\s+/g, ' ')
-    if (nombreCompleto.length < 2) {
+    const nombre = formulario.nombreCompleto.trim().replace(/\s+/g, ' ')
+    if (nombre.length < 2) {
       setError('Ingresa tu nombre completo.')
       evento.currentTarget.elements.nombreCompleto.focus()
       return
@@ -31,30 +34,25 @@ function RegisterAccount() {
       setError('Selecciona un tipo de vehículo válido.')
       return
     }
-    if (formulario.contrasena.trim().length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres sin contar espacios al inicio o al final.')
-      evento.currentTarget.elements.contrasena.focus()
-      return
-    }
 
     setError('')
     setEnviando(true)
     try {
-      await registrarUsuario({ ...formulario, nombreCompleto })
-      setFormulario(formularioInicial)
-      ventanaExito.current?.showModal()
+      await crearCuenta({
+        email: formulario.email,
+        contrasena: formulario.contrasena,
+        nombre,
+        documento: formulario.cedula,
+        vehiculo: formulario.tipoVehiculo,
+      })
     } catch (errorRegistro) {
-      if (errorRegistro.estado === 409) {
-        setError('Ya existe una cuenta con estos datos. Revisa tu cédula.')
-      } else if (errorRegistro.estado === 400 || errorRegistro.estado === 422) {
-        setError('No se pudo completar el registro. Revisa los datos ingresados.')
-      } else {
-        setError('No se pudo conectar con el servicio de registro. Inténtalo de nuevo más tarde.')
-      }
-    } finally {
+      setError(mensajeError(errorRegistro))
       setEnviando(false)
     }
   }
+
+  // El registro ya deja la sesión abierta.
+  if (!cargando && usuario) return <Navigate to={location.state?.desde ?? '/recarga'} replace />
 
   return (
     <section className={styles.page}>
@@ -66,6 +64,10 @@ function RegisterAccount() {
           <legend>Datos de registro</legend>
           <label htmlFor="nombreCompleto">Nombre completo</label>
           <input id="nombreCompleto" name="nombreCompleto" autoComplete="name" required minLength={2} maxLength={120} value={formulario.nombreCompleto} onChange={actualizarCampo} />
+
+          <label htmlFor="email">Correo electrónico</label>
+          <input id="email" name="email" type="email" autoComplete="username" required value={formulario.email} onChange={actualizarCampo} aria-describedby="ayudaEmail" />
+          <small id="ayudaEmail">Lo usarás para iniciar sesión.</small>
 
           <label htmlFor="cedula">Cédula</label>
           <input id="cedula" name="cedula" type="text" inputMode="numeric" pattern="[0-9]+" title="Ingresa tu cédula usando solo números, sin puntos ni espacios." required maxLength={15} value={formulario.cedula} onChange={actualizarCampo} aria-describedby="ayudaCedula" />
@@ -86,15 +88,10 @@ function RegisterAccount() {
         <button className={styles.primaryButton} type="submit" disabled={enviando}>
           {enviando ? 'Registrando…' : 'Registrarme'}
         </button>
+        <p className={styles.intro}>
+          ¿Ya tienes cuenta? <Link to="/inicio-sesion" state={location.state}>Inicia sesión</Link>
+        </p>
       </form>
-
-      <dialog ref={ventanaExito} className={styles.dialog} aria-labelledby="tituloRegistro" aria-describedby="descripcionRegistro">
-        <h2 id="tituloRegistro">¡Te has registrado con éxito!</h2>
-        <p id="descripcionRegistro">Tu cuenta ha sido creada correctamente.</p>
-        <button className={styles.primaryButton} type="button" disabled aria-describedby="ayudaTarjeta">Solicitar tarjeta</button>
-        <p id="ayudaTarjeta" className={styles.intro}>La solicitud de tarjeta estará disponible próximamente.</p>
-        <button className={styles.closeButton} type="button" autoFocus onClick={() => ventanaExito.current.close()}>Cerrar</button>
-      </dialog>
     </section>
   )
 }

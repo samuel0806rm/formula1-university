@@ -19,6 +19,8 @@ const PERMITIDAS = [
   ['POST', '/auth/refresh'],
   ['POST', '/auth/logout'],
   ['GET', '/auth/me'],
+  ['POST', '/auth/password'],
+  ['PUT', '/users/me'],
   ['GET', '/wallet'],
   ['GET', '/wallet/movements'],
   ['POST', '/wallet/topup'],
@@ -49,6 +51,26 @@ function leerCuerpo(req) {
   })
 }
 
+// Borrar un usuario en la API solo exige la clave del proyecto, asi que aqui se
+// comprueba con el token de quien llama que unicamente borre su propia cuenta.
+async function eliminarCuentaPropia(req, res) {
+  const perfil = await fetch(`${API_BASE_URL}/auth/me`, {
+    headers: { 'X-API-Key': API_TOKEN, Authorization: req.headers.authorization ?? '' },
+  })
+  if (!perfil.ok) {
+    res.writeHead(perfil.status, { 'Content-Type': 'application/json' })
+    return res.end(await perfil.text())
+  }
+
+  const { id } = await perfil.json()
+  const respuesta = await fetch(`${API_BASE_URL}/users/${id}`, {
+    method: 'DELETE',
+    headers: { 'X-API-Key': API_TOKEN },
+  })
+  res.writeHead(respuesta.status, { 'Content-Type': 'application/json' })
+  res.end(await respuesta.text())
+}
+
 const servidor = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost')
   if (!url.pathname.startsWith('/api/')) {
@@ -56,6 +78,10 @@ const servidor = http.createServer(async (req, res) => {
   }
 
   const ruta = url.pathname.slice('/api'.length)
+  if (req.method === 'DELETE' && ruta === '/users/me') {
+    return eliminarCuentaPropia(req, res).catch(() => responder(res, 502, { error: 'api_no_disponible' }))
+  }
+
   if (!PERMITIDAS.some(([m, p]) => m === req.method && p === ruta)) {
     return responder(res, 403, { error: 'ruta_no_permitida' })
   }

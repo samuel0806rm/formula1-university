@@ -1,23 +1,29 @@
+import { Link } from 'react-router-dom'
+import { pesos } from '../../utils/formato'
 import styles from './PaymentMethod.module.css'
 
-function PaymentMethod({ metodoPago, setMetodoPago }) {
-  const metodos = ['Tarjeta', 'PSE', 'Otro método']
+function PaymentMethod({ usuario, total, rutaActual }) {
+  const falta = usuario ? total - usuario.saldo : 0
 
   return (
     <section className={styles.payment}>
-      <h2>4. Método de pago</h2>
-      {metodos.map((metodo) => (
-        <label key={metodo} className={styles.option}>
-          <input
-            type="radio"
-            name="metodoPago"
-            value={metodo}
-            checked={metodoPago === metodo}
-            onChange={(event) => setMetodoPago(event.target.value)}
-          />
-          {metodo}
-        </label>
-      ))}
+      <h2>4. Pago con saldo</h2>
+      {usuario ? (
+        <>
+          <div className={styles.saldo}>
+            <span>Tu saldo</span>
+            <strong>{pesos(usuario.saldo)}</strong>
+          </div>
+          {falta > 0 && (
+            <p className={styles.note}>
+              Te faltan {pesos(falta)}.{' '}
+              <Link to="/recarga" state={{ desde: rutaActual, monto: falta }}>Recargar ahora</Link>
+            </p>
+          )}
+        </>
+      ) : (
+        <p className={styles.note}>La reserva se paga con el saldo de tu cuenta.</p>
+      )}
     </section>
   )
 }

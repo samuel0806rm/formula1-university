@@ -44,3 +44,28 @@
   color: var(--azul);
   font-weight: 700;
 }
+
+.reservation small {
+  color: #666;
+  font-size: 12px;
+}
+
+.reservation button:disabled,
+.marcar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.marcar {
+  padding: 8px 14px;
+  border: 2px solid var(--azul);
+  border-radius: 6px;
+  background: white;
+  color: var(--azul);
+  font-weight: 700;
+}
+
+.error {
+  color: #b3261e;
+  font-size: 14px;
+}

@@ -1,23 +1,28 @@
-import styles from './ReservationSummary.module.css'
+import { Link, useLocation } from 'react-router-dom'
+import { pesos } from '../../utils/formato'
 import PaymentMethod from '../PaymentMethod/PaymentMethod'
+import styles from './ReservationSummary.module.css'
 
 function ReservationSummary({
   parqueadero,
   plaza,
   placa,
+  placaValida,
   tiempoEspera,
   duracion,
   horaInicio,
   horaFin,
+  descuento,
   total,
-  metodoPago,
-  setMetodoPago,
+  usuario,
+  procesando,
+  error,
   onConfirm,
   onCancel,
-  confirmada,
 }) {
-  const placaLista = placa.trim().length > 0
-  const puedeConfirmar = Boolean(plaza) && placaLista
+  const location = useLocation()
+  const saldoSuficiente = Boolean(usuario) && usuario.saldo >= total
+  const puedeConfirmar = Boolean(plaza) && placaValida && saldoSuficiente && !procesando
 
   return (
     <aside className={styles.container}>
@@ -34,7 +39,7 @@ function ReservationSummary({
           </div>
           <div>
             <dt>Placa</dt>
-            <dd>{placaLista ? placa : 'Sin escribir'}</dd>
+            <dd>{placa || 'Sin escribir'}</dd>
           </div>
           <div>
             <dt>Tiempo de espera</dt>
@@ -50,33 +55,43 @@ function ReservationSummary({
           </div>
           <div>
             <dt>Tarifa por hora</dt>
-            <dd>${parqueadero.tarifaHora.toLocaleString('es-CO')}</dd>
+            <dd>{pesos(parqueadero.tarifaHora)}</dd>
           </div>
+          {descuento > 0 && (
+            <div>
+              <dt>Descuento</dt>
+              <dd>{descuento}%</dd>
+            </div>
+          )}
         </dl>
         <div className={styles.total}>
           <strong>Total a pagar</strong>
-          <strong className={styles.amount}>${total.toLocaleString('es-CO')}</strong>
+          <strong className={styles.amount}>{pesos(total)}</strong>
         </div>
       </section>
 
       <section className={styles.summary}>
-        <PaymentMethod metodoPago={metodoPago} setMetodoPago={setMetodoPago} />
+        <PaymentMethod usuario={usuario} total={total} rutaActual={location.pathname} />
       </section>
 
-      <button className={styles.confirmButton} type="button" onClick={onConfirm} disabled={!puedeConfirmar}>
-        Pagar y confirmar reserva
-      </button>
-      <button className={styles.cancelButton} type="button" onClick={onCancel}>
+      {usuario ? (
+        <button className={styles.confirmButton} type="button" onClick={onConfirm} disabled={!puedeConfirmar}>
+          {procesando ? 'Procesando pago…' : 'Pagar y confirmar reserva'}
+        </button>
+      ) : (
+        <Link className={styles.confirmButton} to="/inicio-sesion" state={{ desde: location.pathname }}>
+          Inicia sesión para reservar
+        </Link>
+      )}
+      <button className={styles.cancelButton} type="button" onClick={onCancel} disabled={procesando}>
         Cancelar
       </button>
 
       {!plaza && <p className={styles.validation}>Selecciona una plaza disponible para continuar.</p>}
-      {plaza && !placaLista && <p className={styles.validation}>Escribe la placa del vehículo para continuar.</p>}
-      {confirmada && (
-        <div className={styles.success} role="status">
-          Reserva de demostración confirmada para {plaza?.nombre}.
-        </div>
+      {plaza && !placaValida && (
+        <p className={styles.validation}>Escribe una placa válida, por ejemplo ABC 123 o ABC 12D.</p>
       )}
+      {error && <p className={styles.validation} role="alert">{error}</p>}
     </aside>
   )
 }

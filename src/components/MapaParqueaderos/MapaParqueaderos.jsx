@@ -14,16 +14,20 @@ function crearIcono(parqueadero, activo) {
   })
 }
 
-// Centra el mapa en el parqueadero elegido en el panel o en el marcador.
-function IrA({ parqueadero }) {
+const iconoUsuario = L.divIcon({ className: styles.usuario, iconSize: [18, 18] })
+
+// Centra el mapa en el punto elegido. Recibe números para volar solo cuando cambia.
+function IrA({ lat, lng }) {
   const mapa = useMap()
   useEffect(() => {
-    if (parqueadero) mapa.flyTo([parqueadero.lat, parqueadero.lng], 16)
-  }, [parqueadero, mapa])
+    if (lat !== undefined) mapa.flyTo([lat, lng], 16)
+  }, [lat, lng, mapa])
   return null
 }
 
-function MapaParqueaderos({ parqueaderos, seleccionado, onSeleccionar }) {
+function MapaParqueaderos({ parqueaderos, seleccionado, onSeleccionar, ubicacion }) {
+  const destino = seleccionado ?? ubicacion
+
   return (
     <MapContainer center={CENTRO_TUNJA} zoom={14} zoomControl={false} className={styles.mapa}>
       <TileLayer
@@ -31,7 +35,10 @@ function MapaParqueaderos({ parqueaderos, seleccionado, onSeleccionar }) {
         url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <ZoomControl position="bottomright" />
-      <IrA parqueadero={seleccionado} />
+      <IrA lat={destino?.lat} lng={destino?.lng} />
+      {ubicacion && (
+        <Marker position={[ubicacion.lat, ubicacion.lng]} icon={iconoUsuario} interactive={false} />
+      )}
       {parqueaderos.map((parqueadero) => (
         <Marker
           key={parqueadero.id}

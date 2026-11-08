@@ -1,64 +1,90 @@
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSesion } from '../../context/sesion'
+import { obtenerMovimientos } from '../../services/api'
+import { mensajeError } from '../../services/errores'
+import { guardarPreferencias, leerPreferencias } from '../../services/preferencias'
+import { fechaHora, pesos } from '../../utils/formato'
 import styles from './UserTransactions.module.css'
 
+const POR_PAGINA = 20
+const SIGNOS = { recarga: '+', cobro: '−', pasaje: '−' }
+
 function UserTransactions() {
-  const [transacciones, setTransacciones] = useState([
-    {
-      id: 1,
-      concepto: 'Reserva de parqueadero',
-      fecha: '05/11/2026',
-      valor: 7000,
-      leida: false,
-    },
-    {
-      id: 2,
-      concepto: 'Reserva de parqueadero',
-      fecha: '04/11/2026',
-      valor: 10500,
-      leida: false,
-    },
-    {
-      id: 3,
-      concepto: 'Reserva de parqueadero',
-      fecha: '03/11/2026',
-      valor: 3500,
-      leida: true,
-    },
-  ])
+  const { usuario } = useSesion()
+  const [movimientos, setMovimientos] = useState([])
+  const [total, setTotal] = useState(0)
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState('')
+  const [ultimoLeido, setUltimoLeido] = useState(() => leerPreferencias(usuario.id).ultimoMovimientoLeido)
+
+  useEffect(() => {
+    let activo = true
+    obtenerMovimientos({ limite: POR_PAGINA, desde: 0 })
+      .then((pagina) => {
+        if (!activo) return
+        setMovimientos(pagina.movimientos)
+        setTotal(pagina.total)
+      })
+      .catch((errorCarga) => activo && setError(mensajeError(errorCarga)))
+      .finally(() => activo && setCargando(false))
+    return () => {
+      activo = false
+    }
+  }, [])
+
+  async function cargarMas() {
+    setCargando(true)
+    setError('')
+    try {
+      const pagina = await obtenerMovimientos({ limite: POR_PAGINA, desde: movimientos.length })
+      setMovimientos((actuales) => [...actuales, ...pagina.movimientos])
+      setTotal(pagina.total)
+    } catch (errorCarga) {
+      setError(mensajeError(errorCarga))
+    } finally {
+      setCargando(false)
+    }
+  }
 
   function marcarTodoLeido() {
-    setTransacciones((actuales) =>
-      actuales.map((item) => ({
-        ...item,
-        leida: true,
-      }))
-    )
+    const ultimo = movimientos[0]?.id ?? ultimoLeido
+    setUltimoLeido(ultimo)
+    guardarPreferencias(usuario.id, { ultimoMovimientoLeido: ultimo })
   }
 
   return (
     <section className={styles.container}>
       <h2>Transacciones</h2>
 
-      <button onClick={marcarTodoLeido}>
+      <button type="button" onClick={marcarTodoLeido} disabled={movimientos.length === 0}>
         Marcar todo como leído
       </button>
 
-      {transacciones.map((item) => (
+      {error && <p role="alert">{error}</p>}
+      {!cargando && !error && movimientos.length === 0 && <p>Aún no tienes movimientos.</p>}
+
+      {movimientos.map((item) => (
         <div key={item.id} className={styles.transaction}>
           <div>
-            <h3>{item.concepto}</h3>
-            <p>{item.fecha}</p>
+            <h3>{item.concepto ?? item.operacion}</h3>
+            <p>{fechaHora(item.fecha)}</p>
             <strong>
-              ${item.valor.toLocaleString('es-CO')}
+              {SIGNOS[item.operacion] ?? ''}{pesos(item.monto)}
             </strong>
+            <p>Saldo: {pesos(item.saldo)}</p>
           </div>
 
           <span>
-            {item.leida ? 'Leída' : 'Nueva'}
+            {item.id <= ultimoLeido ? 'Leída' : 'Nueva'}
           </span>
         </div>
       ))}
+
+      {cargando && <p>Cargando…</p>}
+      {!cargando && movimientos.length < total && (
+        <button type="button" onClick={cargarMas}>Cargar más</button>
+      )}
     </section>
   )
 }
