@@ -34,7 +34,7 @@
 }
 
 .step {
-  color: #205c38;
+  color: var(--azul);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -57,14 +57,14 @@
   height: 64px;
   flex: 0 0 auto;
   place-items: center;
-  border: 2px solid #205c38;
+  border: 2px solid var(--azul);
   border-radius: 50%;
 }
 
 .cardIcon span {
   width: 30px;
   height: 21px;
-  border: 2px solid #205c38;
+  border: 2px solid var(--azul);
   border-radius: 3px;
 }
 
@@ -110,7 +110,7 @@
   margin-top: 22px;
   padding: 18px;
   border-radius: 6px;
-  background: #f0f5f1;
+  background: var(--azul-claro);
 }
 
 .balance > div {
@@ -125,7 +125,7 @@
 }
 
 .balance strong {
-  color: #205c38;
+  color: var(--azul);
   font-size: 24px;
 }
 
@@ -164,15 +164,15 @@
 }
 
 .optionSelected {
-  border-color: #205c38;
-  background: #f0f5f1;
+  border-color: var(--azul);
+  background: var(--azul-claro);
 }
 
 .option input,
 .optionSelected input,
 .autopay input {
   margin-top: 3px;
-  accent-color: #205c38;
+  accent-color: var(--azul);
 }
 
 .option span,
@@ -231,9 +231,9 @@
 .primaryButton {
   min-height: 44px;
   padding: 10px 18px;
-  border: 1px solid #205c38;
+  border: 1px solid var(--verde);
   border-radius: 4px;
-  background: #205c38;
+  background: var(--verde);
   color: white;
   font-weight: 700;
 }
@@ -247,8 +247,8 @@
   margin: 14px 0 0;
   padding: 12px;
   border-radius: 4px;
-  background: #f0f5f1;
-  color: #205c38;
+  background: var(--azul-claro);
+  color: var(--azul);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -257,7 +257,7 @@
 .amountInput input:focus-visible,
 .cardFields > input:focus-visible,
 .primaryButton:focus-visible {
-  outline: 3px solid #205c38;
+  outline: 3px solid var(--azul);
   outline-offset: 2px;
 }
 

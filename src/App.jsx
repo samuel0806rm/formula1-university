@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar/Navbar'
 import Footer from './components/Footer/Footer'
 import Home from './pages/Home'
+import Mapa from './pages/Mapa/Mapa'
 import Reservation from './pages/Reservation/Reservation'
 import RegisterAccount from './pages/RegisterAccount/RegisterAccount'
 import Login from './pages/Login/Login'
@@ -20,7 +21,8 @@ function App() {
         <main className={styles.content}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/reservas" element={<Reservation />} />
+            <Route path="/mapa" element={<Mapa />} />
+            <Route path="/reservas/:parqueaderoId?" element={<Reservation />} />
             <Route path="/registro" element={<RegisterAccount />} />
             <Route path="/inicio-sesion" element={<Login />} />
             <Route path="/recarga" element={<Recharge />} />

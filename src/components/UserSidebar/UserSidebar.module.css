@@ -1,36 +1,30 @@
-
 .sidebar {
   display: flex;
   flex-direction: column;
-  background: white;
-  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--gris-borde);
+  border-radius: 8px;
+  background: white;
 }
 
 .option,
 .active {
-  padding: 20px;
-  border: none;
+  padding: 16px 18px;
+  border: 0;
   border-bottom: 1px solid #eee;
-  text-align: left;
-  cursor: pointer;
-  font-size: 15px;
   background: white;
   color: #444;
+  font-size: 15px;
+  text-align: left;
 }
 
 .option:hover {
-  background: #f3f5f8;
+  background: var(--azul-claro);
 }
 
 .active {
-  background: #e8eefc;
-  color: #2455a4;
-  font-weight: bold;
-  border-left: 4px solid #2455a4;
-}
-
-button {
-  font-family: inherit;
+  border-left: 4px solid var(--azul);
+  background: var(--azul-claro);
+  color: var(--azul);
+  font-weight: 700;
 }

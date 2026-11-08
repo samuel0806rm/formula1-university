@@ -1,37 +1,35 @@
-
 .page {
-  padding: 30px;
-  min-height: 100vh;
-  background: #f5f6f8;
+  width: min(1100px, calc(100% - 32px));
+  margin: 24px auto 40px;
 }
 
 .pageHeader {
-  margin-bottom: 25px;
+  margin-bottom: 24px;
 }
 
 .pageHeader h1 {
-  font-size: 28px;
   margin-bottom: 8px;
-  color: #222;
+  font-size: 27px;
 }
 
 .pageHeader p {
-  color: #777;
+  color: #666;
+  font-size: 13px;
 }
 
 .layout {
   display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 25px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 24px;
   align-items: start;
 }
 
 .content {
+  min-height: 360px;
+  padding: 20px;
+  border: 1px solid var(--gris-borde);
+  border-radius: 8px;
   background: white;
-  border-radius: 12px;
-  padding: 25px;
-  min-height: 450px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 @media (max-width: 700px) {

@@ -15,6 +15,10 @@ function Navbar() {
             Inicio
           </NavLink>
 
+          <NavLink to="/mapa">
+            Mapa
+          </NavLink>
+
           <NavLink to="/reservas">
             Reservar
           </NavLink>

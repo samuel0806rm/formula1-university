@@ -1,6 +1,5 @@
 .header {
-  background: white;
-  border-bottom: 1px solid #ddd;
+  background: var(--azul);
 }
 
 .navbar {
@@ -17,27 +16,40 @@
 .brand {
   font-weight: 700;
   text-decoration: none;
-  color: #222;
+  color: white;
 }
 
 .links {
   display: flex;
-  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 18px;
 }
 
 .links a {
-  color: #444;
+  padding-bottom: 2px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
   text-decoration: none;
 }
 
-.links a.active {
-  font-weight: 700;
-  text-decoration: underline;
+.links a:hover {
+  color: white;
 }
 
-@media (max-width: 480px) {
+.links a.active {
+  border-bottom: 2px solid var(--verde-borde);
+  color: white;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
   .navbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .links {
+    justify-content: flex-start;
   }
 }

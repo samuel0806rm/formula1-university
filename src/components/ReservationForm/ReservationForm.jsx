@@ -5,6 +5,8 @@ function ReservationForm({
   setTiempoEspera,
   duracion,
   setDuracion,
+  placa,
+  setPlaca,
   horaInicio,
   horaFin,
 }) {
@@ -31,6 +33,17 @@ function ReservationForm({
             <option value={4}>4 horas</option>
             <option value={8}>8 horas</option>
           </select>
+        </label>
+
+        <label>
+          Placa del vehículo
+          <input
+            type="text"
+            value={placa}
+            maxLength={7}
+            placeholder="Ej.: ABC 123"
+            onChange={(event) => setPlaca(event.target.value.toUpperCase())}
+          />
         </label>
       </div>
 
