@@ -29,10 +29,10 @@ export const verificarClave = () => pedir('/key')
 export const iniciarSesion = (email, contrasena) =>
   pedir('/auth/login', { metodo: 'POST', cuerpo: { email, contrasena } })
 
-export const registrarUsuario = ({ nombreCompleto, cedula, tipoVehiculo, contrasena }) =>
+export const registrarUsuario = ({ nombreCompleto, email, cedula, contrasena }) =>
   pedir('/auth/register', {
     metodo: 'POST',
-    cuerpo: { nombreCompleto, cedula, tipoVehiculo, contrasena },
+    cuerpo: { nombre: nombreCompleto, email, documento: cedula, contrasena },
   })
 
 export const obtenerBilletera = (acceso) => pedir('/wallet', { acceso })
