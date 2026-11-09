@@ -21,3 +21,14 @@ button,
 a {
   cursor: pointer;
 }
+
+:root {
+  --azul: #153e90;
+  --azul-oscuro: #0f2e6c;
+  --azul-claro: #e8eef9;
+  --verde: #07892f;
+  --verde-claro: #e8f5ea;
+  --verde-borde: #76c17e;
+  --gris-ocupada: #e2e2e2;
+  --gris-borde: #cbcbcb;
+}
