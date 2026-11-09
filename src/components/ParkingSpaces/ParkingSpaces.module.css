@@ -1,6 +1,6 @@
 .panel {
-  border: 1px solid var(--gris-borde);
-  border-radius: 8px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
   padding: 16px;
   background: white;
 }
@@ -24,17 +24,16 @@
   flex-direction: column;
   justify-content: center;
   gap: 8px;
-  border: 2px solid var(--verde-borde);
-  border-radius: 8px;
-  background: var(--verde-claro);
+  border: 1px solid #999;
+  background: #fafafa;
   color: #222;
 }
 
 .space strong {
   width: 100%;
   padding: 10px 4px;
-  border: 0;
-  background: transparent;
+  border: 1px solid #bbb;
+  background: #eee;
   font-size: 18px;
 }
 
@@ -44,14 +43,12 @@
 }
 
 .space.selected {
-  border-color: var(--azul);
-  background: var(--azul);
-  color: white;
+  outline: 2px solid #333;
+  background: #f0f0f0;
 }
 
 .space.occupied {
-  border-color: var(--gris-borde);
-  background: var(--gris-ocupada);
+  background: #ddd;
   color: #777;
   cursor: not-allowed;
 }

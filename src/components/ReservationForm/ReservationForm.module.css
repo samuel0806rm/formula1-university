@@ -1,6 +1,6 @@
 .panel {
-  border: 1px solid var(--gris-borde);
-  border-radius: 8px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
   padding: 16px;
   background: white;
 }
@@ -23,13 +23,11 @@
   font-size: 13px;
 }
 
-.fields select,
-.fields input {
+.fields select {
   width: 100%;
   min-height: 38px;
   padding: 6px 8px;
-  border: 1px solid var(--gris-borde);
-  border-radius: 6px;
+  border: 1px solid #999;
   background: white;
 }
 
@@ -44,8 +42,4 @@
   .fields {
     grid-template-columns: 1fr;
   }
-}
-
-.fields input[aria-invalid='true'] {
-  border-color: #b3261e;
 }

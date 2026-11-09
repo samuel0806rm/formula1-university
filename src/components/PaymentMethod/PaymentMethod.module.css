@@ -1,10 +1,10 @@
 .payment {
-  margin: 0;
+  margin-top: 18px;
 }
 
 .payment h2 {
-  margin: 0 0 10px;
-  font-size: 18px;
+  margin-bottom: 10px;
+  font-size: 17px;
 }
 
 .option {
@@ -13,35 +13,12 @@
   gap: 8px;
   margin-top: 7px;
   padding: 9px;
-  border: 1px solid var(--gris-borde);
-  border-radius: 6px;
+  border: 1px solid #aaa;
   font-size: 13px;
-}
-
-.option:has(input:checked) {
-  border-color: var(--azul);
-  background: var(--azul-claro);
 }
 
 .note {
   margin-top: 10px;
   color: #666;
   font-size: 11px;
-}
-
-.saldo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 9px;
-  border: 1px solid var(--azul);
-  border-radius: 6px;
-  background: var(--azul-claro);
-  font-size: 13px;
-}
-
-.saldo strong {
-  color: var(--azul);
-  font-size: 16px;
 }
