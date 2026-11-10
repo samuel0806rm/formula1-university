@@ -44,9 +44,9 @@ export function SesionProvider({ children }) {
     setUsuario(await iniciarSesion(email, contrasena))
   }, [])
 
-  const crearCuenta = useCallback(async ({ vehiculo, ...datos }) => {
+  const crearCuenta = useCallback(async ({ vehiculo, tipoUsuario, ...datos }) => {
     const nuevo = await registrarUsuario(datos)
-    guardarPreferencias(nuevo.id, { vehiculo })
+    guardarPreferencias(nuevo.id, { vehiculo, tipoUsuario })
     setUsuario(nuevo)
   }, [])
 

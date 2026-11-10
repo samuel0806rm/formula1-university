@@ -26,7 +26,7 @@ function Login() {
     }
   }
 
-  if (!cargando && usuario) return <Navigate to={location.state?.desde ?? '/usuario'} replace />
+  if (!cargando && usuario) return <Navigate to="/" replace />
 
   return (
     <section className={styles.page}>

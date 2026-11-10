@@ -5,7 +5,7 @@ import { tiposVehiculo } from '../../data/vehiculos'
 import { mensajeError } from '../../services/errores'
 import styles from './RegisterAccount.module.css'
 
-const formularioInicial = { nombreCompleto: '', email: '', cedula: '', tipoVehiculo: '', contrasena: '' }
+const formularioInicial = { nombreCompleto: '', email: '', cedula: '', tipoVehiculo: '', tipoUsuario: '', contrasena: '' }
 
 function RegisterAccount() {
   const { usuario, cargando, crearCuenta } = useSesion()
@@ -34,6 +34,11 @@ function RegisterAccount() {
       setError('Selecciona un tipo de vehículo válido.')
       return
     }
+    if (!['usuario', 'propietario de parqueadero'].includes(formulario.tipoUsuario)) {
+      setError('Selecciona un tipo de usuario válido.')
+      evento.currentTarget.elements.tipoUsuario.focus()
+      return
+    }
     if (formulario.contrasena.length < 8) {
       setError('La contraseña debe tener al menos 8 caracteres.')
       evento.currentTarget.elements.contrasena.focus()
@@ -43,9 +48,14 @@ function RegisterAccount() {
     setError('')
     setEnviando(true)
     try {
-      await registrarUsuario({ ...formulario, nombreCompleto, email: formulario.email.trim() })
-      setFormulario(formularioInicial)
-      ventanaExito.current?.showModal()
+      await crearCuenta({
+        email: formulario.email.trim(),
+        contrasena: formulario.contrasena,
+        nombre,
+        documento: formulario.cedula,
+        vehiculo: formulario.tipoVehiculo,
+        tipoUsuario: formulario.tipoUsuario,
+      })
     } catch (errorRegistro) {
       if (errorRegistro.message === 'email_en_uso') {
         setError('Ya existe una cuenta con este correo electrónico. Inicia sesión con esa cuenta.')
@@ -70,7 +80,7 @@ function RegisterAccount() {
       } else if (errorRegistro.estado) {
         setError('El servicio devolvió un error al registrar tu cuenta. Inténtalo de nuevo más tarde.')
       } else {
-        setError('No se pudo conectar con el servicio de registro. Inténtalo de nuevo más tarde.')
+        setError(mensajeError(errorRegistro))
       }
     } finally {
       setEnviando(false)
@@ -78,7 +88,7 @@ function RegisterAccount() {
   }
 
   // El registro ya deja la sesión abierta.
-  if (!cargando && usuario) return <Navigate to={location.state?.desde ?? '/recarga'} replace />
+  if (!cargando && usuario) return <Navigate to="/" replace />
 
   return (
     <section className={styles.page}>
@@ -88,34 +98,51 @@ function RegisterAccount() {
       <form className={styles.form} onSubmit={registrarCuenta} aria-busy={enviando}>
         <fieldset disabled={enviando}>
           <legend>Datos de registro</legend>
-          <label htmlFor="nombreCompleto">Nombre completo</label>
-          <input id="nombreCompleto" name="nombreCompleto" autoComplete="name" required minLength={2} maxLength={120} value={formulario.nombreCompleto} onChange={actualizarCampo} />
-
-          <label htmlFor="email">Correo electrónico</label>
-          <input id="email" name="email" type="email" autoComplete="username" required value={formulario.email} onChange={actualizarCampo} aria-describedby="ayudaEmail" />
-          <small id="ayudaEmail">Lo usarás para iniciar sesión.</small>
-
-          <label htmlFor="cedula">Cédula</label>
-          <input id="cedula" name="cedula" type="text" inputMode="numeric" pattern="[0-9]+" title="Ingresa tu cédula usando solo números, sin puntos ni espacios." required maxLength={15} value={formulario.cedula} onChange={actualizarCampo} aria-describedby="ayudaCedula" />
-          <small id="ayudaCedula">Solo números, sin puntos ni espacios.</small>
-
-          <label htmlFor="tipoVehiculo">Tipo de vehículo</label>
-          <select id="tipoVehiculo" name="tipoVehiculo" required value={formulario.tipoVehiculo} onChange={actualizarCampo} aria-describedby="ayudaVehiculo">
-            <option value="" disabled>Selecciona tu tipo de vehículo</option>
-            {tiposVehiculo.map((tipo) => <option key={tipo} value={tipo}>{tipo}</option>)}
-          </select>
-          <small id="ayudaVehiculo">La selección de vehículo no se guardará con tu cuenta por ahora.</small>
-
-          <label htmlFor="contrasena">Contraseña</label>
-          <input id="contrasena" name="contrasena" type="password" autoComplete="new-password" required minLength={8} value={formulario.contrasena} onChange={actualizarCampo} aria-describedby="ayudaContrasena" />
-          <small id="ayudaContrasena">Usa al menos 8 caracteres. Evita contraseñas comunes y no uses tu correo electrónico como contraseña.</small>
+          <div className={styles.fields}>
+            <div className={styles.field}>
+              <label htmlFor="nombreCompleto">Nombre completo</label>
+              <input id="nombreCompleto" name="nombreCompleto" autoComplete="name" required minLength={2} maxLength={120} value={formulario.nombreCompleto} onChange={actualizarCampo} />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="email">Correo electrónico</label>
+              <input id="email" name="email" type="email" autoComplete="username" required value={formulario.email} onChange={actualizarCampo} aria-describedby="ayudaEmail" />
+              <small id="ayudaEmail">Lo usarás para iniciar sesión.</small>
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="cedula">Cédula</label>
+              <input id="cedula" name="cedula" type="text" inputMode="numeric" pattern="[0-9]+" title="Ingresa tu cédula usando solo números, sin puntos ni espacios." required maxLength={15} value={formulario.cedula} onChange={actualizarCampo} aria-describedby="ayudaCedula" />
+              <small id="ayudaCedula">Solo números, sin puntos ni espacios.</small>
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="tipoVehiculo">Tipo de vehículo</label>
+              <select id="tipoVehiculo" name="tipoVehiculo" required value={formulario.tipoVehiculo} onChange={actualizarCampo} aria-describedby="ayudaVehiculo">
+                <option value="" disabled>Selecciona tu tipo de vehículo</option>
+                {tiposVehiculo.map((tipo) => <option key={tipo} value={tipo}>{tipo}</option>)}
+              </select>
+              <small id="ayudaVehiculo">El tipo de vehículo se guardará en este navegador.</small>
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="contrasena">Contraseña</label>
+              <input id="contrasena" name="contrasena" type="password" autoComplete="new-password" required minLength={8} value={formulario.contrasena} onChange={actualizarCampo} aria-describedby="ayudaContrasena" />
+              <small id="ayudaContrasena">Usa al menos 8 caracteres. Evita contraseñas comunes y no uses tu correo electrónico como contraseña.</small>
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="tipoUsuario">Tipo de usuario</label>
+              <select id="tipoUsuario" name="tipoUsuario" required value={formulario.tipoUsuario} onChange={actualizarCampo} aria-describedby="ayudaTipoUsuario">
+                <option value="" disabled>Selecciona tu tipo de usuario</option>
+                <option value="usuario">usuario</option>
+                <option value="propietario de parqueadero">propietario de parqueadero</option>
+              </select>
+              <small id="ayudaTipoUsuario">Se guardará en este navegador.</small>
+            </div>
+          </div>
         </fieldset>
 
         {error && <p className={styles.error} role="alert">{error}</p>}
         <button className={styles.primaryButton} type="submit" disabled={enviando}>
           {enviando ? 'Registrando…' : 'Registrarme'}
         </button>
-        <p className={styles.intro}>
+        <p className={styles.alternativa}>
           ¿Ya tienes cuenta? <Link to="/inicio-sesion" state={location.state}>Inicia sesión</Link>
         </p>
       </form>
