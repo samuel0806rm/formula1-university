@@ -1,6 +1,22 @@
 .mapa {
   width: 100%;
   height: 100%;
+  background: #000717;
+}
+
+/* Tono del wireframe: las vías grises del mapa oscuro quedan en azul
+   sobre fondo azul marino. */
+.mapa :global(.leaflet-tile-pane) {
+  filter: sepia(1) hue-rotate(175deg) saturate(3) brightness(1.5);
+}
+
+.mapa :global(.leaflet-control-attribution) {
+  background: rgba(0, 7, 23, 0.7);
+  color: #e0e0e0;
+}
+
+.mapa :global(.leaflet-control-attribution a) {
+  color: #07ad2f;
 }
 
 .marcador {
@@ -9,14 +25,22 @@
   justify-content: center;
   border: 2px solid white;
   border-radius: 50%;
-  background: var(--verde);
+  background: #07ad2f;
   color: white;
   font-weight: 700;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  font-size: 13px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
 }
 
 .activo {
-  background: var(--azul);
+  background: #153e90;
+  transform-origin: center;
+  box-shadow: 0 0 0 4px rgba(7, 173, 47, 0.6);
+}
+
+.lleno {
+  background: #000e33;
+  border-color: #e0e0e0;
 }
 
 .usuario {
@@ -24,4 +48,100 @@
   border-radius: 50%;
   background: #1a73e8;
   box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.3);
+}
+
+/* Controles propios (abajo a la derecha) */
+.controles {
+  position: absolute;
+  right: 24px;
+  bottom: 32px;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.zoom {
+  display: grid;
+  gap: 6px;
+}
+
+.zoom button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: white;
+  color: #07ad2f;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.botonAyuda {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: #07ad2f;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.zoom button:focus-visible,
+.botonAyuda:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.ayuda {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  width: 260px;
+  padding: 14px;
+  border-radius: 20px 20px 0 20px;
+  background: #001a54;
+  color: white;
+  font-size: 13px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.ayuda strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.ayuda p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.muestra {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: #07ad2f;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.muestraActiva {
+  background: #153e90;
+}
+
+.muestraLlena {
+  background: #000e33;
+  border-color: #e0e0e0;
 }

@@ -8,7 +8,7 @@ import { listarReservas } from '../../services/reservas'
 import { distanciaKm } from '../../utils/distancia'
 import styles from './Mapa.module.css'
 
-const FILTROS_INICIALES = { texto: '', tarifaMaxima: '', soloConCupos: true, orden: 'precio' }
+const FILTROS_INICIALES = { texto: '', zona: '', tarifaMaxima: '', soloConCupos: true, orden: 'precio' }
 
 const COMPARADORES = {
   precio: (a, b) => a.tarifaHora - b.tarifaHora,
@@ -16,9 +16,12 @@ const COMPARADORES = {
   distancia: (a, b) => a.distancia - b.distancia,
 }
 
+const ZONAS = [...new Set(parqueaderos.map((parqueadero) => parqueadero.zona))].sort()
+
 function Mapa() {
   const ahora = useAhora()
   const [panelAbierto, setPanelAbierto] = useState(() => window.innerWidth >= 640)
+  const [pestana, setPestana] = useState('disponibles')
   const [seleccionadoId, setSeleccionadoId] = useState(null)
   const [filtros, setFiltros] = useState(FILTROS_INICIALES)
   const [ubicacion, setUbicacion] = useState(null)
@@ -34,12 +37,19 @@ function Mapa() {
     }))
     .filter((parqueadero) => (
       (!texto || `${parqueadero.nombre} ${parqueadero.direccion}`.toLowerCase().includes(texto))
+      && (!filtros.zona || parqueadero.zona === filtros.zona)
       && (!filtros.tarifaMaxima || parqueadero.tarifaHora <= Number(filtros.tarifaMaxima))
       && (!filtros.soloConCupos || parqueadero.cupos > 0)
     ))
     .sort(COMPARADORES[filtros.orden])
 
   const seleccionado = visibles.find((item) => item.id === seleccionadoId) ?? null
+
+  function seleccionar(id) {
+    setSeleccionadoId(id)
+    setPestana('disponibles')
+    setPanelAbierto(true)
+  }
 
   function ubicarme() {
     if (!navigator.geolocation) {
@@ -64,31 +74,35 @@ function Mapa() {
       <MapaParqueaderos
         parqueaderos={visibles}
         seleccionado={seleccionado}
-        onSeleccionar={setSeleccionadoId}
+        onSeleccionar={seleccionar}
         ubicacion={ubicacion}
       />
 
-      <div className={styles.overlay}>
+      <div className={`${styles.overlay} ${panelAbierto ? '' : styles.cerrado}`}>
+        <PanelDisponibles
+          id="panel-mapa"
+          pestana={pestana}
+          onCambiarPestana={setPestana}
+          parqueaderos={visibles}
+          seleccionadoId={seleccionadoId}
+          onSeleccionar={setSeleccionadoId}
+          filtros={filtros}
+          onCambiarFiltros={setFiltros}
+          zonas={ZONAS}
+          hayUbicacion={Boolean(ubicacion)}
+          onUbicarme={ubicarme}
+          estadoUbicacion={estadoUbicacion}
+        />
         <button
           type="button"
-          className={styles.filtros}
+          className={styles.pestanaPanel}
+          aria-controls="panel-mapa"
           aria-expanded={panelAbierto}
+          aria-label={panelAbierto ? 'Ocultar panel' : 'Mostrar panel'}
           onClick={() => setPanelAbierto((abierto) => !abierto)}
         >
-          Filtros
+          <span aria-hidden="true">{panelAbierto ? '◀' : '▶'}</span>
         </button>
-        {panelAbierto && (
-          <PanelDisponibles
-            parqueaderos={visibles}
-            seleccionadoId={seleccionadoId}
-            onSeleccionar={setSeleccionadoId}
-            filtros={filtros}
-            onCambiarFiltros={setFiltros}
-            hayUbicacion={Boolean(ubicacion)}
-            onUbicarme={ubicarme}
-            estadoUbicacion={estadoUbicacion}
-          />
-        )}
       </div>
     </section>
   )

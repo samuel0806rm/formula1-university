@@ -1,37 +1,68 @@
+/* Panel oscuro del mapa (wireframe: Disponibles / Filtros). */
 .panel {
-  width: min(340px, calc(100vw - 24px));
+  width: min(340px, calc(100vw - 72px));
   max-height: 100%;
-  overflow-y: auto;
-  padding: 16px;
-  border-radius: 8px;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 14px 16px 16px;
+  border-radius: 0 20px 20px 20px;
+  background: #001a54;
+  color: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
 }
 
 .panel h2 {
-  margin: 0 0 12px;
-  text-align: center;
-  font-size: 20px;
+  margin: 4px 0 14px;
+  font-size: 26px;
+  font-weight: 700;
 }
 
+.pestanas {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+
+.pestanas button {
+  padding: 2px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #e0e0e0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pestanas .pestanaActiva {
+  border-bottom-color: #07ad2f;
+  color: #07ad2f;
+}
+
+.lista,
+.filtros {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-color: #07ad2f transparent;
+}
+
+/* Tarjetas de parqueadero */
 .card {
-  margin-bottom: 10px;
-  border: 2px solid var(--verde);
-  border-radius: 8px;
-  background: var(--verde);
-  color: white;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: #153e90;
 }
 
 .card.activo {
-  border-color: var(--azul);
-  background: var(--azul);
+  outline: 2px solid #07ad2f;
 }
 
 .info {
   width: 100%;
   padding: 12px;
   display: grid;
-  gap: 6px;
+  gap: 8px;
   border: 0;
   background: transparent;
   color: inherit;
@@ -39,97 +70,119 @@
 }
 
 .info strong {
-  font-size: 18px;
+  font-size: 20px;
+}
+
+.detalle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.detalle small {
+  color: #e0e0e0;
+  font-size: 11px;
 }
 
 .cupos {
-  justify-self: start;
   padding: 2px 10px;
   border-radius: 999px;
-  background: white;
-  color: var(--verde);
-  font-size: 13px;
+  background: #07ad2f;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.activo .cupos {
-  color: var(--azul);
+.extra {
+  color: #e0e0e0;
+  font-size: 13px;
 }
 
 .reservar {
   display: block;
   margin: 0 12px 12px;
   padding: 8px;
-  border-radius: 6px;
-  background: white;
-  color: var(--azul);
+  border-radius: 10px 10px 0 10px;
+  background: #07ad2f;
+  color: white;
   font-weight: 700;
   text-align: center;
   text-decoration: none;
 }
 
-.panel {
-  flex: 0 1 auto;
-  min-height: 0;
+.card.lleno {
+  background: #000e33;
 }
 
+.lleno .cupos {
+  background: #e0e0e0;
+  color: #000717;
+}
+
+/* Filtros */
 .filtros {
   display: grid;
-  gap: 8px;
-  margin-bottom: 14px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #eee;
+  gap: 12px;
+  align-content: start;
+}
+
+.filtros label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 600;
 }
 
 .filtros input[type='search'],
 .filtros select {
   width: 100%;
   min-height: 36px;
-  padding: 6px 8px;
-  border: 1px solid var(--gris-borde);
-  border-radius: 6px;
-  background: white;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #153e90;
+  color: white;
+  font-style: normal;
 }
 
-.fila {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+.filtros input::placeholder {
+  color: #e0e0e0;
 }
 
-.fila label {
-  display: grid;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.casilla {
+.filtros .casilla {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 8px;
+  font-style: normal;
 }
 
-.ubicarme {
-  min-height: 36px;
-  border: 2px solid var(--azul);
-  border-radius: 6px;
-  background: white;
-  color: var(--azul);
+.casilla input {
+  accent-color: #07ad2f;
+}
+
+.principal,
+.secundario {
+  min-height: 38px;
+  border-radius: 10px 10px 0 10px;
   font-weight: 700;
+}
+
+.principal {
+  border: 0;
+  background: #07ad2f;
+  color: white;
+}
+
+.secundario {
+  border: 2px solid #07ad2f;
+  background: transparent;
+  color: white;
 }
 
 .estado {
   margin: 0;
-  color: #666;
+  color: #e0e0e0;
   font-size: 13px;
-}
-
-.card.lleno {
-  border-color: #777;
-  background: #777;
-}
-
-.lleno .cupos {
-  color: #555;
 }
