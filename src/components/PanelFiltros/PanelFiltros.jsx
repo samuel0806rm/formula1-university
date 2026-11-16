@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { tiposVehiculo } from '../../data/vehiculos'
 import { pesos } from '../../utils/formato'
 import styles from './PanelFiltros.module.css'
@@ -6,6 +7,12 @@ import styles from './PanelFiltros.module.css'
 const TARIFAS = [2500, 3000, 3500]
 
 function PanelFiltros({
+  pestana,
+  onCambiarPestana,
+  parqueaderos,
+  seleccionadoId,
+  onSeleccionar,
+  zonas,
   filtros,
   onCambiarFiltros,
   vehiculo,
@@ -23,8 +30,25 @@ function PanelFiltros({
   }
 
   return (
-    <aside className={styles.panel} aria-labelledby="tituloFiltros">
-      <h2 id="tituloFiltros">Filtros</h2>
+    <aside className={styles.panel} aria-label="Parqueaderos del mapa">
+      <div className={styles.pestanas} role="tablist">
+        {[['disponibles', 'Disponibles'], ['filtros', 'Filtros']].map(([id, texto]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={pestana === id}
+            className={pestana === id ? styles.pestanaActiva : ''}
+            onClick={() => onCambiarPestana(id)}
+          >
+            {texto}
+          </button>
+        ))}
+      </div>
+
+      {pestana === 'filtros' ? (
+        <div className={styles.contenido} role="tabpanel">
+          <h2>Filtros</h2>
 
       <div className={styles.vehiculo}>
         {cambiandoVehiculo ? (
@@ -74,6 +98,12 @@ function PanelFiltros({
       <button type="button" className={styles.principal} onClick={onUbicarme}>Usar ubicación cercana</button>
       {estadoUbicacion && <p className={styles.estado} role="status">{estadoUbicacion}</p>}
 
+      <label className={styles.etiqueta} htmlFor="filtroZona">Zona - Barrio</label>
+      <select id="filtroZona" value={filtros.zona} onChange={(evento) => cambiar('zona', evento.target.value)}>
+        <option value="">Todas</option>
+        {zonas.map((zona) => <option key={zona} value={zona}>{zona}</option>)}
+      </select>
+
       <label className={styles.etiqueta} htmlFor="filtroTarifa">Tarifa</label>
       <select id="filtroTarifa" value={filtros.tarifaMaxima} onChange={(evento) => cambiar('tarifaMaxima', evento.target.value)}>
         <option value="">Cualquiera</option>
@@ -86,7 +116,43 @@ function PanelFiltros({
         <option value="abierto">Abierto ahora</option>
       </select>
 
+      <button type="button" className={styles.principal} onClick={() => onCambiarPestana('disponibles')}>
+        Aplicar filtros ({parqueaderos.length})
+      </button>
       <button type="button" className={styles.secundario} onClick={onRestablecer}>Restablecer mapa</button>
+        </div>
+      ) : (
+        <div className={styles.contenido} role="tabpanel">
+          <h2>Disponibles</h2>
+          {parqueaderos.length === 0 && <p className={styles.estado}>Ningún parqueadero coincide con los filtros.</p>}
+          {parqueaderos.map((parqueadero) => {
+            const activo = seleccionadoId === parqueadero.id
+            const hayCupos = parqueadero.cupos > 0
+            return (
+              <div key={parqueadero.id} className={`${styles.tarjeta} ${activo ? styles.tarjetaActiva : ''}`}>
+                <button type="button" className={styles.tarjetaInfo} onClick={() => onSeleccionar(parqueadero.id)}>
+                  <strong>{parqueadero.nombre}</strong>
+                  <span className={styles.detalle}>
+                    <span className={hayCupos ? styles.cupos : `${styles.cupos} ${styles.sinCupos}`}>
+                      {hayCupos ? `${parqueadero.cupos} cupos disponibles` : 'Sin cupos'}
+                    </span>
+                    <small>{parqueadero.direccion}</small>
+                  </span>
+                  {activo && (
+                    <small>
+                      {pesos(parqueadero.tarifaHora).replace('$', '$ ')}/h · {parqueadero.zona}
+                      {parqueadero.distancia !== null && ` · ${parqueadero.distancia.toFixed(1)} km`}
+                    </small>
+                  )}
+                </button>
+                {activo && hayCupos && (
+                  <Link to={`/reservas/${parqueadero.id}`} className={styles.reservar}>Reservar</Link>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
     </aside>
   )
 }

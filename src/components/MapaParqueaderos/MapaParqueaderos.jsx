@@ -99,7 +99,7 @@ function MapaParqueaderos({ parqueaderos, seleccionado, onSeleccionar, ubicacion
             icon={crearIcono(parqueadero, seleccionado?.id === parqueadero.id)}
             eventHandlers={{ click: () => onSeleccionar(parqueadero.id) }}
           >
-            <Tooltip permanent direction="top" className={styles.burbuja} opacity={1}>
+            <Tooltip key={seleccionado?.id === parqueadero.id ? 'fija' : 'hover'} permanent={seleccionado?.id === parqueadero.id} direction="top" className={styles.burbuja} opacity={1}>
               <span className={styles.nombre}>{parqueadero.nombre}</span>
               <span className={parqueadero.cupos > 0 ? styles.libres : styles.llenos}>
                 {pesos(parqueadero.tarifaHora).replace('$', '$ ')}/h · {parqueadero.cupos > 0 ? `${parqueadero.cupos} libres` : 'sin cupos'}

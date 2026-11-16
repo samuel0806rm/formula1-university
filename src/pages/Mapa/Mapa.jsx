@@ -10,11 +10,15 @@ import { listarReservas } from '../../services/reservas'
 import { distanciaKm } from '../../utils/distancia'
 import styles from './Mapa.module.css'
 
-const FILTROS_INICIALES = { texto: '', tarifaMaxima: '', horario: '' }
+const FILTROS_INICIALES = { texto: '', zona: '', tarifaMaxima: '', horario: '' }
+
+const ZONAS = [...new Set(parqueaderos.map((parqueadero) => parqueadero.zona))].sort()
 
 function Mapa() {
   const { usuario } = useSesion()
   const ahora = useAhora()
+  const [panelAbierto, setPanelAbierto] = useState(() => window.innerWidth >= 640)
+  const [pestana, setPestana] = useState('disponibles')
   const [seleccionadoId, setSeleccionadoId] = useState(null)
   const [filtros, setFiltros] = useState(FILTROS_INICIALES)
   const [ubicacion, setUbicacion] = useState(null)
@@ -32,6 +36,7 @@ function Mapa() {
 
   const visibles = conDatos.filter((parqueadero) => (
     (!texto || `${parqueadero.nombre} ${parqueadero.direccion}`.toLowerCase().includes(texto))
+    && (!filtros.zona || parqueadero.zona === filtros.zona)
     && (!filtros.tarifaMaxima || parqueadero.tarifaHora <= Number(filtros.tarifaMaxima))
     && (filtros.horario !== 'abierto' || abiertoAhora(parqueadero, ahora))
   ))
@@ -47,6 +52,14 @@ function Mapa() {
   function elegir(id) {
     setSeleccionadoId(id)
     setFiltros((actuales) => ({ ...actuales, texto: '' }))
+    setPestana('disponibles')
+  }
+
+  // Al tocar un pin se abre la lista con ese parqueadero marcado.
+  function desdeMapa(id) {
+    setSeleccionadoId(id)
+    setPestana('disponibles')
+    setPanelAbierto(true)
   }
 
   function ubicarme() {
@@ -84,14 +97,20 @@ function Mapa() {
         <MapaParqueaderos
           parqueaderos={visibles}
           seleccionado={seleccionado}
-          onSeleccionar={setSeleccionadoId}
+          onSeleccionar={desdeMapa}
           ubicacion={ubicacion}
           versionReinicio={versionReinicio}
         />
       </div>
 
-      <div className={styles.panel}>
+      <div className={`${styles.panel} ${panelAbierto ? '' : styles.cerrado}`}>
         <PanelFiltros
+          pestana={pestana}
+          onCambiarPestana={setPestana}
+          parqueaderos={visibles}
+          seleccionadoId={seleccionadoId}
+          onSeleccionar={setSeleccionadoId}
+          zonas={ZONAS}
           filtros={filtros}
           onCambiarFiltros={setFiltros}
           vehiculo={vehiculo}
@@ -102,6 +121,15 @@ function Mapa() {
           estadoUbicacion={estadoUbicacion}
           onRestablecer={restablecer}
         />
+        <button
+          type="button"
+          className={styles.pestanaPanel}
+          aria-expanded={panelAbierto}
+          aria-label={panelAbierto ? 'Ocultar panel' : 'Mostrar panel'}
+          onClick={() => setPanelAbierto((abierto) => !abierto)}
+        >
+          <span aria-hidden="true">{panelAbierto ? '◀' : '▶'}</span>
+        </button>
       </div>
     </section>
   )

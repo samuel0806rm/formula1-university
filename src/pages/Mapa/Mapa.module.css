@@ -23,10 +23,33 @@
   display: flex;
   align-items: flex-start;
   pointer-events: none;
+  transition: transform 0.25s ease;
 }
 
 .panel > * {
   pointer-events: auto;
+}
+
+.panel > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Cerrado: el panel se esconde y solo queda la pestaña verde. */
+.cerrado {
+  transform: translateX(calc(-100% + 28px));
+}
+
+.pestanaPanel {
+  flex: none;
+  width: 28px;
+  height: 56px;
+  margin-top: 24px;
+  border: 0;
+  border-radius: 0 var(--radio) var(--radio) 0;
+  background: var(--accion);
+  color: #fff;
+  font-size: 13px;
 }
 
 @media (max-width: 640px) {
