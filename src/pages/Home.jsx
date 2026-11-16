@@ -39,15 +39,23 @@ function PanelUsuario({ usuario, ahora }) {
   )
 }
 
+const INTERVALO_CARRUSEL = 4000
+
 function Carrusel({ items, ahora }) {
   const pista = useRef(null)
-  const [pagina, setPagina] = useState(0)
-  const [paginas, setPaginas] = useState(1)
+  const [posicion, setPosicion] = useState(0)
+  const [posiciones, setPosiciones] = useState(1)
+  const [pausado, setPausado] = useState(false)
+
+  function paso() {
+    const tarjeta = pista.current.firstElementChild
+    return tarjeta.offsetWidth + 24
+  }
 
   useEffect(() => {
     const el = pista.current
     function medir() {
-      setPaginas(Math.max(1, Math.round(el.scrollWidth / el.clientWidth)))
+      setPosiciones(Math.max(1, Math.ceil((el.scrollWidth - el.clientWidth - 2) / paso()) + 1))
     }
     medir()
     window.addEventListener('resize', medir)
@@ -56,16 +64,34 @@ function Carrusel({ items, ahora }) {
 
   function mover(direccion) {
     const el = pista.current
-    el.scrollBy({ left: direccion * el.clientWidth, behavior: 'smooth' })
+    const maximo = el.scrollWidth - el.clientWidth - 2
+    if (direccion > 0 && el.scrollLeft >= maximo) el.scrollTo({ left: 0, behavior: 'smooth' })
+    else if (direccion < 0 && el.scrollLeft <= 2) el.scrollTo({ left: maximo, behavior: 'smooth' })
+    else el.scrollBy({ left: direccion * paso(), behavior: 'smooth' })
   }
 
+  // Avanza solo cada pocos segundos; se detiene al pasar el mouse o con el foco dentro.
+  useEffect(() => {
+    const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (pausado || sinMovimiento) return undefined
+    const temporizador = setInterval(() => mover(1), INTERVALO_CARRUSEL)
+    return () => clearInterval(temporizador)
+    // mover solo usa la referencia a la pista, no cambia entre renderizados.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pausado])
+
   function alDesplazar() {
-    const el = pista.current
-    setPagina(Math.round(el.scrollLeft / el.clientWidth))
+    setPosicion(Math.round(pista.current.scrollLeft / paso()))
   }
 
   return (
-    <div className={styles.carrusel}>
+    <div
+      className={styles.carrusel}
+      onMouseEnter={() => setPausado(true)}
+      onMouseLeave={() => setPausado(false)}
+      onFocus={() => setPausado(true)}
+      onBlur={() => setPausado(false)}
+    >
       <div className={styles.fila}>
         <button type="button" className={styles.flecha} aria-label="Anteriores" onClick={() => mover(-1)}>
           <Flecha direccion="izquierda" />
@@ -93,10 +119,10 @@ function Carrusel({ items, ahora }) {
           <Flecha />
         </button>
       </div>
-      {paginas > 1 && (
+      {posiciones > 1 && (
         <div className={styles.puntos} aria-hidden="true">
-          {Array.from({ length: paginas }, (_, i) => (
-            <span key={i} className={i === pagina ? styles.puntoActivo : ''} />
+          {Array.from({ length: posiciones }, (_, i) => (
+            <span key={i} className={i === Math.min(posicion, posiciones - 1) ? styles.puntoActivo : ''} />
           ))}
         </div>
       )}

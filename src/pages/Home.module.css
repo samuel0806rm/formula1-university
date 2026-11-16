@@ -246,3 +246,7 @@
     flex-basis: 100%;
   }
 }
+
+.carrusel {
+  position: relative;
+}
