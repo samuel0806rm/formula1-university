@@ -1,6 +1,7 @@
 .home {
   padding: 24px var(--margen);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
 }
 
@@ -249,4 +250,5 @@
 
 .carrusel {
   position: relative;
+  min-width: 0;
 }
