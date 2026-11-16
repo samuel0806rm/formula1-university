@@ -1,97 +1,123 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import L from 'leaflet'
-import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet'
+import { Link } from 'react-router-dom'
+import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+import { pesos } from '../../utils/formato'
+import { Mas, Menos } from '../Iconos/Iconos'
 import styles from './MapaParqueaderos.module.css'
 
 const CENTRO_TUNJA = [5.5353, -73.3678]
 
+const pinSvg = (color) => `<svg width="39" height="52" viewBox="0 0 39 52" aria-hidden="true"><path d="M19.5 0C8.7 0 0 8.6 0 19.3c0 14.4 17.1 30.9 18.3 32.1.7.7 1.7.7 2.4 0C21.9 50.2 39 33.7 39 19.3 39 8.6 30.3 0 19.5 0Z" fill="${color}"/><circle cx="19.5" cy="19.5" r="7.5" fill="#fff"/></svg>`
+
 function crearIcono(parqueadero, activo) {
   return L.divIcon({
-    className: `${styles.marcador} ${activo ? styles.activo : ''} ${parqueadero.cupos > 0 ? '' : styles.lleno}`,
-    html: `P${parqueadero.id}`,
-    iconSize: [34, 34],
+    className: `${styles.pin} ${activo ? styles.pinActivo : ''}`,
+    html: pinSvg(parqueadero.cupos > 0 ? '#07ad2f' : '#7a7a7a'),
+    iconSize: [39, 52],
+    iconAnchor: [19, 52],
+    tooltipAnchor: [0, -52],
+    popupAnchor: [0, -52],
   })
 }
 
 const iconoUsuario = L.divIcon({ className: styles.usuario, iconSize: [18, 18] })
 
 // Centra el mapa en el punto elegido. Recibe números para volar solo cuando cambia.
-function IrA({ lat, lng }) {
+function IrA({ lat, lng, version }) {
   const mapa = useMap()
   useEffect(() => {
     if (lat !== undefined) mapa.flyTo([lat, lng], 16)
-  }, [lat, lng, mapa])
+    else mapa.flyTo(CENTRO_TUNJA, 14)
+  }, [lat, lng, version, mapa])
   return null
 }
 
-// Zoom y ayuda con el estilo del wireframe (abajo a la derecha).
-function Controles() {
+// Botones de zoom redondos del diseño (abajo a la derecha).
+function Zoom() {
   const mapa = useMap()
   const contenedor = useRef(null)
-  const [ayudaAbierta, setAyudaAbierta] = useState(false)
 
-  // Evita que los clics en los botones arrastren o hagan zoom en el mapa.
   useEffect(() => {
     L.DomEvent.disableClickPropagation(contenedor.current)
     L.DomEvent.disableScrollPropagation(contenedor.current)
   }, [])
 
   return (
-    <div ref={contenedor} className={styles.controles}>
-      {ayudaAbierta && (
-        <div className={styles.ayuda} role="dialog" aria-label="Cómo usar el mapa">
-          <strong>Cómo usar el mapa</strong>
-          <p><span className={styles.muestra}>P</span> Parqueadero con cupos. Tócalo para verlo en la lista.</p>
-          <p><span className={`${styles.muestra} ${styles.muestraActiva}`}>P</span> Parqueadero seleccionado.</p>
-          <p><span className={`${styles.muestra} ${styles.muestraLlena}`}>P</span> Sin cupos en este momento.</p>
-          <p>Usa la pestaña Filtros para buscar por zona, tarifa o cercanía.</p>
-        </div>
-      )}
-      <button
-        type="button"
-        className={styles.botonAyuda}
-        aria-label="Ayuda del mapa"
-        aria-expanded={ayudaAbierta}
-        onClick={() => setAyudaAbierta((abierta) => !abierta)}
-      >
-        ?
-      </button>
-      <div className={styles.zoom}>
-        <button type="button" aria-label="Acercar" onClick={() => mapa.zoomIn()}>+</button>
-        <button type="button" aria-label="Alejar" onClick={() => mapa.zoomOut()}>−</button>
-      </div>
+    <div ref={contenedor} className={styles.zoom}>
+      <button type="button" aria-label="Acercar" onClick={() => mapa.zoomIn()}><Mas width="28" height="28" /></button>
+      <button type="button" aria-label="Alejar" onClick={() => mapa.zoomOut()}><Menos width="28" height="28" /></button>
     </div>
   )
 }
 
-function MapaParqueaderos({ parqueaderos, seleccionado, onSeleccionar, ubicacion }) {
-  const destino = seleccionado ?? ubicacion
+// Filtros de color (en el documento) que convierten las calles grises del estilo oscuro de CARTO
+// en líneas azules sobre fondo blanco (claro) o sobre azul noche (oscuro).
+function FiltrosCalles() {
+  return (
+    <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true" focusable="false">
+      <filter id="calles-claro" colorInterpolationFilters="sRGB">
+        <feColorMatrix
+          type="matrix"
+          values="-1.561 -5.251 -0.531 0 1.514  -1.287 -4.33 -0.4375 0 1.424  -0.7395 -2.488 -0.2514 0 1.244  0 0 0 1 0"
+        />
+      </filter>
+      <filter id="calles-oscuro" colorInterpolationFilters="sRGB">
+        <feColorMatrix
+          type="matrix"
+          values="0.527 1.773 0.179 0 -0.174  0.804 2.705 0.273 0 -0.238  1.343 4.52 0.457 0 -0.352  0 0 0 1 0"
+        />
+      </filter>
+    </svg>
+  )
+}
+
+function MapaParqueaderos({ parqueaderos, seleccionado, onSeleccionar, ubicacion, versionReinicio }) {
+  const destino = seleccionado ?? undefined
 
   return (
-    <MapContainer center={CENTRO_TUNJA} zoom={14} zoomControl={false} className={styles.mapa}>
-      {/* Datos de OpenStreetMap con el estilo oscuro gratuito de CARTO (no pide clave).
-          El tono azul del wireframe se aplica con CSS (.mapa). */}
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        subdomains="abcd"
-        maxZoom={19}
-      />
-      <Controles />
-      <IrA lat={destino?.lat} lng={destino?.lng} />
-      {ubicacion && (
-        <Marker position={[ubicacion.lat, ubicacion.lng]} icon={iconoUsuario} interactive={false} />
-      )}
-      {parqueaderos.map((parqueadero) => (
-        <Marker
-          key={parqueadero.id}
-          position={[parqueadero.lat, parqueadero.lng]}
-          icon={crearIcono(parqueadero, seleccionado?.id === parqueadero.id)}
-          eventHandlers={{ click: () => onSeleccionar(parqueadero.id) }}
+    <div className={styles.contenedor}>
+      <FiltrosCalles />
+      <MapContainer center={CENTRO_TUNJA} zoom={14} zoomControl={false} className={styles.mapa}>
+        {/* Datos de OpenStreetMap con el estilo gratuito de CARTO (no pide clave).
+            Los colores del diseño se aplican con CSS (.mapa). */}
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+          subdomains="abcd"
+          maxZoom={19}
         />
-      ))}
-    </MapContainer>
+        <Zoom />
+        <IrA lat={destino?.lat} lng={destino?.lng} version={versionReinicio} />
+        {ubicacion && (
+          <Marker position={[ubicacion.lat, ubicacion.lng]} icon={iconoUsuario} interactive={false} />
+        )}
+        {parqueaderos.map((parqueadero) => (
+          <Marker
+            key={parqueadero.id}
+            position={[parqueadero.lat, parqueadero.lng]}
+            icon={crearIcono(parqueadero, seleccionado?.id === parqueadero.id)}
+            eventHandlers={{ click: () => onSeleccionar(parqueadero.id) }}
+          >
+            <Tooltip permanent direction="top" className={styles.burbuja} opacity={1}>
+              <span className={styles.nombre}>{parqueadero.nombre}</span>
+              <span className={parqueadero.cupos > 0 ? styles.libres : styles.llenos}>
+                {pesos(parqueadero.tarifaHora).replace('$', '$ ')}/h · {parqueadero.cupos > 0 ? `${parqueadero.cupos} libres` : 'sin cupos'}
+              </span>
+            </Tooltip>
+            {parqueadero.cupos > 0 && (
+              <Popup className={styles.popup} closeButton={false} offset={[0, -14]}>
+                <strong>{parqueadero.nombre}</strong>
+                <span>{parqueadero.direccion} · {parqueadero.zona}</span>
+                {parqueadero.distancia !== null && <span>{parqueadero.distancia.toFixed(1)} km de ti</span>}
+                <Link to={`/reservas/${parqueadero.id}`} className={styles.reservar}>Reservar</Link>
+              </Popup>
+            )}
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
   )
 }
 

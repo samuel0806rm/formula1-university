@@ -1,39 +1,127 @@
-.page {
-  width: min(1100px, calc(100% - 32px));
-  margin: 24px auto 40px;
+.pagina {
+  min-height: calc(100vh - 128px);
+  padding: 48px var(--margen);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.3fr);
+  align-items: start;
+  gap: 24px;
 }
 
-.pageHeader {
+.perfil,
+.cuenta {
+  padding: 28px 32px;
+  border-radius: var(--radio);
+  background: var(--recuadro);
+}
+
+.cabecera {
   margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
-.pageHeader h1 {
-  margin-bottom: 8px;
-  font-size: 27px;
+.avatar {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accion);
 }
 
-.pageHeader p {
-  color: #666;
+.perfil h1 {
+  margin: 0;
+  font-size: clamp(30px, 3vw, 48px);
+  line-height: 1.1;
+}
+
+.rol {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 14px;
+  border-radius: 0 var(--radio) var(--radio) 0;
+  background: var(--accion);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.perfil h2,
+.cuenta h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--titulo-h3);
+}
+
+.datos {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.datos div {
+  padding: 14px 20px;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+}
+
+.datos dt {
   font-size: 13px;
 }
 
-.layout {
+.datos dd {
+  margin: 2px 0 0;
+  font-size: 18px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.cuenta {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: 24px;
-  align-items: start;
+  gap: 12px;
 }
 
-.content {
-  min-height: 360px;
-  padding: 20px;
-  border: 1px solid var(--gris-borde);
-  border-radius: 8px;
-  background: white;
+.cuenta p {
+  margin: 0 0 4px;
+  font-size: 15px;
 }
 
-@media (max-width: 700px) {
-  .layout {
+.opcion,
+.activo,
+.peligro {
+  min-height: 44px;
+  border: 2px solid var(--accion);
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.opcion {
+  background: var(--recuadro-interno);
+  color: var(--accion);
+}
+
+.activo {
+  background: var(--accion);
+  color: #fff;
+}
+
+.peligro {
+  border-color: var(--alerta);
+  background: var(--recuadro-interno);
+  color: var(--alerta);
+}
+
+.error {
+  color: var(--alerta);
+}
+
+@media (max-width: 900px) {
+  .pagina {
     grid-template-columns: 1fr;
   }
 }

@@ -1,12 +1,10 @@
 .header {
-  background: var(--azul);
+  background: var(--navbar-footer);
 }
 
 .navbar {
-  max-width: 1100px;
-  min-height: 64px;
-  margin: auto;
-  padding: 12px 20px;
+  height: 80px;
+  padding: 0 var(--margen);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -14,64 +12,60 @@
 }
 
 .brand {
-  font-weight: 700;
-  text-decoration: none;
-  color: white;
+  display: flex;
+  align-items: center;
 }
 
 .links {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px 18px;
+  align-items: center;
+  gap: 8px;
 }
 
 .links a {
-  padding-bottom: 2px;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
   text-decoration: none;
 }
 
 .links a:hover {
-  color: white;
+  background: rgba(255, 255, 255, 0.12);
 }
 
-.links a.active {
-  border-bottom: 2px solid var(--verde-borde);
-  color: white;
-  font-weight: 700;
+.links a:global(.active) {
+  background: var(--accion);
 }
 
-@media (max-width: 700px) {
+.tema {
+  width: 44px;
+  height: 44px;
+  margin-left: 12px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accion);
+  color: #fff;
+}
+
+@media (max-width: 640px) {
   .navbar {
-    align-items: flex-start;
-    flex-direction: column;
+    height: auto;
+    min-height: 72px;
+    flex-wrap: wrap;
+    padding-block: 10px;
   }
-
-  .links {
-    justify-content: flex-start;
+  .links a {
+    padding: 0 12px;
+    font-size: 16px;
   }
-}
-
-.links {
-  align-items: center;
-}
-
-.links a.saldo {
-  padding: 3px 10px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--verde);
-  color: white;
-  font-weight: 700;
-}
-
-.salir {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 14px;
-  text-decoration: underline;
+  .tema {
+    margin-left: 4px;
+  }
 }

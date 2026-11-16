@@ -1,46 +1,43 @@
 .page {
   position: relative;
-  height: calc(100vh - 130px);
-  min-height: 480px;
-  background: #000717;
-  font-family: 'Gantari', Arial, Helvetica, sans-serif;
+  height: calc(100vh - 128px);
+  min-height: 560px;
+  margin: 24px var(--margen);
 }
 
-/* Panel y pestaña flotan sobre el mapa (por encima de los controles de Leaflet). */
-.overlay {
+.mapaCaja {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--fondo);
+}
+
+/* El panel flota sobre el mapa, a la izquierda. */
+.panel {
   position: absolute;
   top: 16px;
   left: 16px;
   bottom: 16px;
   z-index: 1100;
+  width: min(420px, calc(100% - 16px));
   display: flex;
   align-items: flex-start;
-  transition: transform 0.25s ease;
   pointer-events: none;
 }
 
-.overlay > * {
+.panel > * {
   pointer-events: auto;
 }
 
-/* Cerrado: el panel se esconde a la izquierda y solo queda la pestaña verde. */
-.cerrado {
-  transform: translateX(calc(-1 * min(340px, calc(100vw - 72px)) - 16px));
-}
-
-.pestanaPanel {
-  width: 28px;
-  height: 56px;
-  margin-top: 24px;
-  border: 0;
-  border-radius: 0 10px 10px 0;
-  background: #07ad2f;
-  color: white;
-  font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-}
-
-.pestanaPanel:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 2px;
+@media (max-width: 640px) {
+  .page {
+    margin: 0;
+    height: calc(100vh - 150px);
+  }
+  .panel {
+    top: 8px;
+    left: 8px;
+    bottom: auto;
+    max-height: 60%;
+  }
 }
