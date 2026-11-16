@@ -52,7 +52,7 @@ function Zoom() {
   )
 }
 
-// Filtros de color (en el documento) que convierten las calles grises del estilo oscuro de CARTO
+// Filtros de color (en el documento) que convierten el mapa estándar de OpenStreetMap
 // en líneas azules sobre fondo blanco (claro) o sobre azul noche (oscuro).
 function FiltrosCalles() {
   return (
@@ -60,13 +60,13 @@ function FiltrosCalles() {
       <filter id="calles-claro" colorInterpolationFilters="sRGB">
         <feColorMatrix
           type="matrix"
-          values="-1.561 -5.251 -0.531 0 1.514  -1.287 -4.33 -0.4375 0 1.424  -0.7395 -2.488 -0.2514 0 1.244  0 0 0 1 0"
+          values="0.624 2.101 0.212 0 -1.732  0.515 1.733 0.175 0 -1.253  0.296 0.996 0.1 0 -0.2946  0 0 0 1 0"
         />
       </filter>
       <filter id="calles-oscuro" colorInterpolationFilters="sRGB">
         <feColorMatrix
           type="matrix"
-          values="0.527 1.773 0.179 0 -0.174  0.804 2.705 0.273 0 -0.238  1.343 4.52 0.457 0 -0.352  0 0 0 1 0"
+          values="-0.33 -1.108 -0.112 0 1.4415  -0.503 -1.692 -0.171 0 2.227  -0.84 -2.825 -0.285 0 3.764  0 0 0 1 0"
         />
       </filter>
     </svg>
@@ -80,12 +80,11 @@ function MapaParqueaderos({ parqueaderos, seleccionado, onSeleccionar, ubicacion
     <div className={styles.contenedor}>
       <FiltrosCalles />
       <MapContainer center={CENTRO_TUNJA} zoom={14} zoomControl={false} className={styles.mapa}>
-        {/* Datos de OpenStreetMap con el estilo gratuito de CARTO (no pide clave).
-            Los colores del diseño se aplican con CSS (.mapa). */}
+        {/* Mosaicos oficiales de OpenStreetMap (sin clave). CARTO ahora exige API key.
+            Los colores del diseño se aplican con filtros CSS (.mapa). */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
-          subdomains="abcd"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           maxZoom={19}
         />
         <Zoom />
