@@ -2,3 +2,6 @@ node_modules
 dist
 .env
 .DS_Store
+tests/resultados/
+playwright-report/
+*.tmp.mjs

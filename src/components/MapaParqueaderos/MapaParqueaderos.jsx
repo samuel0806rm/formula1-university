@@ -1,24 +1,23 @@
 import { useEffect, useRef } from 'react'
 import L from 'leaflet'
-import { Link } from 'react-router-dom'
-import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from 'react-leaflet'
+import { MapContainer, Marker, TileLayer, Tooltip, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { pesos } from '../../utils/formato'
-import { Mas, Menos } from '../Iconos/Iconos'
+import { Ayuda, Mas, Menos, Reiniciar } from '../Iconos/Iconos'
 import styles from './MapaParqueaderos.module.css'
 
 const CENTRO_TUNJA = [5.5353, -73.3678]
 
-const pinSvg = (color) => `<svg width="39" height="52" viewBox="0 0 39 52" aria-hidden="true"><path d="M19.5 0C8.7 0 0 8.6 0 19.3c0 14.4 17.1 30.9 18.3 32.1.7.7 1.7.7 2.4 0C21.9 50.2 39 33.7 39 19.3 39 8.6 30.3 0 19.5 0Z" fill="${color}"/><circle cx="19.5" cy="19.5" r="7.5" fill="#fff"/></svg>`
-
-function crearIcono(parqueadero, activo) {
+// Marcadores oficiales: verde (con cupos) y gris (sin cupos o cerrado).
+function crearIcono(disponible, activo) {
+  const ancho = activo ? 36 : 30
+  const alto = Math.round(ancho * 1.66)
   return L.divIcon({
     className: `${styles.pin} ${activo ? styles.pinActivo : ''}`,
-    html: pinSvg(parqueadero.cupos > 0 ? '#07ad2f' : '#7a7a7a'),
-    iconSize: [39, 52],
-    iconAnchor: [19, 52],
-    tooltipAnchor: [0, -52],
-    popupAnchor: [0, -52],
+    html: `<img src="/img/Marcador_${disponible ? 'Abierto' : 'Cerrado'}.png" alt="" width="${ancho}" height="${alto}" />`,
+    iconSize: [ancho, alto],
+    iconAnchor: [ancho / 2, alto],
+    tooltipAnchor: [0, -alto],
   })
 }
 
@@ -34,8 +33,8 @@ function IrA({ lat, lng, version }) {
   return null
 }
 
-// Botones de zoom redondos del diseño (abajo a la derecha).
-function Zoom() {
+// Botones flotantes del mapa: +, -, ? (leyenda) y Restablecer mapa.
+function Controles({ onAyuda, onRestablecer }) {
   const mapa = useMap()
   const contenedor = useRef(null)
 
@@ -45,9 +44,11 @@ function Zoom() {
   }, [])
 
   return (
-    <div ref={contenedor} className={styles.zoom}>
-      <button type="button" aria-label="Acercar" onClick={() => mapa.zoomIn()}><Mas width="28" height="28" /></button>
-      <button type="button" aria-label="Alejar" onClick={() => mapa.zoomOut()}><Menos width="28" height="28" /></button>
+    <div ref={contenedor} className={styles.controles}>
+      <button type="button" aria-label="Acercar" title="Acercar" onClick={() => mapa.zoomIn()}><Mas width="26" height="26" /></button>
+      <button type="button" aria-label="Alejar" title="Alejar" onClick={() => mapa.zoomOut()}><Menos width="26" height="26" /></button>
+      <button type="button" aria-label="Ayuda: leyenda de pines" title="Ayuda" aria-haspopup="dialog" onClick={onAyuda}><Ayuda /></button>
+      <button type="button" aria-label="Restablecer mapa" title="Restablecer mapa" onClick={onRestablecer}><Reiniciar /></button>
     </div>
   )
 }
@@ -73,13 +74,19 @@ function FiltrosCalles() {
   )
 }
 
-function MapaParqueaderos({ parqueaderos, seleccionado, onSeleccionar, ubicacion, versionReinicio }) {
+function MapaParqueaderos({ parqueaderos, seleccionado, onSeleccionar, ubicacion, versionReinicio, onAyuda, onRestablecer, disponible }) {
   const destino = seleccionado ?? undefined
 
   return (
     <div className={styles.contenedor}>
       <FiltrosCalles />
-      <MapContainer center={CENTRO_TUNJA} zoom={14} zoomControl={false} className={styles.mapa}>
+      <MapContainer
+        center={CENTRO_TUNJA}
+        zoom={14}
+        zoomControl={false}
+        className={styles.mapa}
+        aria-label="Mapa de parqueaderos de Tunja. Usa las flechas para desplazarte."
+      >
         {/* Mosaicos oficiales de OpenStreetMap (sin clave). CARTO ahora exige API key.
             Los colores del diseño se aplican con filtros CSS (.mapa). */}
         <TileLayer
@@ -87,34 +94,33 @@ function MapaParqueaderos({ parqueaderos, seleccionado, onSeleccionar, ubicacion
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           maxZoom={19}
         />
-        <Zoom />
+        <Controles onAyuda={onAyuda} onRestablecer={onRestablecer} />
         <IrA lat={destino?.lat} lng={destino?.lng} version={versionReinicio} />
         {ubicacion && (
           <Marker position={[ubicacion.lat, ubicacion.lng]} icon={iconoUsuario} interactive={false} />
         )}
-        {parqueaderos.map((parqueadero) => (
-          <Marker
-            key={parqueadero.id}
-            position={[parqueadero.lat, parqueadero.lng]}
-            icon={crearIcono(parqueadero, seleccionado?.id === parqueadero.id)}
-            eventHandlers={{ click: () => onSeleccionar(parqueadero.id) }}
-          >
-            <Tooltip key={seleccionado?.id === parqueadero.id ? 'fija' : 'hover'} permanent={seleccionado?.id === parqueadero.id} direction="top" className={styles.burbuja} opacity={1}>
-              <span className={styles.nombre}>{parqueadero.nombre}</span>
-              <span className={parqueadero.cupos > 0 ? styles.libres : styles.llenos}>
-                {pesos(parqueadero.tarifaHora).replace('$', '$ ')}/h · {parqueadero.cupos > 0 ? `${parqueadero.cupos} libres` : 'sin cupos'}
-              </span>
-            </Tooltip>
-            {parqueadero.cupos > 0 && (
-              <Popup className={styles.popup} closeButton={false} offset={[0, -14]}>
-                <strong>{parqueadero.nombre}</strong>
-                <span>{parqueadero.direccion} · {parqueadero.zona}</span>
-                {parqueadero.distancia !== null && <span>{parqueadero.distancia.toFixed(1)} km de ti</span>}
-                <Link to={`/reservas/${parqueadero.id}`} className={styles.reservar}>Reservar</Link>
-              </Popup>
-            )}
-          </Marker>
-        ))}
+        {parqueaderos.map((parqueadero) => {
+          const activo = seleccionado?.id === parqueadero.id
+          const libre = disponible(parqueadero)
+          return (
+            <Marker
+              key={parqueadero.id}
+              position={[parqueadero.lat, parqueadero.lng]}
+              icon={crearIcono(libre, activo)}
+              title={parqueadero.nombre}
+              alt={parqueadero.nombre}
+              zIndexOffset={activo ? 1000 : 0}
+              eventHandlers={{ click: () => onSeleccionar(parqueadero.id) }}
+            >
+              <Tooltip key={activo ? 'fija' : 'hover'} permanent={activo} direction="top" className={styles.burbuja} opacity={1}>
+                <span className={styles.nombre}>{parqueadero.nombre}</span>
+                <span className={parqueadero.cupos > 0 ? styles.libres : styles.llenos}>
+                  {pesos(parqueadero.tarifaHora)}/h · {parqueadero.cupos > 0 ? `${parqueadero.cupos} libres` : 'sin cupos'}
+                </span>
+              </Tooltip>
+            </Marker>
+          )
+        })}
       </MapContainer>
     </div>
   )

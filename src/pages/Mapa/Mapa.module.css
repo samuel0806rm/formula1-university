@@ -1,66 +1,196 @@
 .page {
-  position: relative;
-  height: calc(100vh - 128px);
-  min-height: 560px;
-  margin: 24px var(--margen);
+  display: flex;
 }
 
 .mapaCaja {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
+  border-radius: var(--radio);
   background: var(--fondo);
 }
 
-/* El panel flota sobre el mapa, a la izquierda. */
+/* Panel "Filtrar y Reservar": flota sobre el mapa, a la izquierda. */
 .panel {
   position: absolute;
   top: 16px;
   left: 16px;
   bottom: 16px;
   z-index: 1100;
-  width: min(420px, calc(100% - 16px));
+  width: min(400px, calc(100% - 32px));
   display: flex;
   align-items: flex-start;
+  gap: 6px;
   pointer-events: none;
-  transition: transform 0.25s ease;
 }
 
 .panel > * {
   pointer-events: auto;
 }
 
-.panel > :first-child {
+.caja {
   flex: 1;
   min-width: 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radio);
+  background: var(--recuadro);
+  box-shadow: var(--sombra);
 }
 
-/* Cerrado: el panel se esconde y solo queda la pestaña verde. */
-.cerrado {
-  transform: translateX(calc(-100% + 28px));
+.pestana {
+  margin: 0;
 }
 
-.pestanaPanel {
+.pestana button {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 0;
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  background: var(--navbar-footer);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.pestana button:focus-visible {
+  outline: 3px solid var(--accion);
+  outline-offset: -3px;
+}
+
+/* Solo el contenido hace scroll si no cabe. */
+.cuerpo {
+  min-height: 0;
+  padding: 14px 18px 18px;
+  overflow-y: auto;
+}
+
+.cuerpo[hidden] {
+  display: none;
+}
+
+/* Plegado: queda solo la pestaña con el título. */
+.plegado {
+  width: auto;
+  bottom: auto;
+}
+
+.plegado .caja {
   flex: none;
-  width: 28px;
-  height: 56px;
-  margin-top: 24px;
+}
+
+/* Con un parqueadero seleccionado el panel se comprime. */
+.compacto {
+  width: min(340px, calc(100% - 32px));
+  bottom: auto;
+}
+
+.lateral {
+  flex: none;
+  width: 30px;
+  height: 52px;
+  display: grid;
+  place-items: center;
   border: 0;
   border-radius: 0 var(--radio) var(--radio) 0;
   background: var(--accion);
   color: #fff;
-  font-size: 13px;
+  box-shadow: var(--sombra);
+}
+
+.ayudaTab {
+  position: absolute;
+  left: 16px;
+  bottom: 8px;
+  z-index: 1050;
+  margin: 0;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fondo) 85%, transparent);
+  color: var(--texto);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+/* Leyenda (ventana de ayuda) */
+.leyenda {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.leyenda li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.leyenda img {
+  flex: none;
+}
+
+.leyendaGrande {
+  display: grid;
+  margin-left: -3px;
+}
+
+.puntoUsuario {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0 3px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #1a73e8;
+  box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.3);
+}
+
+.leyendaNota {
+  margin: 16px 0 0;
+  font-size: 14px;
+}
+
+.leyendaBoton {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 900px), (max-height: 620px) {
+  .page {
+    height: calc(100dvh - 140px);
+    min-height: 520px;
+  }
 }
 
 @media (max-width: 640px) {
   .page {
-    margin: 0;
-    height: calc(100vh - 150px);
+    padding: 0;
+  }
+  .mapaCaja {
+    border-radius: 0;
   }
   .panel {
     top: 8px;
     left: 8px;
     bottom: auto;
-    max-height: 60%;
+    max-height: 70%;
+    width: calc(100% - 16px);
+  }
+  .plegado {
+    width: auto;
+  }
+  .ayudaTab {
+    display: none;
   }
 }

@@ -1,0 +1,86 @@
+.fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  padding: 16px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 7, 23, 0.55);
+  animation: aparecer 0.15s ease-out;
+}
+
+.caja {
+  width: min(var(--ancho, 520px), 100%);
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radio);
+  background: var(--fondo);
+  color: var(--texto);
+  box-shadow: var(--sombra);
+}
+
+.caja:focus-visible {
+  outline: 2px solid var(--accion);
+  outline-offset: 2px;
+}
+
+.cabecera {
+  position: relative;
+  min-height: 64px;
+  padding: 16px 24px 12px 72px;
+  display: flex;
+  align-items: center;
+  background: var(--navbar-footer);
+  color: #fff;
+}
+
+.cabecera h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* X en la esquina SUPERIOR IZQUIERDA */
+.cerrar {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+}
+
+.cerrar:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.cerrar:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.cuerpo {
+  padding: 20px 24px 24px;
+  overflow-y: auto;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fondo {
+    animation: none;
+  }
+}

@@ -1,0 +1,153 @@
+.especificaciones {
+  display: grid;
+  gap: 10px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.especificaciones p {
+  margin: 0;
+}
+
+.especificaciones strong {
+  color: var(--titulo-h3);
+}
+
+.botones {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.botonesCentro {
+  justify-content: center;
+}
+
+.botones :global(.btn) {
+  min-width: 140px;
+  min-height: 44px;
+}
+
+.campos {
+  margin-top: 12px;
+  display: grid;
+  gap: 14px;
+}
+
+.campo {
+  display: grid;
+  gap: 6px;
+}
+
+.campo label {
+  font-weight: 600;
+}
+
+.campo input {
+  min-height: 44px;
+  padding: 0 16px;
+  background: var(--recuadro);
+  font-size: 16px;
+}
+
+.campo small {
+  font-size: 13px;
+}
+
+.error {
+  margin: 12px 0 0;
+  padding: 8px 14px;
+  border: 2px solid var(--alerta);
+  border-radius: var(--radio);
+  color: var(--alerta);
+  font-size: 15px;
+}
+
+.centro {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.texto {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.texto p {
+  margin: 0 0 8px;
+}
+
+.nfc {
+  border-radius: 50%;
+  background: var(--navbar-footer);
+  padding: 14px;
+}
+
+.leyendo {
+  animation: pulso 0.8s ease-in-out infinite alternate;
+}
+
+.estado {
+  margin: 0;
+  font-size: 14px;
+  color: var(--accion);
+  font-weight: 700;
+}
+
+.simular {
+  padding: 4px 8px;
+  border: 0;
+  background: none;
+  color: var(--accion);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.factura {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: var(--radio);
+  background: var(--recuadro);
+  font-size: 15px;
+}
+
+.factura div {
+  padding: 6px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px dashed color-mix(in srgb, var(--texto) 25%, transparent);
+}
+
+.factura dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.factura .facturaTotal {
+  border-bottom: 0;
+  font-size: 18px;
+}
+
+.facturaTotal dd {
+  color: var(--accion);
+}
+
+@keyframes pulso {
+  to {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leyendo {
+    animation: none;
+  }
+}

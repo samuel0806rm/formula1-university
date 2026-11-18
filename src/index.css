@@ -9,6 +9,8 @@
   --recuadro: #e0e0e0;
   --recuadro-interno: #ffffff;
   --accion: #07ad2f;
+  /* Verde para texto sobre recuadros: en oscuro se aclara para mantener contraste. */
+  --accion-texto: #07862a;
   --texto-boton: #ffffff;
   --alerta: #c90000;
   --blanco: #ffffff;
@@ -43,6 +45,7 @@
   --recuadro: #001a54;
   --recuadro-interno: #153e90;
   --calles: #4f7fe0;
+  --accion-texto: #6cf195;
   color-scheme: dark;
 }
 
@@ -82,7 +85,7 @@ a {
 }
 
 a {
-  color: var(--accion);
+  color: var(--accion-texto);
 }
 
 input, select, textarea {
@@ -115,7 +118,7 @@ input, select, textarea {
 
 .btn-contorno {
   background: var(--recuadro-interno);
-  color: var(--accion);
+  color: var(--accion-texto);
 }
 
 .btn-peligro {

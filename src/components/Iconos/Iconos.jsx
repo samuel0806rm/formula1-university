@@ -57,3 +57,63 @@ export const Alerta = (props) => (
     <circle cx="12" cy="17.3" r="1.4" fill="#fff" />
   </svg>
 )
+
+export const Cerrar = (props) => (
+  <svg {...base} width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" {...props}>
+    <path d="M6 6l12 12M18 6 6 18" />
+  </svg>
+)
+
+export const Check = (props) => (
+  <svg {...base} width="72" height="72" viewBox="0 0 72 72" {...props}>
+    <circle cx="36" cy="36" r="34" fill="#07ad2f" />
+    <path d="m21 37 10 10 20-22" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
+export const ErrorCirculo = (props) => (
+  <svg {...base} width="72" height="72" viewBox="0 0 72 72" {...props}>
+    <circle cx="36" cy="36" r="34" fill="#c90000" />
+    <path d="M25 25l22 22M47 25 25 47" stroke="#fff" strokeWidth="6" strokeLinecap="round" />
+  </svg>
+)
+
+export const Basurero = (props) => (
+  <svg {...base} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+  </svg>
+)
+
+export const Ayuda = (props) => (
+  <svg {...base} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M9 9a3 3 0 1 1 4.2 2.8c-.8.4-1.2 1-1.2 1.9V14" />
+    <circle cx="12" cy="18.5" r="0.6" fill="currentColor" />
+  </svg>
+)
+
+export const Reiniciar = (props) => (
+  <svg {...base} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" />
+  </svg>
+)
+
+export const Ubicacion = (props) => (
+  <svg {...base} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" {...props}>
+    <circle cx="12" cy="12" r="7" />
+    <circle cx="12" cy="12" r="2.5" fill="currentColor" />
+    <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+  </svg>
+)
+
+export const Lupa = (props) => (
+  <svg {...base} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" {...props}>
+    <circle cx="10.5" cy="10.5" r="6.5" />
+    <path d="m15.5 15.5 5 5" />
+  </svg>
+)
+
+export const Triangulo = ({ abierto, ...resto }) => (
+  <svg {...base} width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{ transform: abierto ? 'rotate(180deg)' : undefined, transition: 'transform .2s' }} {...resto}>
+    <path d="M4 8h16l-8 9z" />
+  </svg>
+)

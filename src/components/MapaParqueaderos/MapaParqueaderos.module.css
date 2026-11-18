@@ -47,10 +47,6 @@
   z-index: 1000 !important;
 }
 
-.pinActivo svg {
-  transform: scale(1.18);
-  transform-origin: 50% 100%;
-}
 
 .usuario {
   border: 3px solid #fff;
@@ -95,50 +91,38 @@
   font-weight: 600;
 }
 
-.mapa :global(.leaflet-popup-content-wrapper) {
-  border-radius: 20px 20px 0 20px;
-  background: var(--fondo);
-  color: var(--texto);
+.pin img {
+  display: block;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
 }
 
-.mapa :global(.leaflet-popup-tip) {
-  background: var(--fondo);
-}
-
-.mapa :global(.leaflet-popup-content) {
-  margin: 14px 16px;
-  display: grid;
-  gap: 4px;
-  font-size: 14px;
-}
-
-.reservar {
-  margin-top: 8px;
-  padding: 8px 16px;
-  border-radius: 14px 14px 0 14px;
-  background: var(--accion);
-  color: #fff !important;
-  font-weight: 700;
-  text-align: center;
-  text-decoration: none;
-}
-
-.zoom {
+/* Botones flotantes: +, -, ? y Restablecer mapa (abajo a la derecha). */
+.controles {
   position: absolute;
-  right: 24px;
-  bottom: 32px;
+  right: 20px;
+  bottom: 28px;
   z-index: 1000;
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
-.zoom button {
-  width: 52px;
-  height: 52px;
+.controles button {
+  width: 48px;
+  height: 48px;
   display: grid;
   place-items: center;
   border: 0;
   border-radius: 50%;
   background: var(--accion);
   color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.controles button:hover {
+  filter: brightness(1.08);
+}
+
+.mapa:focus-visible {
+  outline: 3px solid var(--accion);
+  outline-offset: -3px;
 }
