@@ -11,6 +11,7 @@ import RegisterAccount from './pages/RegisterAccount/RegisterAccount'
 import Login from './pages/Login/Login'
 import Recharge from './pages/Recharge/Recharge'
 import User from './pages/User/User'
+import Notificaciones from './pages/Notificaciones/Notificaciones'
 import NotFound from './pages/NotFound'
 import styles from './App.module.css'
 
@@ -30,6 +31,7 @@ function App() {
               <Route path="/inicio-sesion" element={<Login />} />
               <Route path="/recarga" element={<RutaProtegida><Recharge /></RutaProtegida>} />
               <Route path="/usuario" element={<RutaProtegida><User /></RutaProtegida>} />
+              <Route path="/notificaciones" element={<RutaProtegida><Notificaciones /></RutaProtegida>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

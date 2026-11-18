@@ -8,7 +8,7 @@
   border: 1px solid var(--gris-borde);
   border-radius: 8px;
   padding: 18px;
-  background: white;
+  background: var(--recuadro);
 }
 
 .summary h2 {
@@ -26,12 +26,12 @@
   justify-content: space-between;
   gap: 12px;
   padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid color-mix(in srgb, var(--texto) 15%, transparent);
   font-size: 13px;
 }
 
 .summary dt {
-  color: #666;
+  color: var(--texto);
 }
 
 .summary dd {
@@ -50,7 +50,7 @@
 }
 
 .amount {
-  color: var(--azul);
+  color: var(--titulo-h3);
   font-size: 24px;
 }
 
@@ -65,7 +65,7 @@
 .confirmButton {
   border: 1px solid var(--verde);
   background: var(--verde);
-  color: white;
+  color: #fff;
 }
 
 .confirmButton:disabled {
@@ -75,13 +75,13 @@
 
 .cancelButton {
   border: 2px solid var(--azul);
-  background: white;
-  color: var(--azul);
+  background: var(--recuadro-interno);
+  color: var(--titulo-h3);
 }
 
 .validation {
   margin: 0;
-  color: #b3261e;
+  color: var(--alerta);
   font-size: 12px;
 }
 
@@ -89,7 +89,7 @@
   padding: 10px;
   border: 1px solid var(--verde-borde);
   background: var(--verde-claro);
-  color: #205c38;
+  color: var(--accion-texto);
   font-size: 12px;
   line-height: 1.5;
 }

@@ -26,9 +26,9 @@
   /* Nombres anteriores: las páginas que aún no se rediseñan heredan la paleta nueva. */
   --azul: var(--navbar-footer);
   --azul-oscuro: var(--navbar-footer);
-  --azul-claro: var(--recuadro);
+  --azul-claro: var(--recuadro-interno);
   --verde: var(--accion);
-  --verde-claro: var(--recuadro);
+  --verde-claro: var(--recuadro-interno);
   --verde-borde: var(--accion);
   --gris-ocupada: var(--recuadro);
   --gris-borde: var(--recuadro);

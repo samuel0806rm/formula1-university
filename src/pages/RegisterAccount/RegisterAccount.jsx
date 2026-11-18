@@ -93,7 +93,12 @@ function RegisterAccount() {
 
   const campo = estilosAcceder.campo
   return (
-    <Acceder modo="registro" titulo="Crea tu cuenta" texto="Elige si eres conductor o propietario y empieza a usar Parking Tunja.">
+    <Acceder
+      modo="registro"
+      titulo="Registrarme"
+      texto="Puedes iniciar sesión rápidamente con tu tarjeta NFC"
+      textoNfc="Después de crear tu cuenta, vincula tu tarjeta NFC desde Mi Cuenta para entrar más rápido."
+    >
       <form className={estilosAcceder.formulario} onSubmit={registrarCuenta} aria-busy={enviando}>
         <fieldset disabled={enviando}>
           <legend>Datos de registro</legend>

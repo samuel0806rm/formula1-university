@@ -2,7 +2,7 @@
   border: 1px solid var(--gris-borde);
   border-radius: 8px;
   padding: 16px;
-  background: white;
+  background: var(--recuadro);
 }
 
 .panel h2 {
@@ -30,13 +30,13 @@
   padding: 6px 8px;
   border: 1px solid var(--gris-borde);
   border-radius: 6px;
-  background: white;
+  background: var(--recuadro-interno);
 }
 
 .estimated {
   margin-top: 14px;
   padding: 10px;
-  background: #f1f1f1;
+  background: var(--recuadro);
   font-size: 12px;
 }
 
@@ -47,5 +47,5 @@
 }
 
 .fields input[aria-invalid='true'] {
-  border-color: #b3261e;
+  border-color: var(--alerta);
 }

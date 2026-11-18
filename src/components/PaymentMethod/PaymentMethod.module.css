@@ -25,7 +25,7 @@
 
 .note {
   margin-top: 10px;
-  color: #666;
+  color: var(--texto);
   font-size: 11px;
 }
 
@@ -42,6 +42,6 @@
 }
 
 .saldo strong {
-  color: var(--azul);
+  color: var(--titulo-h3);
   font-size: 16px;
 }

@@ -2,7 +2,7 @@
   border: 1px solid var(--gris-borde);
   border-radius: 8px;
   padding: 16px;
-  background: white;
+  background: var(--recuadro);
 }
 
 .panel h2 {
@@ -27,7 +27,7 @@
   border: 2px solid var(--verde-borde);
   border-radius: 8px;
   background: var(--verde-claro);
-  color: #222;
+  color: var(--texto);
 }
 
 .space strong {
@@ -46,13 +46,14 @@
 .space.selected {
   border-color: var(--azul);
   background: var(--azul);
-  color: white;
+  color: #fff;
 }
 
 .space.occupied {
   border-color: var(--gris-borde);
   background: var(--gris-ocupada);
-  color: #777;
+  opacity: 0.55;
+  color: var(--texto);
   cursor: not-allowed;
 }
 

@@ -7,37 +7,11 @@ import { useSesion } from '../context/sesion'
 import { cuposLibres } from '../data/plazas'
 import { parqueaderos } from '../data/parqueaderos'
 import { useAhora } from '../hooks/useAhora'
-import { estadoReserva, listarReservas, reservasDeUsuario } from '../services/reservas'
-import { fechaHora, pesos } from '../utils/formato'
+import { listarReservas } from '../services/reservas'
+import { leerPreferencias } from '../services/preferencias'
+import { rolDe } from '../utils/roles'
+import { pesos } from '../utils/formato'
 import styles from './Home.module.css'
-
-function PanelUsuario({ usuario, ahora }) {
-  const vigente = reservasDeUsuario(usuario.id)
-    .filter((reserva) => ['Programada', 'En curso'].includes(estadoReserva(reserva, ahora)))
-    .sort((a, b) => a.inicio - b.inicio)[0]
-
-  return (
-    <section className={styles.resumen}>
-      <div className={styles.dato}>
-        <span>Tu saldo</span>
-        <strong>{pesos(usuario.saldo)}</strong>
-        <Link to="/recarga">Recargar</Link>
-      </div>
-      <div className={styles.dato}>
-        <span>Próxima reserva</span>
-        {vigente ? (
-          <>
-            <strong>{vigente.parqueaderoNombre} · {vigente.plazaCodigo}</strong>
-            <small>{fechaHora(vigente.inicio)}</small>
-          </>
-        ) : (
-          <strong>Sin reservas vigentes</strong>
-        )}
-        <Link to="/usuario">Ver mis reservas</Link>
-      </div>
-    </section>
-  )
-}
 
 const INTERVALO_CARRUSEL = 4000
 
@@ -130,49 +104,105 @@ function Carrusel({ items, ahora }) {
   )
 }
 
+const TituloReconocidos = () => (
+  <h2 id="tituloReconocidos">
+    <svg aria-hidden="true" width="20" height="26" viewBox="0 0 39 52">
+      <path d="M19.5 0C8.7 0 0 8.6 0 19.3c0 14.4 17.1 30.9 18.3 32.1.7.7 1.7.7 2.4 0C21.9 50.2 39 33.7 39 19.3 39 8.6 30.3 0 19.5 0Z" fill="#07ad2f" />
+      <circle cx="19.5" cy="19.5" r="7.5" fill="#fff" />
+    </svg>
+    Parqueaderos reconocidos
+  </h2>
+)
+
+// Inicio con sesión: saludo, mini mapa, billetera y "Sobre nosotros" desplegable.
+function InicioUsuario({ usuario, items, ahora }) {
+  const [sobreAbierto, setSobreAbierto] = useState(false)
+  const rol = rolDe(leerPreferencias(usuario.id).tipoUsuario)
+  const primerNombre = usuario.nombre.split(' ')[0]
+
+  return (
+    <div className={`vista ${styles.inicio} ${sobreAbierto ? styles.inicioSobre : ''}`}>
+      <section className={styles.saludo} aria-labelledby="tituloSaludo">
+        <span className={styles.icono}><img src={rol.icono} alt="" width="64" height="64" /></span>
+        <div className={styles.saludoTexto}>
+          <h1 id="tituloSaludo">¡Hola, {primerNombre}!</h1>
+          <p>{rol.nombre} · Bienvenido a Park&amp;Go Tunja</p>
+        </div>
+        <Link to="/usuario" className="btn">Ver Cuenta</Link>
+      </section>
+
+      <section className={styles.billetera} aria-labelledby="tituloBilletera">
+        <h2 id="tituloBilletera">Billetera</h2>
+        <span>Saldo disponible</span>
+        <strong aria-live="polite">{pesos(usuario.saldo)}</strong>
+        <Link to="/recarga" className="btn">Recargar</Link>
+      </section>
+
+      <section className={styles.miniMapa} aria-labelledby="tituloMiniMapa">
+        <div className={styles.miniMapaCabecera}>
+          <h2 id="tituloMiniMapa">Parqueaderos cerca de ti</h2>
+          <Link to="/mapa" className="btn">Ver Mapa</Link>
+        </div>
+        <MapaCalles className={styles.miniMapaDibujo} zoom={160} centro="55% 55%" />
+      </section>
+
+      <details className={styles.sobre} onToggle={(evento) => setSobreAbierto(evento.currentTarget.open)}>
+        <summary className="btn btn-contorno">{sobreAbierto ? 'Ocultar Sobre nosotros' : 'Ver Sobre nosotros'}</summary>
+        {sobreAbierto && (
+          <div className={styles.sobreContenido}>
+            <div className={styles.sobreTexto}>
+              <Logo alto={56} />
+              <p>Park&amp;Go Tunja conecta a conductores y propietarios: consulta cupos en el mapa, reserva y paga con tu saldo, sin dar vueltas.</p>
+            </div>
+            <section className={styles.reconocidos} aria-labelledby="tituloReconocidos">
+              <header className={styles.reconocidosCabecera}>
+                <TituloReconocidos />
+                <span>Empresas asociadas</span>
+              </header>
+              <Carrusel items={items} ahora={ahora} />
+            </section>
+          </div>
+        )}
+      </details>
+    </div>
+  )
+}
+
 function Home() {
   const { usuario } = useSesion()
   const ahora = useAhora()
   const reservas = listarReservas()
   const items = Object.assign([...parqueaderos], { reservas })
 
+  if (usuario) return <InicioUsuario usuario={usuario} items={items} ahora={ahora} />
+
   return (
-    <div className={styles.home}>
+    <div className={`vista ${styles.home}`}>
       <section className={styles.hero}>
         <div className={styles.heroTexto}>
           <Logo alto={64} />
           <h1>Estaciona en Tunja sin dar vueltas</h1>
-          <p>Parking Tunja conecta a conductores y propietarios: consulta cupos en el mapa, reserva y paga con tu saldo.</p>
+          <p>Park&amp;Go Tunja conecta a conductores y propietarios: consulta cupos en el mapa, reserva y paga con tu saldo.</p>
           <div className={styles.acciones}>
             <Link to="/mapa" className="btn">Ver mapa</Link>
-            {!usuario && <Link to="/registro" className="btn btn-contorno">Crear cuenta</Link>}
+            <Link to="/registro" className="btn btn-contorno">Crear cuenta</Link>
           </div>
         </div>
         <MapaCalles className={styles.heroMapa} zoom={190} centro="55% 55%" />
       </section>
 
-      {usuario && <PanelUsuario usuario={usuario} ahora={ahora} />}
-
       <section className={styles.reconocidos} aria-labelledby="tituloReconocidos">
         <header className={styles.reconocidosCabecera}>
-          <h2 id="tituloReconocidos">
-            <svg aria-hidden="true" width="20" height="26" viewBox="0 0 39 52">
-              <path d="M19.5 0C8.7 0 0 8.6 0 19.3c0 14.4 17.1 30.9 18.3 32.1.7.7 1.7.7 2.4 0C21.9 50.2 39 33.7 39 19.3 39 8.6 30.3 0 19.5 0Z" fill="#07ad2f" />
-              <circle cx="19.5" cy="19.5" r="7.5" fill="#fff" />
-            </svg>
-            Parqueaderos reconocidos
-          </h2>
+          <TituloReconocidos />
           <span>Empresas asociadas</span>
         </header>
         <Carrusel items={items} ahora={ahora} />
       </section>
 
-      {!usuario && (
-        <section className={styles.invitacion}>
-          <p>¿Tienes vehículo o parqueadero? Crea tu cuenta y empieza hoy.</p>
-          <Link to="/registro" className="btn">Registrarse</Link>
-        </section>
-      )}
+      <section className={styles.invitacion}>
+        <p>¿Tienes vehículo o parqueadero? Crea tu cuenta y empieza hoy.</p>
+        <Link to="/registro" className="btn">Registrarse</Link>
+      </section>
     </div>
   )
 }

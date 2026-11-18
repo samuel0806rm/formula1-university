@@ -1,10 +1,3 @@
-.home {
-  padding: 24px var(--margen);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 24px;
-}
-
 .hero {
   padding: 28px;
   display: grid;
@@ -251,4 +244,269 @@
 .carrusel {
   position: relative;
   min-width: 0;
+}
+
+/* Portada sin sesión: cabe en el alto disponible; el hero absorbe la diferencia. */
+.home {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  gap: var(--aire);
+}
+
+.home .hero {
+  min-height: 0;
+  padding: clamp(16px, 2.4vh, 28px);
+  overflow: hidden;
+}
+
+.home .heroTexto h1 {
+  font-size: clamp(30px, 5vh, 60px);
+}
+
+.home .heroMapa {
+  min-height: 0;
+  height: 100%;
+}
+
+.home .reconocidos {
+  padding: clamp(12px, 2vh, 24px) 24px;
+}
+
+.home .tarjeta {
+  padding-bottom: 10px;
+}
+
+.home .invitacion {
+  padding-block: 10px;
+}
+
+/* Inicio con sesión */
+.inicio {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.36fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'saludo billetera'
+    'mapa billetera'
+    'sobre sobre';
+  gap: var(--aire) 24px;
+}
+
+.saludo,
+.billetera,
+.miniMapa {
+  min-height: 0;
+  border-radius: var(--radio);
+  background: var(--recuadro);
+}
+
+.saludo {
+  grid-area: saludo;
+  padding: clamp(14px, 2.4vh, 24px) 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.icono {
+  flex: none;
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--navbar-footer);
+}
+
+.saludoTexto {
+  flex: 1;
+  min-width: 0;
+}
+
+.saludoTexto h1 {
+  margin: 0;
+  font-size: clamp(28px, 4.6vh, 48px);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.saludoTexto p {
+  margin: 4px 0 0;
+}
+
+.saludo :global(.btn),
+.billetera :global(.btn),
+.miniMapaCabecera :global(.btn) {
+  min-height: 44px;
+  flex: none;
+}
+
+.billetera {
+  grid-area: billetera;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.billetera h2,
+.miniMapaCabecera h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--titulo-h3);
+}
+
+.billetera strong {
+  color: var(--accion-texto);
+  font-size: clamp(36px, 6vh, 56px);
+  line-height: 1.1;
+}
+
+.billetera :global(.btn) {
+  margin-top: 8px;
+  align-self: stretch;
+}
+
+.miniMapa {
+  grid-area: mapa;
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.miniMapaCabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.miniMapaDibujo {
+  flex: 1;
+  min-height: 0;
+}
+
+.sobre {
+  grid-area: sobre;
+  min-height: 0;
+}
+
+.sobre summary {
+  min-height: 44px;
+  list-style: none;
+}
+
+.sobre summary::-webkit-details-marker {
+  display: none;
+}
+
+.sobreContenido {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.3fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.sobreTexto {
+  padding: 20px;
+  display: grid;
+  align-content: center;
+  gap: 12px;
+  border-radius: var(--radio);
+  background: var(--recuadro);
+}
+
+.sobreTexto p {
+  margin: 0;
+  font-size: 15px;
+}
+
+.sobreContenido .reconocidos {
+  min-width: 0;
+  padding: 16px 20px;
+}
+
+.sobreContenido .tarjeta {
+  padding-bottom: 10px;
+}
+
+/* Con "Sobre nosotros" abierto, el mini mapa cede su espacio. */
+.inicioSobre {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.inicioSobre .miniMapaDibujo {
+  display: none;
+}
+
+@media (max-width: 900px), (max-height: 620px) {
+  .home {
+    grid-template-rows: auto;
+  }
+  .home .heroMapa {
+    min-height: 260px;
+  }
+  .inicio {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'saludo' 'billetera' 'mapa' 'sobre';
+  }
+  .miniMapaDibujo {
+    min-height: 260px;
+  }
+  .sobreContenido {
+    grid-template-columns: 1fr;
+  }
+  .saludo {
+    flex-wrap: wrap;
+  }
+}
+
+/* Ajustes de la portada para que el hero quepa en pantallas de 768 px de alto. */
+.home .hero {
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+}
+
+.home .heroTexto {
+  gap: clamp(8px, 1.6vh, 16px);
+}
+
+.home .heroTexto h1 {
+  margin: 0;
+  font-size: clamp(28px, 4.4vh, 60px);
+}
+
+.home .heroTexto p {
+  font-size: clamp(15px, 2.1vh, 18px);
+}
+
+.home .letra {
+  width: 38px;
+  height: 38px;
+  font-size: 22px;
+}
+
+.home .tarjeta h3 {
+  margin-top: 2px;
+}
+
+.home .tarjeta .estado {
+  margin-top: 4px;
+}
+
+.home .puntos {
+  margin-top: 8px;
+}
+
+.home .reconocidosCabecera {
+  margin-bottom: 10px;
+}
+
+@media (max-height: 900px) {
+  .home .heroTexto > img {
+    display: none;
+  }
 }

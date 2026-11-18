@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useSesion } from '../../context/sesion'
 import { mensajeError } from '../../services/errores'
+import { ultimaTarjeta } from '../../services/nfc'
 import { Acceder, Aviso, CampoContrasena } from '../../components/Acceder/Acceder'
 import estilosAcceder from '../../components/Acceder/Acceder.module.css'
 
@@ -27,10 +28,25 @@ function Login() {
     }
   }
 
+  // NFC simulado: la API exige contraseña, así que la tarjeta solo completa el correo.
+  function leerTarjeta() {
+    const tarjeta = ultimaTarjeta()
+    if (!tarjeta) return 'No hay ninguna tarjeta vinculada en este navegador. Vincúlala desde Mi Cuenta.'
+    setEmail(tarjeta.email)
+    document.getElementById('contrasena')?.focus()
+    return `Tarjeta ${tarjeta.codigo} leída. Escribe tu contraseña para entrar.`
+  }
+
   if (!cargando && usuario) return <Navigate to="/" replace />
 
   return (
-    <Acceder modo="login" titulo="Inicia sesión" texto="Ingresa con tu correo para consultar tu saldo, tus reservas y tu cuenta.">
+    <Acceder
+      modo="login"
+      titulo="Iniciar sesión"
+      texto="Puedes iniciar sesión rápidamente con tu tarjeta NFC"
+      textoNfc="Acerca tu tarjeta al lector para completar tu correo. Luego escribe tu contraseña."
+      onTarjetaLeida={leerTarjeta}
+    >
       <form className={estilosAcceder.formulario} onSubmit={enviarFormulario} aria-busy={enviando}>
         <fieldset disabled={enviando}>
           <legend>Tus datos de acceso</legend>
