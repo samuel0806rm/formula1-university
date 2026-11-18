@@ -25,6 +25,8 @@ function Navbar() {
               <li><NavLink to="/recarga">Saldo y Recarga</NavLink></li>
               <li><NavLink to="/notificaciones">Notificaciones</NavLink></li>
               <li><NavLink to="/usuario">Mi Cuenta</NavLink></li>
+              {usuario.administrador && <li><NavLink to="/lector">Lector NFC</NavLink></li>}
+              {usuario.administrador && <li><NavLink to="/simulaciones">Simulaciones</NavLink></li>}
             </>
           )}
           {!usuario && !cargando && (

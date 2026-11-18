@@ -2,8 +2,11 @@
 // del proyecto (X-API-Key) y las reenvia a la API. La clave vive solo aqui.
 import http from 'node:http'
 import process from 'node:process'
+import { crearServicioNfc } from './nfc.js'
+import { servirInterfaz } from './static.js'
 
 const { API_BASE_URL, API_TOKEN, PORT = 3001 } = process.env
+const atenderNfc = crearServicioNfc({ base: API_BASE_URL, token: API_TOKEN, adminUserId: process.env.ADMIN_USER_ID })
 
 if (!API_BASE_URL || !API_TOKEN || API_TOKEN === 'DEPOSITA_TU_CLAVE_AQUI') {
   console.error('Falta configurar server/.env (copia server/.env.example y deposita tu clave).')
@@ -25,8 +28,6 @@ const PERMITIDAS = [
   ['GET', '/wallet/movements'],
   ['POST', '/wallet/topup'],
   ['POST', '/wallet/charge'],
-  ['GET', '/cards'],
-  ['POST', '/cards'],
 ]
 
 const LIMITE_CUERPO = 10_000
@@ -74,10 +75,25 @@ async function eliminarCuentaPropia(req, res) {
 const servidor = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost')
   if (!url.pathname.startsWith('/api/')) {
-    return responder(res, 404, { error: 'no_encontrado' })
+    return servirInterfaz(req, res, url.pathname)
   }
 
   const ruta = url.pathname.slice('/api'.length)
+  if (ruta.startsWith('/nfc/')) {
+    res.setHeader('Cache-Control', 'no-store')
+    if (!['GET', 'POST'].includes(req.method)) return responder(res, 405, { error: 'metodo_no_permitido' })
+    // Los formularios de otros sitios no pueden enviar operaciones al terminal.
+    if (req.method === 'POST' && !req.headers['content-type']?.startsWith('application/json')) return responder(res, 415, { error: 'json_requerido' })
+    try {
+      const cuerpo = req.method === 'GET' ? {} : JSON.parse(await leerCuerpo(req))
+      if (!cuerpo || typeof cuerpo !== 'object' || Array.isArray(cuerpo)) return responder(res, 400, { error: 'json_invalido' })
+      return responder(res, 200, await atenderNfc(ruta, req, cuerpo))
+    } catch (error) {
+      return responder(res, error.estado ?? (error instanceof SyntaxError ? 400 : 502), {
+        ...error.datos, error: error.estado ? error.message : error instanceof SyntaxError ? 'json_invalido' : 'api_no_disponible',
+      })
+    }
+  }
   if (req.method === 'DELETE' && ruta === '/users/me') {
     return eliminarCuentaPropia(req, res).catch(() => responder(res, 502, { error: 'api_no_disponible' }))
   }
@@ -108,5 +124,5 @@ const servidor = http.createServer(async (req, res) => {
 
 // Solo escucha en tu propio computador (no en la red).
 servidor.listen(PORT, '127.0.0.1', () => {
-  console.log(`Servidor de la API en http://localhost:${PORT}`)
+  console.log(`Servidor de la API en http://localhost:${servidor.address().port}`)
 })

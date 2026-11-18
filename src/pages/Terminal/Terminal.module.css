@@ -1,0 +1,200 @@
+.terminal {
+  min-height: 100vh;
+  background: var(--fondo);
+  color: var(--texto);
+  padding: 24px 16px 48px;
+}
+
+.terminal header {
+  max-width: 1100px;
+  margin: 0 auto 32px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.terminal header a {
+  color: var(--titulo-h3);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.terminal header span, .eyebrow {
+  color: var(--titulo-h3);
+  font-size: 12px;
+  letter-spacing: .1em;
+}
+
+.grid {
+  max-width: 1100px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.panel {
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid var(--borde);
+  background: var(--recuadro);
+  border-radius: var(--radio);
+}
+
+.panel label {
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+
+.panel h1 {
+  font-size: clamp(26px, 6vw, 36px);
+  margin: 12px 0;
+}
+
+.panel p {
+  line-height: 1.6;
+}
+
+.panel fieldset {
+  border: 0;
+  padding: 0;
+  margin: 24px 0;
+  display: grid;
+  gap: 12px;
+}
+
+.panel legend {
+  margin-bottom: 16px;
+  font-weight: bold;
+}
+
+.panel input, .panel select {
+  width: 100%;
+  min-height: 52px;
+  border-radius: var(--radio);
+  border: 1px solid var(--borde);
+  background: var(--recuadro-interno);
+  color: var(--texto);
+  padding: 12px;
+}
+
+.panel button {
+  min-height: 52px;
+  padding: 12px 18px;
+  background: var(--accion);
+  color: var(--texto-boton);
+  border: 0;
+  font-weight: 700;
+  width: 100%;
+  margin-top: 8px;
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+}
+
+.panel button:disabled {
+  opacity: .45;
+  cursor: default;
+}
+
+.panel :focus-visible {
+  outline: 3px solid var(--accion);
+  outline-offset: 3px;
+}
+
+.scan {
+  padding: 20px;
+  border: 1px dashed var(--borde);
+  border-radius: var(--radio);
+}
+
+.scan > strong {
+  font-size: 24px;
+}
+
+.exito, .error {
+  margin-top: 24px;
+  border-radius: var(--radio);
+  padding: 20px;
+  overflow-wrap: anywhere;
+}
+
+.exito {
+  background: var(--fondo-exito);
+  color: var(--texto);
+}
+
+.error {
+  background: var(--fondo-alerta);
+  color: var(--texto-alerta);
+}
+
+.ayuda {
+  color: var(--texto-secundario);
+  font-size: 13px;
+  margin-top: 24px;
+}
+
+.conectado {
+  color: var(--accion);
+  font-weight: bold;
+}
+
+.panel .usuario {
+  text-align: left;
+  color: var(--texto);
+  background: var(--recuadro-interno);
+  padding: 16px;
+}
+
+.usuario small {
+  display: block;
+  line-height: 1.6;
+  font-weight: normal;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+
+.seleccion {
+  border-top: 1px solid var(--borde);
+  margin-top: 24px;
+  padding-top: 16px;
+}
+
+.paginacion {
+  display: flex;
+  gap: 12px;
+}
+
+.estado {
+  max-width: 1100px;
+  margin: 24px auto 0;
+}
+
+.estado button {
+  border: 1px solid var(--borde);
+  background: var(--recuadro);
+  color: var(--texto);
+  min-height: 44px;
+  border-radius: var(--radio);
+  padding: 10px 20px;
+}
+
+.denegado {
+  max-width: 700px;
+  padding: 40px 20px;
+  margin: auto;
+}
+
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.exito h2,
+.error h2 {
+  color: inherit;
+}

@@ -89,7 +89,7 @@ function RegisterAccount() {
   }
 
   // El registro ya deja la sesión abierta.
-  if (!cargando && usuario) return <Navigate to="/" replace />
+  if (!cargando && usuario && !enviando) return <Navigate to="/" replace />
 
   const campo = estilosAcceder.campo
   return (

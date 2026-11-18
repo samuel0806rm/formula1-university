@@ -1,0 +1,111 @@
+.page {
+  max-width: 1050px;
+  margin: auto;
+  padding: 40px 20px 64px;
+}
+
+.page h1, .page h2 {
+  color: var(--titulo-h1);
+}
+
+.page p, .page li {
+  line-height: 1.6;
+}
+
+.eyebrow {
+  color: var(--titulo-h3);
+  font-size: 12px;
+  letter-spacing: .1em;
+  font-weight: bold;
+}
+
+.categorias {
+  display: flex;
+  gap: 12px;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+
+.panel {
+  background: var(--recuadro);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 24px;
+  margin-bottom: 24px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.page label {
+  display: block;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.page input:not([type=checkbox]), .page select {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 12px;
+  margin-top: 8px;
+  background: var(--recuadro-interno);
+}
+
+.page button {
+  min-height: 44px;
+  background: var(--accion);
+  color: var(--texto-boton);
+  border: 0;
+  padding: 12px 18px;
+  margin: 8px 8px 0 0;
+  font-weight: bold;
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+}
+
+.page button[aria-pressed=false], .page .secundario {
+  background: var(--recuadro-interno);
+  color: var(--titulo-h3);
+}
+
+.page button:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.page :focus-visible {
+  outline: 3px solid var(--accion);
+  outline-offset: 3px;
+}
+
+.ayuda {
+  color: var(--texto-secundario);
+  font-size: 13px;
+}
+
+.revision {
+  padding: 16px;
+  background: var(--recuadro-interno);
+  border-radius: var(--radio);
+  margin-top: 16px;
+  overflow-wrap: anywhere;
+  border-left: 4px solid var(--accion);
+}
+
+.historial {
+  max-height: 420px;
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid var(--borde);
+  background: var(--recuadro-interno);
+  border-radius: var(--radio);
+  margin-top: 16px;
+}
+
+.error {
+  padding: 16px;
+  border-radius: var(--radio);
+  background: var(--fondo-alerta);
+  color: var(--texto-alerta);
+}

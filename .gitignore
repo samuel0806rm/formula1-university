@@ -6,3 +6,5 @@ tests/resultados/
 playwright-report/
 *.tmp.mjs
 tests/capturas/
+.tools/
+server/data/

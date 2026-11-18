@@ -12,6 +12,12 @@ import {
 import { borrarPreferencias, guardarPreferencias } from '../services/preferencias'
 import { eliminarReservasDeUsuario } from '../services/reservas'
 import { SesionContext } from './sesion'
+import { obtenerAcceso } from '../services/admin'
+
+async function agregarPermisos(perfil) {
+  const { administrador } = await obtenerAcceso()
+  return { ...perfil, administrador }
+}
 
 export function SesionProvider({ children }) {
   const [usuario, setUsuario] = useState(null)
@@ -29,6 +35,7 @@ export function SesionProvider({ children }) {
     let activo = true
     if (haySesionGuardada()) {
       obtenerPerfil()
+        .then(agregarPermisos)
         .then((perfil) => activo && setUsuario(perfil))
         .catch(() => {})
         .finally(() => activo && setCargando(false))
@@ -41,13 +48,14 @@ export function SesionProvider({ children }) {
   }, [])
 
   const entrar = useCallback(async (email, contrasena) => {
-    setUsuario(await iniciarSesion(email, contrasena))
+    setUsuario(await agregarPermisos(await iniciarSesion(email, contrasena)))
   }, [])
 
   const crearCuenta = useCallback(async ({ vehiculo, tipoUsuario, ...datos }) => {
     const nuevo = await registrarUsuario(datos)
     guardarPreferencias(nuevo.id, { vehiculo, tipoUsuario })
     setUsuario(nuevo)
+    return nuevo
   }, [])
 
   const salir = useCallback(async () => {
