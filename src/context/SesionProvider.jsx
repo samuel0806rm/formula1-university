@@ -55,11 +55,14 @@ export function SesionProvider({ children }) {
     await cerrarSesionRemota()
   }, [])
 
+  // Elimina la cuenta y devuelve una función que cierra la sesión en pantalla. Así la
+  // vista puede mostrar la ventana "Cuenta eliminada" antes de salir.
+  // La tarjeta NFC NO se desvincula: debe devolverse en un quiosco autorizado.
   const eliminarCuenta = useCallback(async (id) => {
     await eliminarCuentaRemota()
     borrarPreferencias(id)
     eliminarReservasDeUsuario(id)
-    setUsuario(null)
+    return () => setUsuario(null)
   }, [])
 
   const actualizarSaldo = useCallback((saldo) => {

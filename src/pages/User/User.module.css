@@ -1,6 +1,4 @@
 .pagina {
-  min-height: calc(100vh - 128px);
-  padding: 48px var(--margen);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 0.3fr);
   align-items: start;
@@ -9,13 +7,15 @@
 
 .perfil,
 .cuenta {
-  padding: 28px 32px;
+  max-height: 100%;
+  padding: clamp(16px, 2.6vh, 28px) 32px;
   border-radius: var(--radio);
   background: var(--recuadro);
+  overflow-y: auto;
 }
 
 .cabecera {
-  margin-bottom: 24px;
+  margin-bottom: clamp(12px, 2.2vh, 24px);
   display: flex;
   align-items: center;
   gap: 20px;
@@ -23,17 +23,17 @@
 
 .avatar {
   flex: none;
-  width: 72px;
-  height: 72px;
+  width: 84px;
+  height: 84px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--accion);
+  background: var(--navbar-footer);
 }
 
 .perfil h1 {
   margin: 0;
-  font-size: clamp(30px, 3vw, 48px);
+  font-size: clamp(28px, 4vh, 44px);
   line-height: 1.1;
 }
 
@@ -50,10 +50,14 @@
 
 .perfil h2,
 .cuenta h2 {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   font-size: 22px;
   font-weight: 600;
   color: var(--titulo-h3);
+}
+
+.subtitulo {
+  margin-top: clamp(14px, 2.4vh, 24px) !important;
 }
 
 .datos {
@@ -64,7 +68,7 @@
 }
 
 .datos div {
-  padding: 14px 20px;
+  padding: 12px 20px;
   border-radius: var(--radio);
   background: var(--recuadro-interno);
 }
@@ -80,6 +84,32 @@
   overflow-wrap: anywhere;
 }
 
+.tarjetaNfc {
+  padding: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+}
+
+.tarjetaNfc img {
+  padding: 6px;
+  border-radius: 50%;
+  background: var(--navbar-footer);
+}
+
+.tarjetaNfc p {
+  flex: 1;
+  margin: 0;
+  min-width: 200px;
+}
+
+.tarjetaNfc small {
+  font-size: 12px;
+}
+
 .cuenta {
   display: grid;
   gap: 12px;
@@ -90,38 +120,104 @@
   font-size: 15px;
 }
 
-.opcion,
-.activo,
-.peligro {
+.cuenta :global(.btn) {
   min-height: 44px;
-  border: 2px solid var(--accion);
-  border-radius: var(--radio) var(--radio) 0 var(--radio);
+}
+
+/* Formulario de edición */
+.formulario {
+  display: grid;
+  gap: 12px;
+}
+
+.politica {
+  margin: 0;
+  padding: 8px 14px;
+  border-left: 4px solid var(--accion);
+  border-radius: 0 var(--radio) var(--radio) 0;
+  background: var(--recuadro-interno);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 16px;
+}
+
+.campo {
+  display: grid;
+  gap: 4px;
+}
+
+.campo label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 16px;
+  background: var(--recuadro-interno);
   font-size: 16px;
+}
+
+.campo input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.botonesFormulario {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Contenido de ventanas */
+.codigo {
+  margin: 0;
+  padding: 10px;
+  border: 2px dashed var(--accion);
+  border-radius: var(--radio);
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 28px;
   font-weight: 700;
+  letter-spacing: 6px;
+  text-align: center;
+  user-select: all;
 }
 
-.opcion {
-  background: var(--recuadro-interno);
-  color: var(--accion);
+.vinculado {
+  margin: 0;
+  padding: 10px 16px;
+  display: grid;
+  gap: 6px;
+  border-radius: var(--radio);
+  background: var(--recuadro);
 }
 
-.activo {
-  background: var(--accion);
-  color: #fff;
+.vinculado div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.peligro {
-  border-color: var(--alerta);
-  background: var(--recuadro-interno);
-  color: var(--alerta);
+.vinculado dd {
+  margin: 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  text-align: right;
 }
 
-.error {
-  color: var(--alerta);
-}
-
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 620px) {
   .pagina {
     grid-template-columns: 1fr;
+  }
+  .perfil,
+  .cuenta {
+    max-height: none;
   }
 }

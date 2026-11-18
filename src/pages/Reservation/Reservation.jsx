@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Factura, VentanaAviso, VentanaConfirmar } from '../../components/Modal/Ventanas'
 import ParkingInfo from '../../components/ParkingInfo/ParkingInfo'
 import ParkingSpaces from '../../components/ParkingSpaces/ParkingSpaces'
 import ReservationForm from '../../components/ReservationForm/ReservationForm'
@@ -39,6 +40,7 @@ function ReservaParqueadero({ parqueadero }) {
   const [procesando, setProcesando] = useState(false)
   const [error, setError] = useState('')
   const [confirmada, setConfirmada] = useState(null)
+  const [ventana, setVentana] = useState(null)
   const enCurso = useRef(false)
 
   const inicio = ahora + tiempoEspera * HORA
@@ -69,11 +71,11 @@ function ReservaParqueadero({ parqueadero }) {
     setReservas(vigentes)
 
     if (plazasReservadas(vigentes, parqueadero.id, inicioReal, finReal).has(plaza.id)) {
-      setError('Esa plaza acaba de ser reservada. Elige otra.')
+      setVentana({ tipo: 'fallo', mensaje: 'Esa plaza acaba de ser reservada. Elige otra.' })
       return
     }
     if (placaOcupada(vigentes, placaNormalizada, inicioReal, finReal)) {
-      setError('Esta placa ya tiene una reserva en ese horario.')
+      setVentana({ tipo: 'fallo', mensaje: 'Esta placa ya tiene una reserva en ese horario.' })
       return
     }
 
@@ -96,7 +98,7 @@ function ReservaParqueadero({ parqueadero }) {
     })
 
     if (!reserva) {
-      setError('No se pudo guardar la reserva en este navegador.')
+      setVentana({ tipo: 'fallo', mensaje: 'No se pudo guardar la reserva en este navegador.' })
     } else {
       try {
         if (cobrado > 0) {
@@ -104,11 +106,11 @@ function ReservaParqueadero({ parqueadero }) {
           actualizarSaldo(cobro.saldo)
         }
         guardarPreferencias(usuario.id, { placa: placaNormalizada })
-        setConfirmada(reserva)
+        setVentana({ tipo: 'exito', reserva })
       } catch (errorCobro) {
         eliminarReserva(reserva.id)
         if (errorCobro.message === 'saldo_insuficiente') actualizarSaldo(errorCobro.datos.saldo)
-        setError(mensajeError(errorCobro))
+        setVentana({ tipo: 'fallo', mensaje: mensajeError(errorCobro) })
       }
     }
 
@@ -136,7 +138,7 @@ function ReservaParqueadero({ parqueadero }) {
           <div><dt>Saldo restante</dt><dd>{pesos(usuario?.saldo ?? 0)}</dd></div>
         </dl>
         <div className={styles.acciones}>
-          <Link to="/usuario" className={styles.accionPrincipal}>Ver mis reservas</Link>
+          <Link to="/notificaciones" className={styles.accionPrincipal}>Ver mis reservas</Link>
           <button type="button" className={styles.accionSecundaria} onClick={reservarOtra}>Hacer otra reserva</button>
         </div>
       </section>
@@ -185,10 +187,52 @@ function ReservaParqueadero({ parqueadero }) {
           usuario={usuario}
           procesando={procesando}
           error={error}
-          onConfirm={confirmarReserva}
+          onConfirm={() => setVentana({ tipo: 'confirmar' })}
           onCancel={() => navigate('/mapa')}
         />
       </div>
+
+      {ventana?.tipo === 'confirmar' && plaza && (
+        <VentanaConfirmar
+          titulo="Confirmar reserva"
+          textoConfirmar="Pagar y reservar"
+          ocupado={procesando}
+          onConfirmar={confirmarReserva}
+          onCancelar={() => setVentana(null)}
+        >
+          <p>Revisa el resumen de tu reserva antes de pagar con tu saldo.</p>
+          <Factura
+            filas={[
+              ['Parqueadero', parqueadero.nombre],
+              ['Dirección', parqueadero.direccion],
+              ['Plaza', plaza.codigo],
+              ['Placa', placaNormalizada],
+              ['Horario', `${hora(inicio)} – ${hora(fin)}`],
+              ['Tarifa', `${pesos(parqueadero.tarifaHora)} × ${duracion} h`],
+              ...(descuento > 0 ? [['Descuento', `${descuento}%`]] : []),
+              ['Saldo después del pago', pesos((usuario?.saldo ?? 0) - total)],
+            ]}
+            total={['Total a pagar', pesos(total)]}
+          />
+        </VentanaConfirmar>
+      )}
+      {ventana?.tipo === 'exito' && (
+        <VentanaAviso
+          titulo="Reserva realizada"
+          onAceptar={() => {
+            setConfirmada(ventana.reserva)
+            setVentana(null)
+          }}
+        >
+          <p>Tu plaza <strong>{ventana.reserva.plazaCodigo}</strong> en {ventana.reserva.parqueaderoNombre} quedó reservada.</p>
+          <p>Desde {fechaHora(ventana.reserva.inicio)}. Pagaste {pesos(ventana.reserva.cobrado)}.</p>
+        </VentanaAviso>
+      )}
+      {ventana?.tipo === 'fallo' && (
+        <VentanaAviso exito={false} titulo="No se pudo realizar la reserva" onAceptar={() => setVentana(null)}>
+          <p>{ventana.mensaje}</p>
+        </VentanaAviso>
+      )}
     </>
   )
 }
@@ -202,6 +246,7 @@ function Reservation() {
     : parqueaderos.find((item) => item.id === Number(parqueaderoId))
 
   return (
+    <div className={styles.contenedor}>
     <div className={styles.page}>
       <Link to="/mapa" className={styles.back}>← Volver al mapa</Link>
       <header className={styles.pageHeader}>
@@ -225,6 +270,7 @@ function Reservation() {
             : <ReservaParqueadero key={`${parqueadero.id}-${usuario?.id ?? 'anonimo'}`} parqueadero={parqueadero} />}
         </>
       )}
+    </div>
     </div>
   )
 }

@@ -135,3 +135,34 @@
   background: white;
   color: var(--azul);
 }
+
+/* La reserva es larga: hace scroll dentro del área de contenido, no la página. */
+.contenedor {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.pageHeader p {
+  color: var(--texto);
+}
+
+.selectorParqueadero select {
+  background: var(--recuadro-interno);
+  color: var(--texto);
+}
+
+.confirmacion {
+  background: var(--recuadro);
+  color: var(--texto);
+}
+
+.confirmacion dt {
+  color: var(--texto);
+}
+
+@media (max-width: 900px), (max-height: 620px) {
+  .contenedor {
+    height: auto;
+    overflow: visible;
+  }
+}

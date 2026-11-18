@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { VentanaAviso, VentanaConfirmar } from '../../components/Modal/Ventanas'
 import { useSesion } from '../../context/sesion'
 import { obtenerConfig, obtenerMovimientos, recargarSaldo } from '../../services/api'
 import { mensajeError } from '../../services/errores'
 import { pesos } from '../../utils/formato'
+import styles from './Recharge.module.css'
 
 const fechaCorta = (fecha) =>
-  new Date(fecha).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/\./g, '')
+  new Date(fecha).toLocaleString('es-CO', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }).replace(/\./g, '')
 const SIGNOS = { recarga: '+', cobro: '−', pasaje: '−' }
-import styles from './Recharge.module.css'
+const TIPOS = { recarga: 'Recarga', cobro: 'Cobro', pasaje: 'Cobro' }
 
 const LIMITES_POR_DEFECTO = { montoMinimo: 100, montoMaximo: 500000, saldoMaximo: 2000000 }
 const VALORES_RAPIDOS = [10000, 20000, 50000]
+const POR_PAGINA = 20
 const MEDIOS = {
-  pse: { titulo: 'PSE', detalle: 'Desde tu cuenta bancaria.', concepto: 'Recarga PSE' },
-  tarjeta: { titulo: 'Tarjeta crédito o débito', detalle: 'Con tu tarjeta bancaria.', concepto: 'Recarga con tarjeta' },
+  pse: { titulo: 'PSE', detalle: 'Se toma de tu cuenta bancaria mediante PSE.', concepto: 'Recarga PSE' },
+  tarjeta: { titulo: 'Tarjeta crédito o débito', detalle: 'No se toma de PSE: se carga a tu tarjeta bancaria.', concepto: 'Recarga con tarjeta' },
 }
 
 function Recharge() {
@@ -25,8 +28,11 @@ function Recharge() {
   const [monto, setMonto] = useState(() => (location.state?.monto ? String(Math.max(location.state.monto, 100)) : ''))
   const [medio, setMedio] = useState('pse')
   const [enviando, setEnviando] = useState(false)
-  const [aviso, setAviso] = useState(null)
+  const [error, setError] = useState('')
+  const [ventana, setVentana] = useState(null)
   const [movimientos, setMovimientos] = useState([])
+  const [total, setTotal] = useState(0)
+  const [estadoMov, setEstadoMov] = useState('cargando')
   const [versionMov, setVersionMov] = useState(0)
 
   useEffect(() => {
@@ -42,47 +48,72 @@ function Recharge() {
 
   useEffect(() => {
     let activo = true
-    obtenerMovimientos({ limite: 10, desde: 0 })
-      .then((pagina) => activo && setMovimientos(pagina.movimientos))
-      .catch(() => {})
+    obtenerMovimientos({ limite: POR_PAGINA, desde: 0 })
+      .then((pagina) => {
+        if (!activo) return
+        setMovimientos(pagina.movimientos)
+        setTotal(pagina.total)
+        setEstadoMov('listo')
+      })
+      .catch(() => activo && setEstadoMov('error'))
     return () => {
       activo = false
     }
   }, [versionMov])
 
-  async function enviarRecarga(evento) {
-    evento.preventDefault()
-    if (enviando) return
-
-    setEnviando(true)
-    setAviso(null)
+  async function cargarMas() {
+    setEstadoMov('cargando')
     try {
-      const valor = Number(monto)
+      const pagina = await obtenerMovimientos({ limite: POR_PAGINA, desde: movimientos.length })
+      setMovimientos((actuales) => [...actuales, ...pagina.movimientos])
+      setTotal(pagina.total)
+      setEstadoMov('listo')
+    } catch {
+      setEstadoMov('error')
+    }
+  }
+
+  // Primero se valida el valor y luego se pide confirmación (ventana C/C).
+  function pedirConfirmacion(evento) {
+    evento.preventDefault()
+    const valor = Number(monto)
+    if (!Number.isInteger(valor) || valor < limites.montoMinimo || valor > limites.montoMaximo) {
+      setError(`El valor debe ser un entero entre ${pesos(limites.montoMinimo)} y ${pesos(limites.montoMaximo)}.`)
+      evento.currentTarget.elements.monto.focus()
+      return
+    }
+    setError('')
+    setVentana({ tipo: 'confirmar', valor })
+  }
+
+  async function recargar() {
+    if (enviando) return
+    const { valor } = ventana
+    setEnviando(true)
+    try {
       const recarga = await recargarSaldo(valor, MEDIOS[medio].concepto)
       actualizarSaldo(recarga.saldo)
       setMonto('')
       setVersionMov((v) => v + 1)
-      setAviso({ exito: true, texto: `Recargaste ${pesos(valor)}. Tu saldo es ${pesos(recarga.saldo)}.` })
-    } catch (error) {
-      setAviso({ exito: false, texto: mensajeError(error) })
+      setVentana({ tipo: 'exito', valor, saldo: recarga.saldo })
+    } catch (errorRecarga) {
+      setVentana({ tipo: 'fallo', mensaje: mensajeError(errorRecarga) })
     } finally {
       setEnviando(false)
     }
   }
 
   return (
-    <div className={styles.pagina}>
+    <div className={`vista ${styles.pagina}`}>
       <section className={styles.tarjeta} aria-labelledby="tituloSaldo">
-        <h2 id="tituloSaldo">Saldo actual</h2>
+        <h1 id="tituloSaldo" className={styles.titulo}>Saldo y Recarga</h1>
         <div className={styles.saldo} aria-live="polite">
-          <span>Disponible para tus reservas</span>
-          <strong>{pesos(usuario.saldo).replace('$', '$ ')}</strong>
+          <span>Saldo actual</span>
+          <strong>{pesos(usuario.saldo)}</strong>
         </div>
 
-        <h2>Recargar saldo</h2>
-        <p className={styles.nota}>Recarga simulada: no se conecta a un banco ni se cobra dinero real.</p>
-
-        <form onSubmit={enviarRecarga} aria-busy={enviando}>
+        <form className={styles.formulario} onSubmit={pedirConfirmacion} noValidate>
+          <h2>Recargar saldo</h2>
           <label className={styles.etiqueta} htmlFor="monto">Valor a recargar</label>
           <div className={styles.monto}>
             <span aria-hidden="true">$</span>
@@ -90,6 +121,7 @@ function Recharge() {
               id="monto"
               name="monto"
               type="number"
+              inputMode="numeric"
               min={limites.montoMinimo}
               max={limites.montoMaximo}
               step="100"
@@ -97,67 +129,109 @@ function Recharge() {
               value={monto}
               onChange={(evento) => {
                 setMonto(evento.target.value)
-                setAviso(null)
+                setError('')
               }}
               placeholder="0"
+              aria-invalid={Boolean(error) || undefined}
+              aria-describedby="ayudaMonto"
             />
           </div>
+          <small id="ayudaMonto" className={styles.nota}>
+            Entre {pesos(limites.montoMinimo)} y {pesos(limites.montoMaximo)}. Recarga simulada: no se cobra dinero real.
+          </small>
 
-          <span className={styles.etiqueta}>Montos rápidos</span>
-          <div className={styles.rapidos}>
+          <div className={styles.rapidos} role="group" aria-label="Montos rápidos">
             {VALORES_RAPIDOS.map((valor) => (
               <button
                 key={valor}
                 type="button"
                 className={Number(monto) === valor ? styles.rapidoActivo : ''}
                 aria-pressed={Number(monto) === valor}
-                onClick={() => setMonto(String(valor))}
+                onClick={() => {
+                  setMonto(String(valor))
+                  setError('')
+                }}
               >
-                {pesos(valor).replace('$', '$ ')}
+                {pesos(valor)}
               </button>
             ))}
           </div>
 
-          <div className={styles.medios} role="radiogroup" aria-label="Medio de pago">
+          <fieldset className={styles.medios}>
+            <legend>Medio de pago</legend>
             {Object.entries(MEDIOS).map(([id, opcion]) => (
               <label key={id} className={medio === id ? styles.medioActivo : ''}>
                 <input type="radio" name="medio" value={id} checked={medio === id} onChange={() => setMedio(id)} />
                 {opcion.titulo}
               </label>
             ))}
-          </div>
+          </fieldset>
 
-          <button className={styles.confirmar} type="submit" disabled={enviando}>
-            {enviando ? 'Procesando…' : 'Confirmar recarga'}
-          </button>
-          {aviso && <p className={aviso.exito ? styles.exito : styles.error} role="status">{aviso.texto}</p>}
-          {aviso?.exito && desde && <Link className={styles.volver} to={desde}>Volver a tu reserva</Link>}
+          {error && <p className={styles.error} role="alert">{error}</p>}
+          <button className={`btn ${styles.confirmar}`} type="submit">Confirmar recarga</button>
+          {desde && <Link className={styles.volver} to={desde}>Volver a tu reserva</Link>}
         </form>
       </section>
 
-      <section className={styles.tarjeta} aria-labelledby="tituloMov">
+      <section className={`${styles.tarjeta} ${styles.tarjetaMov}`} aria-labelledby="tituloMov">
         <h2 id="tituloMov">Movimientos</h2>
         <div className={styles.encabezado} aria-hidden="true">
           <span>Fecha</span>
           <span>Concepto</span>
           <span>Valor</span>
         </div>
-        {movimientos.length === 0 && <p className={styles.nota}>Aún no tienes movimientos.</p>}
-        <ul className={styles.movimientos}>
-          {movimientos.map((item) => {
-            const suma = item.operacion === 'recarga'
-            return (
-              <li key={item.id}>
-                <span>{fechaCorta(item.fecha)}</span>
-                <span>{item.concepto ?? item.operacion}</span>
-                <strong className={suma ? styles.suma : ''}>
-                  {SIGNOS[item.operacion] ?? ''} {pesos(item.monto).replace('$', '$ ')}
-                </strong>
-              </li>
-            )
-          })}
-        </ul>
+        <div className={styles.lista} tabIndex={0} aria-label="Lista de movimientos">
+          {estadoMov === 'listo' && movimientos.length === 0 && <p className={styles.nota}>Aún no tienes movimientos.</p>}
+          {estadoMov === 'error' && <p className={styles.error} role="alert">No se pudieron cargar los movimientos.</p>}
+          <ul className={styles.movimientos}>
+            {movimientos.map((item) => {
+              const suma = item.operacion === 'recarga'
+              return (
+                <li key={item.id}>
+                  <span className={styles.fecha}>{fechaCorta(item.fecha)}</span>
+                  <span className={styles.concepto}>
+                    <span className={suma ? styles.tipoRecarga : styles.tipoCobro}>{TIPOS[item.operacion] ?? item.operacion}</span>
+                    {item.concepto ?? ''}
+                  </span>
+                  <strong className={suma ? styles.suma : styles.resta}>
+                    {SIGNOS[item.operacion] ?? ''} {pesos(item.monto)}
+                  </strong>
+                </li>
+              )
+            })}
+          </ul>
+          {estadoMov === 'cargando' && <p className={styles.nota}>Cargando…</p>}
+          {estadoMov === 'listo' && movimientos.length < total && (
+            <button type="button" className={`btn btn-contorno ${styles.mas}`} onClick={cargarMas}>Cargar más</button>
+          )}
+        </div>
       </section>
+
+      {ventana?.tipo === 'confirmar' && (
+        <VentanaConfirmar
+          titulo="Confirmar recarga"
+          textoConfirmar="Confirmar recarga"
+          ocupado={enviando}
+          onConfirmar={recargar}
+          onCancelar={() => setVentana(null)}
+        >
+          <p>Vas a recargar <strong>{pesos(ventana.valor)}</strong> a tu saldo de Park&amp;Go.</p>
+          <p><strong>Medio de pago:</strong> {MEDIOS[medio].titulo}. {MEDIOS[medio].detalle}</p>
+          <p><strong>Saldo después de la recarga:</strong> {pesos(usuario.saldo + ventana.valor)}</p>
+        </VentanaConfirmar>
+      )}
+      {ventana?.tipo === 'exito' && (
+        <VentanaAviso titulo="Recarga exitosa" onAceptar={() => setVentana(null)}>
+          <p>Recargaste {pesos(ventana.valor)}.</p>
+          <p>Tu saldo actual es <strong>{pesos(ventana.saldo)}</strong>.</p>
+        </VentanaAviso>
+      )}
+      {ventana?.tipo === 'fallo' && (
+        <VentanaAviso exito={false} titulo="No se pudo completar la recarga" onAceptar={() => setVentana(null)}>
+          <p>{ventana.mensaje}</p>
+          <p>No se descontó dinero. Inténtalo de nuevo.</p>
+        </VentanaAviso>
+      )}
     </div>
   )
 }
