@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { normalizarUid } from '../../services/nfcApi'
+import { soportaWebNfc, uidSimulado } from '../../services/webNfc'
 import { pedirComoLector } from '../../services/admin'
 import styles from './WirelessScanner.module.css'
 import ThemeToggle from '../../components/ThemeToggle/ThemeToggle'
@@ -17,8 +18,25 @@ export default function WirelessScanner() {
   const solicitud = useRef(null)
   const enviadas = useRef(new Set())
   const controlNfc = useRef(null)
-  const compatible = window.isSecureContext && 'NDEFReader' in window
+  const compatible = soportaWebNfc()
+  // Sin Web NFC (iPhone, PC o Chrome sin HTTPS) el mismo flujo funciona con lectura SIMULADA.
+  const simulado = !compatible
   const enlaceValido = /^[a-zA-Z0-9_-]{43}$/.test(clave)
+
+  // Envía el UID leído (real o simulado) a la solicitud pendiente del computador.
+  async function enviarUid(uid, signal, { simulada = false } = {}) {
+    const id = solicitud.current
+    if (!id || enviadas.current.has(id)) return
+    // Se consume antes de enviar para que mantener la tarjeta cerca no repita lecturas.
+    enviadas.current.add(id)
+    solicitud.current = null
+    setSolicitado(false)
+    try {
+      await pedirComoLector('scan', clave, { cuerpo: { solicitud: id, uid, simulada }, signal, simulacion })
+    } catch (fallo) {
+      if (!signal?.aborted && fallo.estado !== 409) setError('Conexión interrumpida. Revisa la gestión desde el computador.')
+    }
+  }
 
   function detener() {
     controlNfc.current?.abort()
@@ -71,28 +89,24 @@ export default function WirelessScanner() {
   }, [activo, clave, simulacion])
 
   async function activar() {
-    if (activando || activo || !compatible || !enlaceValido) return
-    setActivando(true)
+    if (activando || activo || !enlaceValido) return
     setError('')
     const control = new AbortController()
     controlNfc.current = control
+    if (simulado) {
+      // Modo simulado: solo se conecta con el computador; la lectura la hace el botón.
+      setActivo(true)
+      return
+    }
+    setActivando(true)
     try {
       const lector = new window.NDEFReader()
       lector.addEventListener('reading', async ({ serialNumber }) => {
-        const id = solicitud.current
-        if (!id || control.signal.aborted || document.hidden || enviadas.current.has(id)) return
+        if (!solicitud.current || control.signal.aborted || document.hidden) return
         let uid
         try { uid = normalizarUid(serialNumber) }
         catch { setError('No se puede leer esta tarjeta. Prueba una etiqueta compatible con NDEF.'); return }
-        // Se consume antes de enviar para que mantener la tarjeta cerca no repita lecturas.
-        enviadas.current.add(id)
-        solicitud.current = null
-        setSolicitado(false)
-        try {
-          await pedirComoLector('scan', clave, { cuerpo: { solicitud: id, uid }, signal: control.signal, simulacion })
-        } catch (fallo) {
-          if (!control.signal.aborted && fallo.estado !== 409) setError('Conexión interrumpida. Revisa la gestión desde el computador.')
-        }
+        await enviarUid(uid, control.signal)
       }, { signal: control.signal })
       lector.addEventListener('readingerror', () => {
         if (solicitud.current) setError('Acerca nuevamente la tarjeta a la antena NFC del celular.')
@@ -114,8 +128,20 @@ export default function WirelessScanner() {
       <h1>{solicitado ? 'Acerca la tarjeta' : activo ? 'Lector conectado' : 'Conectar lector NFC'}</h1>
       <p role="status">{solicitado ? 'El computador ha solicitado una lectura.' : activo ? 'Esperando una solicitud del computador.' : 'Activa NFC para utilizar este celular como lector.'}</p>
       {!enlaceValido && <p role="alert">Abre el enlace de lector generado por el administrador en Lector NFC o Simulaciones.</p>}
-      {!compatible && <p>Se requiere Chrome en Android, NFC y una conexión HTTPS. La tarjeta debe ser compatible con NDEF y entregar su UID.</p>}
-      <button type="button" disabled={activando || !compatible || !enlaceValido} onClick={activo ? detener : activar}>{activando ? 'Activando…' : activo ? 'Pausar lector' : 'Activar lector NFC'}</button>
+      {simulado && (
+        <p className={styles.simulado} role="note">
+          <strong>Lectura SIMULADA.</strong> Este navegador no tiene NFC web (se requiere Chrome en Android, NFC y HTTPS).
+          Se enviará un identificador de prueba en lugar de una tarjeta real.
+        </p>
+      )}
+      <button type="button" disabled={activando || !enlaceValido} onClick={activo ? detener : activar}>
+        {activando ? 'Activando…' : activo ? 'Pausar lector' : simulado ? 'Conectar lector simulado' : 'Activar lector NFC'}
+      </button>
+      {simulado && activo && (
+        <button type="button" className={styles.botonSimular} disabled={!solicitado} onClick={() => enviarUid(uidSimulado(), controlNfc.current?.signal, { simulada: true })}>
+          Simular lectura de tarjeta
+        </button>
+      )}
       {(errorConexion || error) && <p className={styles.error} role="alert">{errorConexion || error}</p>}
       <p className={styles.ayuda}>Mantén esta pantalla abierta. La gestión y los resultados se muestran únicamente en el computador.</p>
     </div>

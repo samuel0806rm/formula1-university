@@ -87,3 +87,16 @@
   display: flex;
   justify-content: flex-end;
 }
+
+/* Aviso y botón de la lectura simulada (sin Web NFC). */
+.simulado {
+  margin: 0;
+  padding: 10px 14px;
+  border: 2px dashed currentColor;
+  border-radius: 20px;
+  font-size: 15px;
+}
+
+.botonSimular {
+  margin-top: 8px;
+}

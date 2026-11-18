@@ -1,4 +1,5 @@
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
+import { leerUidUnaVez, MENSAJES_NFC, soportaWebNfc } from '../../services/webNfc'
 import { Check, ErrorCirculo } from '../Iconos/Iconos'
 import Modal from './Modal'
 import styles from './Ventanas.module.css'
@@ -115,17 +116,41 @@ export function VentanaCampos({
 }
 
 // No hay lector NFC real: el botón "Simular lectura de tarjeta" reemplaza al lector.
+// Si el celular tiene Web NFC (Chrome Android + HTTPS) la ventana lee la tarjeta real y
+// llama onLeer(uid). Si no, muestra "Simular lectura de tarjeta" y llama onLeer() sin UID.
 export function VentanaNFC({ titulo, texto, onLeer, onCancelar, ocupado = false, error = '' }) {
+  const [real] = useState(soportaWebNfc)
+  const [errorNfc, setErrorNfc] = useState('')
+
+  useEffect(() => {
+    if (!real || ocupado) return undefined
+    const control = new AbortController()
+    leerUidUnaVez(control.signal)
+      .then((uid) => onLeer(uid))
+      .catch((fallo) => { if (fallo.message !== 'AbortError') setErrorNfc(MENSAJES_NFC[fallo.message] ?? MENSAJES_NFC.nfc_error) })
+    return () => control.abort()
+    // Se vuelve a escuchar solo si cambia "ocupado"; onLeer cambia en cada render del padre.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [real, ocupado])
+
+  const mensajeError = error || errorNfc
   return (
     <Modal titulo={titulo} onCerrar={onCancelar}>
       <div className={styles.centro}>
         <img src="/img/Icon_NFC.png" alt="" width="110" height="110" className={`${styles.nfc} ${ocupado ? styles.leyendo : ''}`} />
         <p className={styles.texto}>{texto}</p>
-        <p className={styles.estado} role="status">{ocupado ? 'Leyendo tarjeta…' : 'Esperando tarjeta…'}</p>
-        {error && <p className={styles.error} role="alert">{error}</p>}
-        <button type="button" className={styles.simular} onClick={onLeer} disabled={ocupado}>
-          Simular lectura de tarjeta
-        </button>
+        <p className={styles.estado} role="status">
+          {ocupado ? 'Leyendo tarjeta…' : real ? 'Acerca la tarjeta a la parte trasera del celular…' : 'Esperando tarjeta…'}
+        </p>
+        {mensajeError && <p className={styles.error} role="alert">{mensajeError}</p>}
+        {!real && (
+          <>
+            <p className={styles.aviso}>Este dispositivo no tiene NFC web: la lectura es <strong>simulada</strong>.</p>
+            <button type="button" className={styles.simular} onClick={() => onLeer()} disabled={ocupado}>
+              Simular lectura de tarjeta
+            </button>
+          </>
+        )}
       </div>
     </Modal>
   )

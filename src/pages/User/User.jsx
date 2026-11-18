@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { VentanaAviso, VentanaCampos, VentanaConfirmar, VentanaNFC } from '../../components/Modal/Ventanas'
 import { useSesion } from '../../context/sesion'
 import { tiposVehiculo } from '../../data/vehiculos'
@@ -8,6 +8,7 @@ import { mensajeError } from '../../services/errores'
 import { codigoConfirmacion, desvincularTarjeta, simularLectura, tarjetaDe, vincularTarjeta } from '../../services/nfc'
 import { guardarPreferencias, leerPreferencias } from '../../services/preferencias'
 import { rolDe } from '../../utils/roles'
+import { useTarjetasServidor } from '../../hooks/useTarjetasServidor'
 import styles from './User.module.css'
 
 const AVISO_POLITICA = 'Las opciones de CORREO y ROL no se pueden modificar por políticas de la empresa'
@@ -67,6 +68,8 @@ function User() {
   const [ocupado, setOcupado] = useState(false)
   const [errorVentana, setErrorVentana] = useState('')
   const [tarjeta, setTarjeta] = useState(() => tarjetaDe(usuario.id))
+  // Si un administrador vincula la tarjeta desde el PC, aparece aquí sin recargar.
+  const tarjetaServidor = useTarjetasServidor()[0] ?? null
   const cerrarAlSalir = useRef(null)
 
   // Tras eliminar la cuenta, la sesión se cierra al salir de esta vista; así la ruta
@@ -137,11 +140,12 @@ function User() {
     }
   }
 
-  async function leerTarjetaVincular() {
+  // uid llega si la tarjeta se leyó con Web NFC; sin uid, la lectura es simulada.
+  async function leerTarjetaVincular(uid) {
     setOcupado(true)
     try {
-      await simularLectura()
-      const nueva = vincularTarjeta(usuario)
+      if (!uid) await simularLectura()
+      const nueva = vincularTarjeta(usuario, uid)
       setTarjeta(nueva)
       abrir({ tipo: 'aviso', exito: true, titulo: 'Tarjeta NFC vinculada', texto: [`Tarjeta ${nueva.codigo} vinculada a tu cuenta.`] })
     } catch {
@@ -151,10 +155,10 @@ function User() {
     }
   }
 
-  async function leerTarjetaAdministrador() {
+  async function leerTarjetaAdministrador(uid) {
     setOcupado(true)
     try {
-      await simularLectura()
+      if (!uid) await simularLectura()
       desvincularTarjeta(usuario.id)
       setTarjeta(null)
       abrir({ tipo: 'aviso', exito: true, titulo: 'Tarjeta NFC desvinculada con éxito', texto: ['La tarjeta ya no está asociada a tu cuenta.'] })
@@ -205,13 +209,24 @@ function User() {
         )}
 
         <h2 className={styles.subtitulo}>Tarjeta NFC</h2>
-        <div className={styles.tarjetaNfc}>
+        <div className={styles.tarjetaNfc} aria-live="polite">
           <img src="/img/Icon_NFC.png" alt="" width="44" height="44" />
-          <p>
-            {tarjeta ? <>Tarjeta <strong>{tarjeta.codigo}</strong> vinculada.</> : 'No tienes una tarjeta NFC vinculada.'}
-            <small> (simulada)</small>
-          </p>
-          {tarjeta ? (
+          {tarjetaServidor ? (
+            // Tarjeta vinculada por un administrador desde /lector (servidor del proyecto).
+            <>
+              <p>
+                Tarjeta <strong>{tarjetaServidor.uid}</strong> vinculada · {tarjetaServidor.activa ? 'Activa' : 'Bloqueada'}
+                <small> (registrada por un administrador)</small>
+              </p>
+              <Link to="/tarjeta" className="btn btn-contorno">Ver Mi Tarjeta</Link>
+            </>
+          ) : (
+            <p>
+              {tarjeta ? <>Tarjeta <strong>{tarjeta.codigo}</strong> vinculada.</> : 'No tienes una tarjeta NFC vinculada.'}
+              {tarjeta && <small>{tarjeta.simulada === false ? ' (leída con NFC en este navegador)' : ' (simulada)'}</small>}
+            </p>
+          )}
+          {tarjetaServidor ? null : tarjeta ? (
             <button type="button" className="btn btn-contorno" onClick={() => abrir({ tipo: 'desvincular' })}>Desvincular tarjeta</button>
           ) : (
             <button type="button" className="btn btn-contorno" onClick={() => abrir({ tipo: 'vincular' })}>Vincular tarjeta</button>

@@ -26,7 +26,7 @@ export function crearLectorInalambrico({ llamar, adminUserId, adminEmails, esAdm
   }
   const conectado = (lector) => lector.preparado && ahora() - lector.ultimoContacto < 10000
   const vista = (lector) => ({ id: lector.id, conectado: conectado(lector), caduca: lector.caduca, trabajo: lector.trabajo
-    ? { id: lector.trabajo.id, usuario: lector.trabajo.usuario, estado: lector.trabajo.estado, uid: lector.trabajo.uid, error: lector.trabajo.error }
+    ? { id: lector.trabajo.id, usuario: lector.trabajo.usuario, estado: lector.trabajo.estado, uid: lector.trabajo.uid, simulada: Boolean(lector.trabajo.simulada), error: lector.trabajo.error }
     : null })
   async function candidato(id) {
     if (!Number.isSafeInteger(id) || id <= 0) throw fallo('usuario_invalido')
@@ -61,6 +61,8 @@ export function crearLectorInalambrico({ llamar, adminUserId, adminEmails, esAdm
         const uid = String(cuerpo.uid ?? '').replace(/[:\s-]/g, '').toUpperCase()
         if (!/^[0-9A-F]{4,32}$/.test(uid)) throw fallo('uid_invalido')
         trabajo.uid = uid
+        // El celular avisa si no tenía Web NFC y envió un identificador de prueba.
+        trabajo.simulada = cuerpo.simulada === true
         await perfilAdmin(trabajo.acceso)
         const id = trabajo.usuario.id
         if (vinculando.has(id)) throw fallo('usuario_en_proceso', 409)

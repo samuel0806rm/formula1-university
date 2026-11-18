@@ -160,3 +160,26 @@
 :global(:root[data-tema='oscuro']) .error {
   color: #ffb3b3;
 }
+
+@media (max-width: 600px) {
+  .botones {
+    flex-direction: column-reverse;
+  }
+
+  .botones :global(.btn) {
+    width: 100%;
+    min-height: 46px;
+  }
+}
+
+.aviso {
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: var(--radio);
+  background: var(--recuadro);
+  font-size: 14px;
+}
+
+.simular {
+  min-height: 44px;
+}

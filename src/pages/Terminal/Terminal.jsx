@@ -143,7 +143,7 @@ function GestionLector() {
     <div className={styles.estado} aria-live="polite">
       {lector?.trabajo?.estado === 'esperando' && <div className={styles.scan}><h2>Escanea la tarjeta en el lector</h2><p>Acércala al celular para vincularla a <strong>{lector.trabajo.usuario.nombre}</strong>.</p><p>Tiempo de espera: hasta dos minutos.</p><button disabled={ocupado} type="button" onClick={() => ejecutar(async () => { const actual = await cancelarLectura(lector.id); setLector((previo) => ({ ...previo, ...actual })) })}>Cancelar lectura</button></div>}
       {lector?.trabajo?.estado === 'procesando' && <div className={styles.scan}><h2>Vinculando tarjeta…</h2><p>Espera el resultado en esta pantalla.</p></div>}
-      {lector?.trabajo?.estado === 'vinculada' && <div className={styles.exito}><h2>Tarjeta vinculada y lista para usar</h2><p>Titular: <strong>{lector.trabajo.usuario.nombre}</strong></p><p>Tarjeta: <strong>{lector.trabajo.uid}</strong></p></div>}
+      {lector?.trabajo?.estado === 'vinculada' && <div className={styles.exito}><h2>Tarjeta vinculada y lista para usar</h2><p>Titular: <strong>{lector.trabajo.usuario.nombre}</strong></p><p>Tarjeta: <strong>{lector.trabajo.uid}</strong>{lector.trabajo.simulada && ' (lectura simulada)'}</p></div>}
       {lector?.trabajo?.estado === 'error' && <div className={styles.error}><h2>No se confirmó la vinculación</h2><p>{mensajeError(new Error(lector.trabajo.error))}</p></div>}
       {lector?.trabajo?.estado === 'cancelada' && <p>Lectura cancelada. Puedes seleccionar otro usuario.</p>}
       {error && <p className={styles.error} role="alert">{error}</p>}

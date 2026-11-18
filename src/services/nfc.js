@@ -17,8 +17,9 @@ function codigoAleatorio() {
   return [...bytes].map((b) => b.toString(16).padStart(2, '0')).join(':').toUpperCase()
 }
 
-export function vincularTarjeta(usuario) {
-  const tarjeta = { codigo: codigoAleatorio(), email: usuario.email, vinculada: Date.now() }
+// `uidReal`: UID real leído con Web NFC; si no llega, se genera uno (lectura simulada).
+export function vincularTarjeta(usuario, uidReal) {
+  const tarjeta = { codigo: uidReal ?? codigoAleatorio(), email: usuario.email, vinculada: Date.now(), simulada: !uidReal }
   if (!guardarLocal(CLAVE, { ...leerTodas(), [usuario.id]: tarjeta })) throw new Error('almacen_no_disponible')
   return tarjeta
 }
