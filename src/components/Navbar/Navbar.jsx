@@ -5,20 +5,38 @@ import { useTema } from '../../hooks/useTema'
 import { useInstalacion } from '../../services/instalacion'
 import { Luna, Sol } from '../Iconos/Iconos'
 import Logo from '../Logo/Logo'
+import { rolDeUsuario } from '../../utils/roles'
 import styles from './Navbar.module.css'
 
+// Enlaces según el rol (Figma, página "Navbar"): Sin cuenta iniciada, Conductor,
+// Propietario y Administrador.
 function Enlaces({ usuario, cargando, instalada }) {
+  const rol = rolDeUsuario(usuario)?.clave
   return (
     <>
       <li><NavLink to="/" end>Inicio</NavLink></li>
-      <li><NavLink to="/mapa">Mapa</NavLink></li>
-      {usuario && (
+      {rol !== 'propietario' && <li><NavLink to="/mapa">Mapa</NavLink></li>}
+      {rol === 'conductor' && (
         <>
           <li><NavLink to="/recarga">Saldo y Recarga</NavLink></li>
           <li><NavLink to="/notificaciones">Notificaciones</NavLink></li>
           <li><NavLink to="/usuario">Mi Cuenta</NavLink></li>
-          {usuario.administrador && <li><NavLink to="/lector">Lector NFC</NavLink></li>}
-          {usuario.administrador && <li><NavLink to="/simulaciones">Simulaciones</NavLink></li>}
+        </>
+      )}
+      {rol === 'administrador' && (
+        <>
+          <li><NavLink to="/lector">Lector NFC</NavLink></li>
+          <li><NavLink to="/simulaciones">Simulaciones</NavLink></li>
+          <li><NavLink to="/gestion">Gestión</NavLink></li>
+          <li><NavLink to="/usuario">Cuenta</NavLink></li>
+        </>
+      )}
+      {rol === 'propietario' && (
+        <>
+          <li><NavLink to="/administrar-parqueadero">Administrar Parqueadero</NavLink></li>
+          <li><NavLink to="/finanzas">Finanzas</NavLink></li>
+          <li><NavLink to="/registro-parqueadero">Registro Parqueadero</NavLink></li>
+          <li><NavLink to="/usuario">Cuenta</NavLink></li>
         </>
       )}
       {!usuario && !cargando && (

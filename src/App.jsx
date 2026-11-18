@@ -19,6 +19,11 @@ import Card from './pages/Card/Card'
 import WirelessScanner from './pages/WirelessScanner/WirelessScanner'
 import Simulations from './pages/Simulations/Simulations'
 import SimulationScreen from './pages/SimulationScreen/SimulationScreen'
+import RutaRol from './components/RutaRol/RutaRol'
+import Gestion from './pages/Gestion/Gestion'
+import RegistroParqueadero from './pages/RegistroParqueadero/RegistroParqueadero'
+import AdministrarParqueadero from './pages/AdministrarParqueadero/AdministrarParqueadero'
+import Finanzas from './pages/Finanzas/Finanzas'
 import styles from './App.module.css'
 
 function PaginasUsuario() {
@@ -40,6 +45,10 @@ function PaginasUsuario() {
               <Route path="/usuario" element={<RutaProtegida><User /></RutaProtegida>} />
               <Route path="/notificaciones" element={<RutaProtegida><Notificaciones /></RutaProtegida>} />
               <Route path="/instalar" element={<Instalar />} />
+              <Route path="/gestion" element={<RutaRol rol="administrador"><Gestion /></RutaRol>} />
+              <Route path="/administrar-parqueadero" element={<RutaRol rol="propietario"><AdministrarParqueadero /></RutaRol>} />
+              <Route path="/registro-parqueadero" element={<RutaRol rol="propietario"><RegistroParqueadero /></RutaRol>} />
+              <Route path="/finanzas" element={<RutaRol rol="propietario"><Finanzas /></RutaRol>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

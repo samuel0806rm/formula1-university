@@ -9,8 +9,7 @@ import { cuposLibres } from '../data/plazas'
 import { parqueaderos } from '../data/parqueaderos'
 import { useAhora } from '../hooks/useAhora'
 import { listarReservas } from '../services/reservas'
-import { leerPreferencias } from '../services/preferencias'
-import { rolDe } from '../utils/roles'
+import { rolDeUsuario } from '../utils/roles'
 import { pesos } from '../utils/formato'
 import styles from './Home.module.css'
 
@@ -118,7 +117,7 @@ const TituloReconocidos = () => (
 // Inicio con sesión: saludo, mini mapa, billetera y "Sobre nosotros" desplegable.
 function InicioUsuario({ usuario, items, ahora }) {
   const [sobreAbierto, setSobreAbierto] = useState(false)
-  const rol = rolDe(leerPreferencias(usuario.id).tipoUsuario)
+  const rol = rolDeUsuario(usuario)
   const primerNombre = usuario.nombre.split(' ')[0]
 
   return (

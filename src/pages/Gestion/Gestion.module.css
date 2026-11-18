@@ -1,0 +1,54 @@
+.gestion {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* Parqueaderos: listado + detalle (1136 / 520 en 1680 de Figma). */
+.dosColumnas {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(300px, 1fr);
+  gap: 24px;
+}
+
+.unaColumna {
+  min-height: 0;
+}
+
+/* Tarjetas: formulario 560 + lista 1096. */
+.tarjetas {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(0, 2fr);
+  gap: 24px;
+}
+
+.formulario {
+  display: grid;
+  gap: 16px;
+}
+
+.soloCelular {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .gestion {
+    grid-template-rows: auto;
+  }
+
+  .dosColumnas,
+  .tarjetas {
+    grid-template-columns: 1fr;
+  }
+
+  .soloEscritorio {
+    display: none;
+  }
+
+  .soloCelular {
+    display: block;
+    flex-basis: 100%;
+    order: -1;
+  }
+}

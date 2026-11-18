@@ -4,10 +4,15 @@ import http from 'node:http'
 import process from 'node:process'
 import { crearServicioNfc } from './nfc.js'
 import { servirInterfaz } from './static.js'
+import { crearAyudanteCuentasEquipo } from './cuentasEquipo.js'
 
 const { API_BASE_URL, API_TOKEN, PORT = 3001 } = process.env
 const atenderNfc = crearServicioNfc({
   base: API_BASE_URL, token: API_TOKEN, adminUserId: process.env.ADMIN_USER_ID, adminEmails: process.env.ADMIN_EMAILS,
+})
+
+const cuentasEquipo = crearAyudanteCuentasEquipo({
+  adminEmails: process.env.ADMIN_EMAILS, contrasena: process.env.CUENTAS_EQUIPO_CONTRASENA, base: API_BASE_URL, token: API_TOKEN,
 })
 
 if (!API_BASE_URL || !API_TOKEN || API_TOKEN === 'DEPOSITA_TU_CLAVE_AQUI') {
@@ -106,6 +111,12 @@ const servidor = http.createServer(async (req, res) => {
 
   try {
     const cuerpo = await leerCuerpo(req)
+    if (req.method === 'POST' && ruta === '/auth/login' && cuentasEquipo.activa) {
+      const datos = JSON.parse(cuerpo || '{}')
+      const { estado, texto } = await cuentasEquipo.iniciarSesion(datos)
+      res.writeHead(estado, { 'Content-Type': 'application/json' })
+      return res.end(texto)
+    }
     const cabeceras = { 'X-API-Key': API_TOKEN }
     if (req.headers.authorization) cabeceras.Authorization = req.headers.authorization
     if (cuerpo) cabeceras['Content-Type'] = 'application/json'
@@ -120,6 +131,7 @@ const servidor = http.createServer(async (req, res) => {
     res.end(texto)
   } catch (error) {
     if (error.message === 'cuerpo_muy_grande') return responder(res, 400, { error: error.message })
+    if (error instanceof SyntaxError) return responder(res, 400, { error: 'json_invalido' })
     responder(res, 502, { error: 'api_no_disponible' })
   }
 })

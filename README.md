@@ -31,6 +31,28 @@ npm run test:e2e # pruebas Playwright (la primera vez: npx playwright install ch
   foco atrapado, Esc, X arriba a la izquierda) y 4 tipos: C/C (`VentanaConfirmar`), CON
   (`VentanaCampos`), N (`VentanaNFC`) y A (`VentanaAviso`, con su versión negativa `exito={false}`).
 
+## Roles: sin sesión, Conductor, Propietario y Administrador
+
+El navbar cambia según el rol, como en Figma (página "Navbar"):
+
+| Rol | Cómo se obtiene | Navbar |
+| --- | --- | --- |
+| Sin sesión | — | Inicio · Mapa · Iniciar sesión · Registrarme |
+| Conductor | Registro con tipo de cuenta "Conductor" | Inicio · Mapa · Saldo y Recarga · Notificaciones · Mi Cuenta |
+| Propietario | Registro con tipo de cuenta "Propietario de parqueadero" | Inicio · Administrar Parqueadero · Finanzas · Registro Parqueadero · Cuenta |
+| Administrador | Correo en `ADMIN_EMAILS` (lo decide el servidor) | Inicio · Mapa · Lector NFC · Simulaciones · Gestión · Cuenta |
+
+- **Gestión** (`/gestion`, Administrador): pestañas Parqueaderos (buscar, filtrar por estado, habilitar o rechazar), Usuarios (buscar por nombre o correo) y Tarjetas (vincular y desvincular).
+- **Registro Parqueadero** (`/registro-parqueadero`, Propietario): formulario con documentos PDF (máx. 5 MB); al enviar queda "En verificación".
+- **Administrar Parqueadero** (`/administrar-parqueadero`, Propietario): abierto/cerrado, tarifa, horario, plazas (tocar para habilitar o deshabilitar), solicitudes de conductores, guardar y eliminar.
+- **Finanzas** (`/finanzas`, Propietario): totales, movimientos por día/semana/mes o por fecha, ingresos de la semana y detalle.
+
+La API del profesor no tiene parqueaderos, plazas, solicitudes ni finanzas, así que estos datos
+se **simulan en el navegador** (`src/services/gestion.js`, clave `parking-tunja:gestion:v1`), como
+la tarjeta NFC. Lo que registra un propietario aparece en Gestión si se usa el mismo navegador.
+Cada ruta muestra "Sin acceso" a quien no tiene el rol. El tipo de cuenta se guarda en el navegador
+al registrarse: si inicias sesión en otro navegador, la cuenta aparece como Conductor.
+
 ## Celular y PWA
 
 ### Diseño móvil
@@ -315,6 +337,7 @@ npx playwright test
 - `tests/movil.spec.js`: capturas 390×844 claro/oscuro en `tests/capturas/movil/` (para comparar
   con Figma) y revisión sin scroll horizontal en 360×740 y 768×1024.
 - `tests/capturas.spec.js`: escritorio 1920×1080, 1536×864 y 1366×768 sin scroll vertical.
+- `tests/roles.spec.js`: navbar por rol, Gestión, registro y administración de parqueadero, Finanzas, sin scroll en escritorio y celular
 - `tests/pwa.spec.js`: manifest, metadatos, instalabilidad, caché sin `/api`, modo sin conexión
   y flujo de instalación (Android e iPhone).
 - `tests/admin-nfc.spec.js`: administradores por correo y flujo celular → PC con lectura

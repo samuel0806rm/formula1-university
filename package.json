@@ -12,7 +12,7 @@
     "api": "node --env-file=server/.env server/index.js",
     "start": "node --env-file=server/.env server/index.js",
     "tunnel": "node server/tunnel.js",
-    "test:nfc": "node --test server/admins.test.js server/nfc.test.js server/cardRequests.test.js server/wirelessReader.test.js server/simulations.test.js server/nfcHttp.test.js"
+    "test:nfc": "node --test server/admins.test.js server/nfc.test.js server/cardRequests.test.js server/wirelessReader.test.js server/simulations.test.js server/nfcHttp.test.js server/admins.test.js server/cuentasEquipo.test.js"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

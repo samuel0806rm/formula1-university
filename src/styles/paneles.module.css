@@ -1,0 +1,283 @@
+/* Piezas comunes de las vistas de Propietario y Administrador (Figma: Gestión,
+   Registro de parqueadero, Administrar parqueadero y Finanzas). Usan solo los
+   tokens de index.css, así el modo oscuro funciona igual que en el resto. */
+
+.panel {
+  min-height: 0;
+  min-width: 0;
+  padding: clamp(18px, 3vh, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.6vh, 16px);
+  border-radius: var(--radio);
+  background: var(--recuadro);
+  overflow: hidden;
+}
+
+.titulo {
+  margin: 0;
+  color: var(--titulo-h3);
+  font-size: clamp(20px, 2.4vh, 24px);
+  font-weight: 700;
+}
+
+.subtitulo {
+  margin: 0;
+  color: var(--texto);
+  font-size: clamp(17px, 2vh, 20px);
+  font-weight: 600;
+}
+
+.nota {
+  margin: 0;
+  font-size: 15px;
+}
+
+/* Pestañas: la activa es Botón/Primario y las demás Botón/Secundario. */
+.pestanas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pestanas :global(.btn) {
+  min-height: 50px;
+}
+
+/* Campos (Campo/Texto y Campo/Selector). */
+.campo {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.campo label,
+.campo .etiqueta {
+  font-size: clamp(16px, 2vh, 20px);
+  font-weight: 600;
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  min-height: clamp(44px, 5.4vh, 52px);
+  padding: 0 20px;
+  border: 2px solid var(--recuadro);
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+  font-size: 18px;
+}
+
+.campo input:disabled,
+.campo select:disabled {
+  opacity: 0.55;
+}
+
+.fila2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Insignia de estado: esquina inferior derecha recta, como los botones. */
+.estado {
+  display: inline-block;
+  width: fit-content;
+  padding: 5px 14px;
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  background: var(--accion);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.estadoAzul {
+  background: #153e90;
+}
+
+.estadoRojo {
+  background: var(--alerta);
+}
+
+:global(:root[data-tema='oscuro']) .estadoAzul {
+  background: #4f7fe0;
+}
+
+/* Tablas como lista de filas blancas (Figma "Encabezado tabla" + "Fila"). */
+.tabla {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.encabezado,
+.fila {
+  display: grid;
+  grid-template-columns: var(--columnas);
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+}
+
+.encabezado {
+  color: var(--titulo-h3);
+  font-size: clamp(16px, 2vh, 20px);
+  font-weight: 600;
+}
+
+.filas {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 2px;
+  display: grid;
+  align-content: start;
+  gap: clamp(8px, 1.2vh, 12px);
+  list-style: none;
+  overflow-y: auto;
+}
+
+.fila {
+  min-height: clamp(48px, 5.6vh, 60px);
+  width: 100%;
+  border: 2px solid transparent;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+  color: var(--texto);
+  font-size: 16px;
+  text-align: left;
+}
+
+button.fila {
+  cursor: pointer;
+}
+
+.filaActiva {
+  border-color: var(--accion);
+}
+
+.celdaFuerte {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.celda {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dato {
+  padding: 12px 20px;
+  display: grid;
+  gap: 4px;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+}
+
+.dato span {
+  font-size: 14px;
+}
+
+.dato strong {
+  font-size: clamp(16px, 2vh, 20px);
+  font-weight: 600;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  padding: 8px 16px;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+  font-size: 14px;
+}
+
+.mensajeOk {
+  margin: 0;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 2px solid var(--accion);
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+  font-size: 17px;
+}
+
+.mensajeOk svg {
+  flex: none;
+  color: var(--accion);
+}
+
+.error {
+  margin: 0;
+  color: var(--alerta);
+  font-weight: 600;
+}
+
+:global(:root[data-tema='oscuro']) .error {
+  color: #ff8a8a;
+}
+
+.vacio {
+  margin: auto;
+  max-width: 460px;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.espaciador {
+  flex: 1;
+}
+
+.botonAncho {
+  width: 100%;
+  min-height: 50px;
+}
+
+@media (max-width: 900px) {
+  .panel {
+    overflow: visible;
+  }
+
+  .filas {
+    overflow: visible;
+  }
+
+  .fila2 {
+    grid-template-columns: 1fr;
+  }
+
+  /* En celular cada fila se apila: sin encabezado y con etiquetas en línea. */
+  .encabezado {
+    display: none;
+  }
+
+  .fila {
+    padding: 12px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 12px;
+  }
+
+  .celdaFuerte {
+    flex-basis: 100%;
+  }
+
+  .celda {
+    white-space: normal;
+  }
+}

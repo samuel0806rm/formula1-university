@@ -7,7 +7,7 @@ import { actualizarPerfil, cambiarContrasena, iniciarSesion } from '../../servic
 import { mensajeError } from '../../services/errores'
 import { codigoConfirmacion, desvincularTarjeta, simularLectura, tarjetaDe, vincularTarjeta } from '../../services/nfc'
 import { guardarPreferencias, leerPreferencias } from '../../services/preferencias'
-import { rolDe } from '../../utils/roles'
+import { rolDeUsuario } from '../../utils/roles'
 import { useTarjetasServidor } from '../../hooks/useTarjetasServidor'
 import styles from './User.module.css'
 
@@ -77,7 +77,7 @@ function User() {
   useEffect(() => () => cerrarAlSalir.current?.(), [])
 
   const preferencias = leerPreferencias(usuario.id)
-  const rol = rolDe(preferencias.tipoUsuario)
+  const rol = rolDeUsuario(usuario)
 
   function abrir(siguiente) {
     setErrorVentana('')

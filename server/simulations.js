@@ -1,12 +1,12 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto'
-import { parqueaderos } from '../src/data/parqueaderos.js'
+import { parqueaderos as parqueaderosPorDefecto } from '../src/data/parqueaderos.js'
 import { crearAlmacenSimulaciones } from './simulationStore.js'
 
 const fallo = (error, estado = 400, datos = {}) => Object.assign(new Error(error), { estado, datos })
 const hash = (valor) => createHash('sha256').update(valor).digest('hex')
 const esPendiente = (op) => ['enviando', 'incierta'].includes(op.estado)
 
-export function crearSimulaciones({ llamar, perfilAdmin, ahora = Date.now, almacen = crearAlmacenSimulaciones() }) {
+export function crearSimulaciones({ llamar, perfilAdmin, ahora = Date.now, almacen = crearAlmacenSimulaciones(), parqueaderos = parqueaderosPorDefecto }) {
   const sesiones = new Map()
   const clavesPantalla = new Map()
   const clavesLector = new Map()

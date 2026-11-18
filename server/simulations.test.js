@@ -6,6 +6,13 @@ import path from 'node:path'
 import { crearSimulaciones } from './simulations.js'
 import { crearAlmacenSimulaciones } from './simulationStore.js'
 
+// Datos fijos de prueba: no dependen de los parqueaderos de ejemplo de la interfaz.
+const parqueaderosPrueba = [
+  { id: 1, nombre: 'Parqueadero 1', direccion: 'Cra 1 - N°123', tarifaHora: 3500 },
+  { id: 2, nombre: 'Parqueadero 2', direccion: 'Cra 1 - N°123', tarifaHora: 3000 },
+  { id: 3, nombre: 'Parqueadero 3', direccion: 'Cra 1 - N°123', tarifaHora: 4000 },
+]
+
 function preparar({ activa = true, activo = true, rechazar, desconectar, almacen } = {}) {
   let reloj = 1700000000000
   const datos = { estancias: {}, operaciones: {} }
@@ -14,7 +21,7 @@ function preparar({ activa = true, activo = true, rechazar, desconectar, almacen
     const p = cola.then(() => tarea(datos, async () => {})); cola = p.catch(() => {}); return p
   } }
   const llamadas = []
-  const atender = crearSimulaciones({ ahora: () => reloj, almacen: almacen ?? memoria,
+  const atender = crearSimulaciones({ parqueaderos: parqueaderosPrueba, ahora: () => reloj, almacen: almacen ?? memoria,
     perfilAdmin: async (acceso) => { if (acceso !== 'Bearer admin') throw Object.assign(new Error('administrador_requerido'), { estado: 403 }); return { id: 38 } },
     llamar: async (ruta, opciones = {}) => {
       llamadas.push({ ruta, ...opciones })

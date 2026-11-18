@@ -33,17 +33,17 @@ function movimientos() {
  * @param {import('@playwright/test').Page} page
  * @param {{ tema?: 'claro'|'oscuro', fallar?: boolean, conSesion?: boolean }} opciones
  */
-export async function prepararPagina(page, { tema = 'claro', fallar = false, conSesion = true, admin = false, tarjetas = [] } = {}) {
+export async function prepararPagina(page, { tema = 'claro', fallar = false, conSesion = true, admin = false, tarjetas = [], tipoUsuario = 'usuario' } = {}) {
   const estado = { saldo: USUARIO.saldo, tarjetas }
 
-  await page.addInitScript(({ tema, conSesion, usuario }) => {
+  await page.addInitScript(({ tema, conSesion, usuario, tipoUsuario }) => {
     if (sessionStorage.getItem('preparado')) return
     sessionStorage.setItem('preparado', '1')
     localStorage.clear()
     if (tema === 'oscuro') localStorage.setItem('tema', 'oscuro')
     if (!conSesion) return
     localStorage.setItem('parking-tunja:sesion', JSON.stringify({ acceso: 'ficticio', refresco: 'ficticio' }))
-    localStorage.setItem(`parking-tunja:preferencias:${usuario.id}`, JSON.stringify({ vehiculo: 'Carro', tipoUsuario: 'usuario', placa: 'ABC 123' }))
+    localStorage.setItem(`parking-tunja:preferencias:${usuario.id}`, JSON.stringify({ vehiculo: 'Carro', tipoUsuario, placa: 'ABC 123' }))
     const ahora = Date.now()
     const h = 60 * 60 * 1000
     const reserva = (id, parqueaderoId, parqueaderoNombre, plaza, inicio, horas, extra = {}) => ({
@@ -55,7 +55,7 @@ export async function prepararPagina(page, { tema = 'claro', fallar = false, con
       reserva('r2', 1, 'Parqueadero El Centro', 3, ahora - 30 * h, 1),
       reserva('r3', 6, 'Terminal Park', 5, ahora - 60 * h, 3, { cancelada: true }),
     ]))
-  }, { tema, conSesion, usuario: USUARIO })
+  }, { tema, conSesion, usuario: USUARIO, tipoUsuario })
 
   await page.route('**/api/**', async (ruta) => {
     const peticion = ruta.request()

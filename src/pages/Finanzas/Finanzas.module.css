@@ -1,0 +1,184 @@
+.vista {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 24px;
+}
+
+.totales {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.total {
+  padding: clamp(14px, 2vh, 22px) 28px;
+  display: grid;
+  gap: 4px;
+  border-radius: var(--radio);
+  background: var(--recuadro);
+}
+
+.total span {
+  font-size: 18px;
+}
+
+.total strong {
+  color: var(--titulo-h2);
+  font-size: clamp(26px, 3.6vh, 36px);
+}
+
+.totalPrincipal {
+  background: #153e90;
+  color: #fff;
+}
+
+.totalPrincipal strong {
+  color: #fff;
+}
+
+:global(:root[data-tema='oscuro']) .totalPrincipal {
+  background: #153e90;
+}
+
+/* 1096 / 560 de Figma. */
+.columnas {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+  gap: 24px;
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.derecha {
+  text-align: right;
+}
+
+.valor {
+  color: var(--accion-texto);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.lateral {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1.7fr) auto;
+  gap: 24px;
+}
+
+.barras {
+  flex: 1;
+  min-height: 120px;
+  margin: 0;
+  padding: 0 4%;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: end;
+  gap: 14px;
+  list-style: none;
+}
+
+.barras li {
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  align-items: end;
+  gap: 8px;
+}
+
+.barra {
+  width: 100%;
+  max-width: 44px;
+  border-radius: 10px 10px 0 0;
+  background: #153e90;
+}
+
+:global(:root[data-tema='oscuro']) .barra {
+  background: #4f7fe0;
+}
+
+.barraHoy,
+:global(:root[data-tema='oscuro']) .barraHoy {
+  background: var(--accion);
+}
+
+.barras small {
+  font-size: 15px;
+}
+
+.detalle {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.detalle div {
+  padding: 10px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+}
+
+.detalle dt {
+  font-size: 17px;
+}
+
+.detalle dd {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+@media (max-width: 1200px) and (min-width: 901px) {
+  .totales {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+  .vista {
+    grid-template-rows: auto;
+  }
+
+  .totales {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .total {
+    padding: 14px 16px;
+  }
+
+  .total span {
+    font-size: 15px;
+  }
+
+  .total strong {
+    font-size: 22px;
+  }
+
+  .columnas {
+    grid-template-columns: 1fr;
+  }
+
+  .lateral {
+    grid-template-rows: auto;
+  }
+
+  .barras {
+    height: 200px;
+  }
+}

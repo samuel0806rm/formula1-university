@@ -156,7 +156,7 @@ export function VentanaNFC({ titulo, texto, onLeer, onCancelar, ocupado = false,
   )
 }
 
-export function VentanaAviso({ exito = true, titulo, children, onAceptar }) {
+export function VentanaAviso({ exito = true, titulo, children, onAceptar, textoAceptar = 'Aceptar' }) {
   return (
     <Modal titulo={titulo} onCerrar={onAceptar} ancho={460}>
       <div className={styles.centro} role={exito ? 'status' : 'alert'}>
@@ -164,7 +164,7 @@ export function VentanaAviso({ exito = true, titulo, children, onAceptar }) {
         <div className={styles.texto}>{children}</div>
       </div>
       <div className={`${styles.botones} ${styles.botonesCentro}`}>
-        <button type="button" className="btn" onClick={onAceptar} data-autofocus>Aceptar</button>
+        <button type="button" className="btn" onClick={onAceptar} data-autofocus>{textoAceptar}</button>
       </div>
     </Modal>
   )

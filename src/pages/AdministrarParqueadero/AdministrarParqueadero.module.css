@@ -1,0 +1,201 @@
+.vista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 520 / flexible / 500 de Figma. */
+.columnas {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 520fr) minmax(0, 612fr) minmax(0, 500fr);
+  gap: 24px;
+}
+
+.columnas > section {
+  overflow-y: auto;
+}
+
+.selector {
+  max-width: 420px;
+}
+
+.estadoFila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.datoLinea {
+  grid-auto-flow: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.datoLinea span {
+  font-size: 17px;
+}
+
+.contadores {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.contador {
+  min-width: 0;
+  padding: 12px clamp(10px, 1vw, 18px);
+  display: grid;
+  gap: 2px;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+}
+
+.contador span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: clamp(13px, 0.85vw, 15px);
+}
+
+.contador strong {
+  color: var(--titulo-h2);
+  font-size: clamp(26px, 3.6vh, 36px);
+}
+
+/* Cuadrícula de plazas: 62×62 con esquina inferior derecha recta. */
+.plazas {
+  margin: 0;
+  padding: 2px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(54px, 62px));
+  gap: 8px;
+  list-style: none;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.plaza {
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 2px solid transparent;
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  color: #fff;
+  font-size: 15px;
+}
+
+.libre {
+  background: var(--accion);
+}
+
+.ocupada {
+  background: #153e90;
+  cursor: not-allowed;
+}
+
+:global(:root[data-tema='oscuro']) .ocupada {
+  background: #4f7fe0;
+}
+
+.deshabilitada {
+  border: 2px dashed var(--texto);
+  background: var(--recuadro-interno);
+  color: var(--texto);
+}
+
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  font-size: 15px;
+}
+
+.leyenda span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.leyenda i {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+}
+
+.leyenda i.deshabilitada {
+  border-style: solid;
+}
+
+.solicitudes {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.solicitudes li {
+  padding: 10px 12px 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+}
+
+.solicitudes li div {
+  display: grid;
+  gap: 2px;
+}
+
+.solicitudes strong {
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.solicitudes span {
+  font-size: 15px;
+  opacity: 0.8;
+}
+
+.solicitudes :global(.btn) {
+  min-height: 50px;
+}
+
+.sinSolicitudes {
+  justify-content: center !important;
+}
+
+.vacioPanel {
+  flex: 1;
+  justify-content: center;
+}
+
+@media (max-width: 1280px) and (min-width: 901px) {
+  .columnas {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .columnas > section:last-of-type {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 900px) {
+  .columnas {
+    grid-template-columns: 1fr;
+  }
+
+  .columnas > section,
+  .plazas {
+    overflow: visible;
+  }
+
+  .selector {
+    max-width: none;
+  }
+}

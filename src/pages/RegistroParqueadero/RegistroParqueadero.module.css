@@ -1,0 +1,144 @@
+.vista {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.formulario {
+  padding: clamp(20px, 3.6vh, 40px);
+  overflow-y: auto;
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+}
+
+.cabecera h1 {
+  margin: 0;
+  color: var(--titulo-h2);
+  font-size: clamp(28px, 4vh, 36px);
+}
+
+.columnas {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+}
+
+.columna {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2vh, 20px);
+}
+
+.documentos {
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+/* Zona punteada para cargar documentos. */
+.zona {
+  min-height: 150px;
+  padding: 20px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  border: 2px dashed var(--accion);
+  border-radius: var(--radio);
+  color: var(--texto);
+  text-align: center;
+  cursor: pointer;
+}
+
+.zona:focus-within {
+  outline: 2px solid var(--accion);
+  outline-offset: 2px;
+}
+
+.zonaActiva {
+  background: var(--recuadro-interno);
+}
+
+.zona strong {
+  color: var(--titulo-h3);
+  font-size: 18px;
+}
+
+.zona small {
+  font-size: 14px;
+}
+
+.subir {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accion);
+  color: #fff;
+}
+
+.archivos {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+}
+
+.archivos li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.archivos button {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--recuadro);
+  color: var(--texto);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px 24px;
+}
+
+.pie :global(.btn) {
+  min-height: 50px;
+}
+
+@media (max-width: 900px) {
+  .vista {
+    grid-template-rows: auto;
+  }
+
+  .formulario {
+    overflow: visible;
+  }
+
+  .columnas {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .pie :global(.btn) {
+    width: 100%;
+  }
+}
