@@ -16,6 +16,8 @@ const FILTROS_INICIALES = { texto: '', tarifaMaxima: '', horario: '' }
 const ENFOCABLES = 'input, select, button:not([disabled]), a[href]'
 
 const disponible = (parqueadero) => parqueadero.cupos > 0 && parqueadero.abierto
+const MEDIA_MOVIL = '(max-width: 900px)'
+const UMBRAL_GESTO = 40
 
 /*
  * Tecla Tab: alterna el panel SOLO cuando el foco está en el mapa (contenedor de
@@ -25,6 +27,8 @@ const disponible = (parqueadero) => parqueadero.cupos > 0 && parqueadero.abierto
 function tabDebeAlternar(evento) {
   if (evento.key !== 'Tab' || evento.shiftKey || evento.altKey || evento.ctrlKey || evento.metaKey) return false
   if (evento.defaultPrevented || document.querySelector('[role="dialog"]')) return false
+  // En celular no aplica: allí se usa el botón de la hoja inferior o el gesto de deslizar.
+  if (window.matchMedia?.(MEDIA_MOVIL).matches) return false
   const activo = document.activeElement
   if (!activo || activo === document.body || activo === document.documentElement) return true
   return activo.classList.contains('leaflet-container')
@@ -47,6 +51,34 @@ function Mapa() {
   const botonLateral = useRef(null)
   const cuerpo = useRef(null)
   const enfocarTras = useRef(null)
+  // Gesto de la hoja inferior (celular): deslizar la pestaña hacia abajo pliega, hacia arriba despliega.
+  const gesto = useRef(null)
+  const gestoAplicado = useRef(false)
+
+  function alEmpezarGesto(evento) {
+    if (evento.pointerType === 'mouse') return
+    gesto.current = evento.clientY
+    gestoAplicado.current = false
+  }
+
+  function alTerminarGesto(evento) {
+    if (gesto.current === null) return
+    const recorrido = evento.clientY - gesto.current
+    gesto.current = null
+    if ((recorrido > UMBRAL_GESTO && panelAbierto) || (recorrido < -UMBRAL_GESTO && !panelAbierto)) {
+      gestoAplicado.current = true
+      setPanelAbierto(!panelAbierto)
+    }
+  }
+
+  function alPulsarPestana() {
+    // Si el toque fue un deslizamiento ya aplicado, el clic que le sigue no debe revertirlo.
+    if (gestoAplicado.current) {
+      gestoAplicado.current = false
+      return
+    }
+    alternarPanel()
+  }
 
   const reservas = listarReservas()
   const texto = filtros.texto.trim().toLowerCase()
@@ -167,8 +199,9 @@ function Mapa() {
           data-estado={panelAbierto ? 'desplegado' : 'plegado'}
         >
           <section className={styles.caja} aria-labelledby="tituloPanel">
-            <h2 id="tituloPanel" className={styles.pestana}>
-              <button type="button" aria-expanded={panelAbierto} aria-controls={idCuerpo} onClick={alternarPanel}>
+            <h2 id="tituloPanel" className={styles.pestana} onPointerDown={alEmpezarGesto} onPointerUp={alTerminarGesto} onPointerCancel={() => { gesto.current = null }}>
+              <span className={styles.asa} aria-hidden="true" />
+              <button type="button" aria-expanded={panelAbierto} aria-controls={idCuerpo} onClick={alPulsarPestana}>
                 Filtrar y Reservar
                 <Triangulo abierto={panelAbierto} />
               </button>

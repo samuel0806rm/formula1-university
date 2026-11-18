@@ -510,3 +510,124 @@
     display: none;
   }
 }
+
+.avisoZona {
+  display: contents;
+}
+
+.avisoZona > * {
+  grid-area: aviso;
+}
+
+.home .avisoZona > * {
+  grid-area: auto;
+}
+
+/* ===== Celular (wireframes "Inicio / Con sesión" y "Inicio / Visitante") ===== */
+@media (max-width: 900px) {
+  .inicio {
+    grid-template-areas: 'aviso' 'saludo' 'billetera' 'mapa' 'sobre';
+    gap: 16px;
+  }
+
+  .inicio .avisoZona > * {
+    margin-bottom: 0;
+  }
+
+  .saludo {
+    padding: 20px 16px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .saludo .icono {
+    display: none;
+  }
+
+  .saludoTexto h1 {
+    font-size: 32px;
+  }
+
+  .saludoTexto p {
+    font-size: 18px;
+  }
+
+  /* "Ver Cuenta" es el botón secundario del wireframe. */
+  .saludo :global(.btn) {
+    width: 100%;
+    border: 1px solid var(--borde-secundario);
+    background: var(--fondo-secundario);
+    color: var(--texto-secundario);
+  }
+
+  .billetera {
+    padding: 20px 16px;
+  }
+
+  .billetera strong {
+    color: var(--titulo-h1);
+    font-size: 40px;
+  }
+
+  .miniMapa {
+    padding: 20px 16px;
+  }
+
+  .miniMapaCabecera {
+    display: contents;
+  }
+
+  .miniMapaCabecera h2 {
+    order: 0;
+  }
+
+  .miniMapaDibujo {
+    order: 1;
+    min-height: 128px;
+    height: 128px;
+    flex: none;
+  }
+
+  .miniMapaCabecera :global(.btn) {
+    order: 2;
+    width: 100%;
+  }
+
+  .sobre summary {
+    width: 100%;
+  }
+
+  .home .hero {
+    padding: 20px 16px;
+  }
+
+  .home .heroTexto {
+    padding-left: 0;
+  }
+
+  .home .heroTexto h1 {
+    font-size: 32px;
+  }
+
+  .home .acciones :global(.btn) {
+    flex: 1 1 100%;
+  }
+
+  .home .heroMapa {
+    min-height: 160px;
+  }
+
+  .home .invitacion {
+    padding: 16px;
+  }
+
+  .home .invitacion :global(.btn) {
+    width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .inicio:not(:has(.avisoZona > *)) {
+    grid-template-areas: 'saludo' 'billetera' 'mapa' 'sobre';
+  }
+}

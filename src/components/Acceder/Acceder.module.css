@@ -236,3 +236,71 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== Celular (wireframes "Acceder / Iniciar sesión" y "Registro") ===== */
+@media (max-width: 900px) {
+  .pagina {
+    gap: 16px;
+  }
+
+  .tarjeta {
+    padding: 20px 16px;
+  }
+
+  .encabezado h1 {
+    font-size: 32px;
+  }
+
+  .pestanas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .pestanas a {
+    min-height: 46px;
+    padding: 0 8px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+  }
+
+  .formulario input,
+  .formulario select,
+  .enviar {
+    min-height: 46px;
+  }
+
+  /* Tarjeta NFC compacta, como en el wireframe. */
+  .nfc {
+    padding: 20px 16px;
+    align-items: stretch;
+    text-align: left;
+    gap: 10px;
+  }
+
+  .nfc > :global(img:first-child) {
+    display: none !important;
+  }
+
+  .nfcIcono {
+    width: 64px;
+    margin: 0;
+  }
+
+  .nfc p {
+    max-width: none;
+  }
+
+  .simular {
+    min-height: 46px;
+    width: 100%;
+    border: 1px solid #fff;
+    background: #fff;
+    color: #153e90;
+  }
+
+  .simular:focus-visible {
+    outline-color: var(--accion);
+  }
+}

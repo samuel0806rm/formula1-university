@@ -221,3 +221,47 @@
     max-height: none;
   }
 }
+
+/* ===== Celular (wireframes "Mi Cuenta / …") ===== */
+@media (max-width: 900px) {
+  .pagina {
+    gap: 16px;
+  }
+
+  .perfil,
+  .cuenta {
+    padding: 20px 16px;
+  }
+
+  .cabecera {
+    gap: 14px;
+  }
+
+  .avatar {
+    width: 56px;
+    height: 56px;
+  }
+
+  .avatar img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .perfil h1 {
+    font-size: 30px;
+  }
+
+  .datos {
+    grid-template-columns: 1fr;
+  }
+
+  .tarjetaNfc :global(.btn),
+  .botonesFormulario :global(.btn) {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .botonesFormulario {
+    flex-direction: column-reverse;
+  }
+}

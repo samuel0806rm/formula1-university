@@ -274,3 +274,76 @@
     font-size: 14px;
   }
 }
+
+/* ===== Celular (wireframe "Saldo / Recarga") ===== */
+@media (max-width: 900px) {
+  .pagina {
+    gap: 16px;
+  }
+
+  .tarjeta {
+    padding: 20px 16px;
+    overflow: visible;
+  }
+
+  .titulo {
+    font-size: 32px;
+  }
+
+  /* Saldo actual en recuadro azul, como en el wireframe. */
+  .saldo {
+    background: var(--navbar-footer);
+    color: #fff;
+  }
+
+  :global(:root[data-tema='oscuro']) .saldo {
+    background: #153e90;
+  }
+
+  .saldo strong {
+    color: #fff;
+    font-size: 40px;
+  }
+
+  .rapidos button {
+    min-height: 44px;
+  }
+
+  .medios label {
+    min-height: 44px;
+  }
+
+  .tarjetaMov {
+    max-height: none;
+  }
+
+  .lista {
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  .encabezado {
+    display: none;
+  }
+
+  .movimientos li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'concepto valor' 'fecha valor';
+    gap: 2px 12px;
+    padding: 12px 16px;
+  }
+
+  .fecha {
+    grid-area: fecha;
+    font-size: 13px;
+  }
+
+  .concepto {
+    grid-area: concepto;
+  }
+
+  .movimientos strong {
+    grid-area: valor;
+    align-self: center;
+  }
+}

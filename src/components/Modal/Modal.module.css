@@ -94,3 +94,35 @@
 :global(:root[data-tema='oscuro']) .cabecera {
   background: #153e90;
 }
+
+/* ===== Celular: las ventanas ocupan la pantalla, como en los wireframes ===== */
+@media (max-width: 600px) {
+  .fondo {
+    padding: 0;
+    place-items: stretch;
+  }
+
+  .caja {
+    width: 100%;
+    max-height: none;
+    height: 100dvh;
+    border-radius: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .cabecera {
+    min-height: calc(64px + env(safe-area-inset-top));
+    padding-top: calc(12px + env(safe-area-inset-top));
+  }
+
+  .cerrar {
+    top: calc(12px + env(safe-area-inset-top));
+    width: 44px;
+    height: 44px;
+  }
+
+  .cuerpo {
+    flex: 1;
+    padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+  }
+}

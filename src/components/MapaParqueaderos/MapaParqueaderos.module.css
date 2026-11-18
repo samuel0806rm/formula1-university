@@ -126,3 +126,18 @@
   outline: 3px solid var(--accion);
   outline-offset: -3px;
 }
+
+/* Celular: los botones flotantes suben para no quedar debajo de la hoja inferior. */
+@media (max-width: 900px) {
+  .controles {
+    top: 12px;
+    right: 12px;
+    bottom: auto;
+    gap: 8px;
+  }
+
+  .controles button {
+    width: 44px;
+    height: 44px;
+  }
+}

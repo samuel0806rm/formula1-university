@@ -22,6 +22,10 @@
   /* Separación vertical de las vistas: se reduce en pantallas bajas para que todo quepa. */
   --aire: clamp(12px, 2.4vh, 32px);
   --sombra: 0 6px 24px rgba(0, 7, 23, 0.18);
+  /* Botón secundario de los wireframes móviles: contorno azul en claro, relleno azul en oscuro. */
+  --borde-secundario: #153e90;
+  --texto-secundario: #153e90;
+  --fondo-secundario: #ffffff;
 
   /* Nombres anteriores: las páginas que aún no se rediseñan heredan la paleta nueva. */
   --azul: var(--navbar-footer);
@@ -46,6 +50,9 @@
   --recuadro-interno: #153e90;
   --calles: #4f7fe0;
   --accion-texto: #6cf195;
+  --borde-secundario: #ffffff;
+  --texto-secundario: #ffffff;
+  --fondo-secundario: #153e90;
   color-scheme: dark;
 }
 
@@ -158,5 +165,48 @@ input, select, textarea {
   .vista {
     height: auto;
     overflow: visible;
+  }
+}
+
+/* ===== Celular (wireframes 390×844) ===== */
+@media (max-width: 900px) {
+  :root {
+    --alto-navbar: 64px;
+    --alto-pie: 56px;
+    --margen: 16px;
+  }
+
+  body {
+    overflow-x: clip;
+  }
+
+  /* 16 px evita el zoom automático de iOS/Android al enfocar un campo. */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  .vista {
+    padding: 16px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left));
+  }
+
+  /* Objetivos táctiles de al menos 44 px. */
+  .btn {
+    min-height: 46px;
+    font-size: 17px;
+  }
+
+  .btn-contorno {
+    border: 1px solid var(--borde-secundario);
+    background: var(--fondo-secundario);
+    color: var(--texto-secundario);
+  }
+
+  /* En los wireframes, "danger" es rojo sólido. */
+  .btn-peligro.btn-contorno {
+    border: 2px solid var(--alerta);
+    background: var(--alerta);
+    color: #fff;
   }
 }

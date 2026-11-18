@@ -142,7 +142,7 @@ function Notificaciones() {
   const cancelable = seleccionada?.tipo === 'reserva' && ['Programada', 'En curso'].includes(seleccionada.estado)
 
   return (
-    <div className={`vista ${styles.pagina}`}>
+    <div className={`vista ${styles.pagina}`} data-vista={seleccionada ? 'detalle' : 'bandeja'}>
       <section className={styles.bandeja} aria-labelledby="tituloNotificaciones">
         <header className={styles.cabecera}>
           <h1 id="tituloNotificaciones">Notificaciones</h1>
@@ -200,6 +200,8 @@ function Notificaciones() {
                 </button>
               )}
               {seleccionada.tipo === 'transaccion' && <Link to="/recarga" className="btn">Ver transacción</Link>}
+              {/* En celular la bandeja y el detalle son pantallas separadas (wireframe "Notificaciones / Detalle"). */}
+              <button type="button" className={`btn btn-contorno ${styles.volver}`} onClick={() => setSeleccionadaId(null)}>Volver</button>
               {seleccionada.tipo === 'saldo' && <Link to="/recarga" className="btn">Recargar saldo</Link>}
             </div>
           </article>

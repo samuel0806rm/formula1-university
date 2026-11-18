@@ -179,3 +179,52 @@
     max-height: 50vh;
   }
 }
+
+.volver {
+  display: none !important;
+}
+
+/* ===== Celular: bandeja y detalle como pantallas separadas ===== */
+@media (max-width: 900px) {
+  .pagina {
+    gap: 16px;
+  }
+
+  .bandeja {
+    max-height: none;
+  }
+
+  .lista {
+    overflow: visible;
+    padding: 0 12px 16px;
+  }
+
+  .itemBoton {
+    min-height: 56px;
+  }
+
+  .pagina[data-vista='bandeja'] .lectura {
+    display: none;
+  }
+
+  .pagina[data-vista='detalle'] .bandeja {
+    display: none;
+  }
+
+  .lectura {
+    padding: 20px 16px;
+  }
+
+  .acciones {
+    display: grid;
+  }
+
+  .acciones :global(.btn) {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .volver {
+    display: inline-flex !important;
+  }
+}

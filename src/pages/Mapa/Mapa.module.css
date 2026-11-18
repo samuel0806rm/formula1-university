@@ -173,23 +173,94 @@
   }
 }
 
-@media (max-width: 640px) {
+.asa {
+  display: none;
+}
+
+/* ===== Celular: el panel es una hoja inferior sobre el mapa ===== */
+@media (max-width: 900px) {
   .page {
+    height: calc(100dvh - var(--alto-navbar) - var(--alto-pie) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    min-height: 480px;
     padding: 0;
   }
+
   .mapaCaja {
     border-radius: 0;
   }
-  .panel {
-    top: 8px;
-    left: 8px;
-    bottom: auto;
-    max-height: 70%;
-    width: calc(100% - 52px);
-  }
+
+  .panel,
+  .compacto,
   .plegado {
-    width: auto;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: 68%;
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0;
   }
+
+  .compacto {
+    max-height: 60%;
+  }
+
+  .caja {
+    max-height: 100%;
+    border-radius: var(--radio) var(--radio) 0 0;
+    box-shadow: 0 -6px 24px rgba(0, 7, 23, 0.25);
+  }
+
+  /* La pestaña se puede deslizar: se desactiva el desplazamiento táctil del navegador sobre ella. */
+  .pestana {
+    position: relative;
+    touch-action: none;
+  }
+
+  .asa {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    z-index: 1;
+    display: block;
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.7);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .pestana button {
+    min-height: 56px;
+    padding-top: 8px;
+    border-radius: var(--radio) var(--radio) 0 0;
+  }
+
+  .cuerpo {
+    padding-bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+
+  /* Botón de la hoja: pequeño, sobre la esquina izquierda de la pestaña (los controles van a la derecha). */
+  .lateral {
+    align-self: flex-start;
+    width: 56px;
+    height: 32px;
+    margin-left: 16px;
+    border-radius: var(--radio) var(--radio) 0 0;
+    box-shadow: none;
+  }
+
+  .lateral svg {
+    transform: rotate(-90deg) !important;
+  }
+
+  .panel[data-estado='desplegado'] .lateral svg {
+    transform: rotate(90deg) !important;
+  }
+
   .ayudaTab {
     display: none;
   }

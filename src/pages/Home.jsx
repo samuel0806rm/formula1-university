@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Flecha } from '../components/Iconos/Iconos'
 import Logo from '../components/Logo/Logo'
 import MapaCalles from '../components/MapaCalles/MapaCalles'
+import AvisoInstalacion from '../components/AvisoInstalacion/AvisoInstalacion'
 import { useSesion } from '../context/sesion'
 import { cuposLibres } from '../data/plazas'
 import { parqueaderos } from '../data/parqueaderos'
@@ -122,6 +123,7 @@ function InicioUsuario({ usuario, items, ahora }) {
 
   return (
     <div className={`vista ${styles.inicio} ${sobreAbierto ? styles.inicioSobre : ''}`}>
+      <div className={styles.avisoZona}><AvisoInstalacion /></div>
       <section className={styles.saludo} aria-labelledby="tituloSaludo">
         <span className={styles.icono}><img src={rol.icono} alt="" width="64" height="64" /></span>
         <div className={styles.saludoTexto}>
@@ -178,6 +180,7 @@ function Home() {
 
   return (
     <div className={`vista ${styles.home}`}>
+      <div className={styles.avisoZona}><AvisoInstalacion /></div>
       <section className={styles.hero}>
         <div className={styles.heroTexto}>
           <Logo alto={64} />

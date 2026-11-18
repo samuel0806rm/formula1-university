@@ -1,12 +1,13 @@
 .header {
   position: relative;
   z-index: 1200;
+  padding-top: env(safe-area-inset-top);
   background: var(--navbar-footer);
 }
 
 .navbar {
   height: var(--alto-navbar);
-  padding: 0 var(--margen);
+  padding: 0 max(var(--margen), env(safe-area-inset-right)) 0 max(var(--margen), env(safe-area-inset-left));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -51,9 +52,15 @@
   background: var(--accion);
 }
 
+/* "Instalar Park&Go" solo aparece en el menú del celular. */
+.links .soloMenu {
+  display: none;
+}
+
 .links a:focus-visible,
 .tema:focus-visible,
-.brand:focus-visible {
+.brand:focus-visible,
+.hamburguesa:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
@@ -74,6 +81,11 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
+.acciones,
+.menu {
+  display: none;
+}
+
 @media (max-width: 1240px) {
   .links a {
     padding: 0 12px;
@@ -81,17 +93,133 @@
   }
 }
 
+/* Celular y tableta: cabecera de 64 px con tema + hamburguesa, como en los wireframes. */
 @media (max-width: 900px) {
-  .navbar {
-    height: auto;
-    min-height: var(--alto-navbar);
-    flex-wrap: wrap;
-    padding-block: 10px;
-  }
   .links {
-    flex-wrap: wrap;
+    display: none;
   }
-  .tema {
-    margin-left: 4px;
+
+  .acciones {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .navbar :global(img) {
+    height: 44px !important;
+  }
+
+  .tema,
+  .hamburguesa {
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  .hamburguesa {
+    position: relative;
+    display: grid;
+    place-items: center;
+    color: #fff;
+  }
+
+  /* Tres rayas que se convierten en X al abrir el menú. */
+  .hamburguesa span,
+  .hamburguesa span::before,
+  .hamburguesa span::after {
+    content: '';
+    display: block;
+    width: 22px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .hamburguesa span {
+    position: relative;
+  }
+
+  .hamburguesa span::before,
+  .hamburguesa span::after {
+    position: absolute;
+    left: 0;
+  }
+
+  .hamburguesa span::before {
+    top: -7px;
+  }
+
+  .hamburguesa span::after {
+    top: 7px;
+  }
+
+  .hamburguesa .cruz {
+    background: transparent;
+  }
+
+  .hamburguesa .cruz::before {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .hamburguesa .cruz::after {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  .menu:not([hidden]) {
+    position: fixed;
+    top: calc(var(--alto-navbar) + env(safe-area-inset-top));
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2500;
+    display: block;
+    padding: 16px max(16px, env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    overflow-y: auto;
+    background: var(--fondo);
+  }
+
+  .menuTitulo {
+    margin: 4px 0 16px;
+    font-size: 32px;
+    color: var(--titulo-h1);
+  }
+
+  .menuLista {
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 16px;
+    list-style: none;
+  }
+
+  .menuLista a {
+    min-height: 46px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--borde-secundario);
+    border-radius: var(--radio) var(--radio) 0 var(--radio);
+    background: var(--recuadro-interno);
+    color: var(--texto-secundario);
+    font-size: 18px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .menuLista a:global(.active) {
+    border-color: var(--accion);
+    background: var(--accion);
+    color: #fff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hamburguesa span,
+  .hamburguesa span::before,
+  .hamburguesa span::after {
+    transition: none;
   }
 }
