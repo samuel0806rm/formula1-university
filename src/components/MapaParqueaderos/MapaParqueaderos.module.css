@@ -1,27 +1,144 @@
+.contenedor {
+  position: absolute;
+  inset: 0;
+}
+
 .mapa {
   width: 100%;
   height: 100%;
+  background: #fff;
+  font-family: 'Gantari', Arial, sans-serif;
 }
 
-.marcador {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid white;
-  border-radius: 50%;
-  background: var(--verde);
-  color: white;
-  font-weight: 700;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+:global(:root[data-tema='oscuro']) .mapa {
+  background: #000717;
 }
 
-.activo {
-  background: var(--azul);
+/* Calles azules sobre blanco (claro) o sobre azul noche (oscuro). */
+.mapa :global(.leaflet-tile-pane) {
+  filter: url('#calles-claro');
+}
+
+:global(:root[data-tema='oscuro']) .mapa :global(.leaflet-tile-pane) {
+  filter: url('#calles-oscuro');
+}
+
+.mapa :global(.leaflet-control-attribution) {
+  background: rgba(255, 255, 255, 0.75);
+  color: #000717;
+  font-size: 11px;
+}
+
+:global(:root[data-tema='oscuro']) .mapa :global(.leaflet-control-attribution) {
+  background: rgba(0, 7, 23, 0.75);
+  color: #fff;
+}
+
+.pin {
+  background: none;
+  border: 0;
+  line-height: 0;
+  transition: transform 0.15s ease;
+  transform-origin: 50% 100%;
+}
+
+.pinActivo {
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4));
+  z-index: 1000 !important;
+}
+
+.pinActivo svg {
+  transform: scale(1.18);
+  transform-origin: 50% 100%;
 }
 
 .usuario {
-  border: 3px solid white;
+  border: 3px solid #fff;
   border-radius: 50%;
   background: #1a73e8;
   box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.3);
+}
+
+/* Burbuja con nombre, tarifa y cupos */
+.mapa :global(.leaflet-tooltip).burbuja {
+  padding: 6px 10px;
+  display: grid;
+  gap: 2px;
+  border: 1px solid var(--recuadro);
+  border-radius: 14px;
+  background: var(--fondo);
+  color: var(--texto);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.mapa :global(.leaflet-tooltip-top).burbuja::before {
+  display: none;
+}
+
+.nombre {
+  display: block;
+  color: var(--texto);
+}
+
+.libres {
+  display: block;
+  color: var(--accion);
+  font-weight: 600;
+}
+
+.llenos {
+  display: block;
+  color: var(--alerta);
+  font-weight: 600;
+}
+
+.mapa :global(.leaflet-popup-content-wrapper) {
+  border-radius: 20px 20px 0 20px;
+  background: var(--fondo);
+  color: var(--texto);
+}
+
+.mapa :global(.leaflet-popup-tip) {
+  background: var(--fondo);
+}
+
+.mapa :global(.leaflet-popup-content) {
+  margin: 14px 16px;
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.reservar {
+  margin-top: 8px;
+  padding: 8px 16px;
+  border-radius: 14px 14px 0 14px;
+  background: var(--accion);
+  color: #fff !important;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.zoom {
+  position: absolute;
+  right: 24px;
+  bottom: 32px;
+  z-index: 1000;
+  display: grid;
+  gap: 12px;
+}
+
+.zoom button {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accion);
+  color: #fff;
 }

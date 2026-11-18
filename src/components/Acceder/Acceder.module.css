@@ -1,0 +1,176 @@
+.pagina {
+  min-height: calc(100vh - 128px);
+  padding: 48px var(--margen);
+  display: grid;
+  grid-template-columns: minmax(280px, 0.45fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+}
+
+.lateral,
+.tarjeta {
+  padding: 28px;
+  border-radius: var(--radio);
+  background: var(--recuadro);
+}
+
+.lateral {
+  padding: 28px 28px 28px;
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+}
+
+.lateral h1 {
+  margin: 8px 0 0;
+  font-size: clamp(34px, 3vw, 48px);
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.lateral p {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 16px;
+}
+
+.mapa {
+  width: 100%;
+  height: 220px;
+}
+
+.pestanas {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+}
+
+.pestanas a {
+  padding: 10px 22px;
+  border: 2px solid var(--accion);
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  background: var(--recuadro-interno);
+  color: var(--accion);
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.pestanas a.activa {
+  background: var(--accion);
+  color: #fff;
+}
+
+.formulario fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.formulario legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+}
+
+.campo {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.formulario label {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+.formulario input,
+.formulario select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+  color: var(--texto);
+  font-size: 16px;
+}
+
+.formulario small {
+  font-size: 13px;
+}
+
+.contrasena {
+  position: relative;
+  display: block;
+}
+
+.contrasena input {
+  padding-right: 48px;
+}
+
+.contrasena button {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  padding: 0;
+  display: grid;
+  border: 0;
+  background: none;
+  color: var(--texto);
+}
+
+.aviso {
+  margin: 16px 0 0;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid var(--alerta);
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+  color: var(--alerta);
+  font-size: 16px;
+}
+
+.enviar {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 16px;
+  border: 0;
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  background: var(--accion);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.enviar:disabled {
+  opacity: 0.7;
+}
+
+.alternativa {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 15px;
+}
+
+@media (max-width: 900px) {
+  .pagina {
+    grid-template-columns: 1fr;
+  }
+  .campos {
+    grid-template-columns: 1fr;
+  }
+}

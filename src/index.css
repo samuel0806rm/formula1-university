@@ -1,3 +1,46 @@
+/* Sistema de diseño "Parking Tunja" (Figma: Sistema de diseño). Modo claro por defecto. */
+:root {
+  --navbar-footer: #153e90;
+  --titulo-h1: #153e90;
+  --titulo-h2: #07ad2f;
+  --titulo-h3: #153e90;
+  --texto: #000717;
+  --fondo: #ffffff;
+  --recuadro: #e0e0e0;
+  --recuadro-interno: #ffffff;
+  --accion: #07ad2f;
+  --texto-boton: #ffffff;
+  --alerta: #c90000;
+  --blanco: #ffffff;
+  --calles: #153e90;
+  --margen: clamp(16px, 6.25vw, 120px);
+  --radio: 20px;
+
+  /* Nombres anteriores: las páginas que aún no se rediseñan heredan la paleta nueva. */
+  --azul: var(--navbar-footer);
+  --azul-oscuro: var(--navbar-footer);
+  --azul-claro: var(--recuadro);
+  --verde: var(--accion);
+  --verde-claro: var(--recuadro);
+  --verde-borde: var(--accion);
+  --gris-ocupada: var(--recuadro);
+  --gris-borde: var(--recuadro);
+  color-scheme: light;
+}
+
+:root[data-tema='oscuro'] {
+  --navbar-footer: #000e33;
+  --titulo-h1: #ffffff;
+  --titulo-h2: #ffffff;
+  --titulo-h3: #ffffff;
+  --texto: #ffffff;
+  --fondo: #000717;
+  --recuadro: #001a54;
+  --recuadro-interno: #153e90;
+  --calles: #4f7fe0;
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -6,14 +49,20 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  color: #222;
-  background: #f5f5f5;
+  font-family: 'Gantari', Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  color: var(--texto);
+  background: var(--fondo);
+}
+
+h1, h2, h3 {
+  color: var(--titulo-h1);
 }
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -22,13 +71,39 @@ a {
   cursor: pointer;
 }
 
-:root {
-  --azul: #153e90;
-  --azul-oscuro: #0f2e6c;
-  --azul-claro: #e8eef9;
-  --verde: #07892f;
-  --verde-claro: #e8f5ea;
-  --verde-borde: #76c17e;
-  --gris-ocupada: #e2e2e2;
-  --gris-borde: #cbcbcb;
+a {
+  color: var(--accion);
+}
+
+input, select, textarea {
+  color: var(--texto);
+  background: var(--recuadro-interno);
+  border: 0;
+  border-radius: var(--radio);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accion);
+  outline-offset: 2px;
+}
+
+/* Botones del sistema: esquina inferior derecha recta. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 24px;
+  border: 2px solid var(--accion);
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  background: var(--accion);
+  color: var(--texto-boton);
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.btn-contorno {
+  background: var(--recuadro-interno);
+  color: var(--accion);
 }

@@ -3,7 +3,8 @@ import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useSesion } from '../../context/sesion'
 import { tiposVehiculo } from '../../data/vehiculos'
 import { mensajeError } from '../../services/errores'
-import styles from './RegisterAccount.module.css'
+import { Acceder, Aviso, CampoContrasena } from '../../components/Acceder/Acceder'
+import estilosAcceder from '../../components/Acceder/Acceder.module.css'
 
 const formularioInicial = { nombreCompleto: '', email: '', cedula: '', tipoVehiculo: '', tipoUsuario: '', contrasena: '' }
 
@@ -90,63 +91,60 @@ function RegisterAccount() {
   // El registro ya deja la sesión abierta.
   if (!cargando && usuario && !enviando) return <Navigate to="/" replace />
 
+  const campo = estilosAcceder.campo
   return (
-    <section className={styles.page}>
-      <h1>Crear cuenta</h1>
-      <p className={styles.intro}>Registra tus datos y el tipo de vehículo que utilizas.</p>
-
-      <form className={styles.form} onSubmit={registrarCuenta} aria-busy={enviando}>
+    <Acceder modo="registro" titulo="Crea tu cuenta" texto="Elige si eres conductor o propietario y empieza a usar Parking Tunja.">
+      <form className={estilosAcceder.formulario} onSubmit={registrarCuenta} aria-busy={enviando}>
         <fieldset disabled={enviando}>
           <legend>Datos de registro</legend>
-          <div className={styles.fields}>
-            <div className={styles.field}>
+          <div className={estilosAcceder.campos}>
+            <div className={campo}>
               <label htmlFor="nombreCompleto">Nombre completo</label>
               <input id="nombreCompleto" name="nombreCompleto" autoComplete="name" required minLength={2} maxLength={120} value={formulario.nombreCompleto} onChange={actualizarCampo} />
             </div>
-            <div className={styles.field}>
-              <label htmlFor="email">Correo electrónico</label>
+            <div className={campo}>
+              <label htmlFor="email">Correo</label>
               <input id="email" name="email" type="email" autoComplete="username" required value={formulario.email} onChange={actualizarCampo} aria-describedby="ayudaEmail" />
               <small id="ayudaEmail">Lo usarás para iniciar sesión.</small>
             </div>
-            <div className={styles.field}>
-              <label htmlFor="cedula">Cédula</label>
+            <div className={campo}>
+              <label htmlFor="cedula">Documento</label>
               <input id="cedula" name="cedula" type="text" inputMode="numeric" pattern="[0-9]+" title="Ingresa tu cédula usando solo números, sin puntos ni espacios." required maxLength={15} value={formulario.cedula} onChange={actualizarCampo} aria-describedby="ayudaCedula" />
               <small id="ayudaCedula">Solo números, sin puntos ni espacios.</small>
             </div>
-            <div className={styles.field}>
-              <label htmlFor="tipoVehiculo">Tipo de vehículo</label>
-              <select id="tipoVehiculo" name="tipoVehiculo" required value={formulario.tipoVehiculo} onChange={actualizarCampo} aria-describedby="ayudaVehiculo">
-                <option value="" disabled>Selecciona tu tipo de vehículo</option>
-                {tiposVehiculo.map((tipo) => <option key={tipo} value={tipo}>{tipo}</option>)}
-              </select>
-              <small id="ayudaVehiculo">El tipo de vehículo se guardará en este navegador.</small>
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="contrasena">Contraseña</label>
-              <input id="contrasena" name="contrasena" type="password" autoComplete="new-password" required minLength={8} value={formulario.contrasena} onChange={actualizarCampo} aria-describedby="ayudaContrasena" />
-              <small id="ayudaContrasena">Usa al menos 8 caracteres. Evita contraseñas comunes y no uses tu correo electrónico como contraseña.</small>
-            </div>
-            <div className={styles.field}>
-              <label htmlFor="tipoUsuario">Tipo de usuario</label>
+            <div className={campo}>
+              <label htmlFor="tipoUsuario">Tipo de cuenta</label>
               <select id="tipoUsuario" name="tipoUsuario" required value={formulario.tipoUsuario} onChange={actualizarCampo} aria-describedby="ayudaTipoUsuario">
-                <option value="" disabled>Selecciona tu tipo de usuario</option>
+                <option value="" disabled>Selecciona tu tipo de cuenta</option>
                 <option value="usuario">usuario</option>
                 <option value="propietario de parqueadero">propietario de parqueadero</option>
               </select>
               <small id="ayudaTipoUsuario">Se guardará en este navegador.</small>
             </div>
+            <div className={campo}>
+              <label htmlFor="contrasena">Contraseña</label>
+              <CampoContrasena id="contrasena" name="contrasena" autoComplete="new-password" required minLength={8} value={formulario.contrasena} onChange={actualizarCampo} aria-describedby="ayudaContrasena" />
+              <small id="ayudaContrasena">Usa al menos 8 caracteres. Evita contraseñas comunes y no uses tu correo electrónico.</small>
+            </div>
+            <div className={campo}>
+              <label htmlFor="tipoVehiculo">Tipo de vehículo</label>
+              <select id="tipoVehiculo" name="tipoVehiculo" required value={formulario.tipoVehiculo} onChange={actualizarCampo} aria-describedby="ayudaVehiculo">
+                <option value="" disabled>Selecciona tu tipo de vehículo</option>
+                {tiposVehiculo.map((tipo) => <option key={tipo} value={tipo}>{tipo}</option>)}
+              </select>
+              <small id="ayudaVehiculo">Se guardará en este navegador.</small>
+            </div>
           </div>
         </fieldset>
-
-        {error && <p className={styles.error} role="alert">{error}</p>}
-        <button className={styles.primaryButton} type="submit" disabled={enviando}>
-          {enviando ? 'Registrando…' : 'Registrarme'}
+        {error && <Aviso>{error}</Aviso>}
+        <button className={estilosAcceder.enviar} type="submit" disabled={enviando}>
+          {enviando ? 'Registrando…' : 'Crear cuenta'}
         </button>
-        <p className={styles.alternativa}>
+        <p className={estilosAcceder.alternativa}>
           ¿Ya tienes cuenta? <Link to="/inicio-sesion" state={location.state}>Inicia sesión</Link>
         </p>
       </form>
-    </section>
+    </Acceder>
   )
 }
 

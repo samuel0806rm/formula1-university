@@ -1,0 +1,210 @@
+.panel {
+  width: 100%;
+  max-height: 100%;
+  padding: 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  border-radius: var(--radio);
+  background: var(--recuadro);
+  color: var(--texto);
+}
+
+.pestanas {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.pestanas button {
+  padding: 2px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--texto);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.pestanas .pestanaActiva {
+  border-bottom-color: var(--accion);
+  color: var(--accion);
+}
+
+.contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tarjeta {
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+}
+
+.tarjetaActiva {
+  outline: 2px solid var(--accion);
+}
+
+.tarjetaInfo {
+  width: 100%;
+  padding: 12px 16px;
+  display: grid;
+  gap: 8px;
+  border: 0;
+  background: none;
+  color: var(--texto);
+  text-align: left;
+}
+
+.tarjetaInfo strong {
+  font-size: 18px;
+}
+
+.detalle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.detalle small {
+  font-size: 12px;
+}
+
+.cupos {
+  padding: 2px 12px;
+  border-radius: 999px;
+  background: var(--accion);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sinCupos {
+  background: var(--alerta);
+}
+
+.reservar {
+  display: block;
+  margin: 0 12px 12px;
+  padding: 8px;
+  border-radius: 14px 14px 0 14px;
+  background: var(--accion);
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.panel h2 {
+  margin: 0 0 4px;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--titulo-h2);
+}
+
+.vehiculo {
+  padding: 8px 16px;
+  display: grid;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+}
+
+.vehiculo span {
+  font-size: 12px;
+}
+
+.vehiculo strong {
+  font-size: 18px;
+}
+
+.vehiculo label {
+  display: grid;
+  gap: 2px;
+}
+
+.vehiculo select {
+  min-height: 28px;
+  padding: 0;
+  background: transparent;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.enlace {
+  align-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accion);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.etiqueta {
+  margin-top: 4px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.panel input[type='search'],
+.panel select {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+  color: var(--texto);
+  font-size: 15px;
+}
+
+.sugerencias {
+  margin: 0;
+  padding: 6px 4px;
+  list-style: none;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+}
+
+.sugerencias button {
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  background: none;
+  color: var(--texto);
+  font-size: 15px;
+  text-align: left;
+}
+
+.sugerencias button:hover {
+  color: var(--accion);
+}
+
+.principal,
+.secundario {
+  min-height: 40px;
+  border: 2px solid var(--accion);
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.principal {
+  background: var(--accion);
+  color: #fff;
+}
+
+.secundario {
+  background: var(--recuadro-interno);
+  color: var(--accion);
+}
+
+.estado {
+  margin: 0;
+  font-size: 13px;
+}

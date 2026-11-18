@@ -1,0 +1,22 @@
+.caja {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radio);
+  background: #fff;
+}
+
+.calles {
+  position: absolute;
+  inset: 0;
+  background: #153e90;
+  -webkit-mask-image: url('/img/tunja-calles.svg');
+  mask-image: url('/img/tunja-calles.svg');
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  line-height: 0;
+}

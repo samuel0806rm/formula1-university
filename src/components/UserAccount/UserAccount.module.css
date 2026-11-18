@@ -1,87 +1,85 @@
-.container h2 {
-  margin: 0 0 14px;
-  font-size: 18px;
-}
-
-.container form {
+.container {
   display: grid;
-  max-width: 420px;
-  gap: 8px;
+  gap: 12px;
 }
 
-.container label {
-  margin-top: 6px;
-  font-size: 13px;
-  font-weight: 700;
+.campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
 }
 
-.container input,
-.container select {
+.campo {
+  display: grid;
+  gap: 6px;
+}
+
+.campo label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.campo input,
+.campo select {
   width: 100%;
-  min-height: 38px;
-  padding: 6px 8px;
-  border: 1px solid var(--gris-borde);
-  border-radius: 6px;
-  background: white;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+  font-size: 16px;
 }
 
-.container form button {
-  margin-top: 12px;
-  min-height: 42px;
-  border: 1px solid var(--verde);
-  border-radius: 6px;
-  background: var(--verde);
-  color: white;
-  font-weight: 700;
+.campo input:disabled {
+  opacity: 0.7;
 }
 
-.actions {
+.botones {
+  margin-top: 16px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #eee;
+  gap: 12px;
 }
 
-.actions button {
-  padding: 8px 14px;
-  border: 2px solid var(--azul);
-  border-radius: 6px;
-  background: white;
-  color: var(--azul);
+.principal,
+.secundario {
+  min-height: 44px;
+  padding: 0 28px;
+  border: 2px solid var(--accion);
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  font-size: 16px;
   font-weight: 700;
 }
 
-.actions .delete {
-  border-color: #b3261e;
-  color: #b3261e;
+.principal {
+  background: var(--accion);
+  color: #fff;
 }
 
-.subtitulo {
-  margin: 26px 0 8px;
-  font-size: 16px;
+.secundario {
+  background: var(--recuadro-interno);
+  color: var(--accion);
 }
 
 .exito,
 .error {
-  max-width: 420px;
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 14px;
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+  font-size: 15px;
 }
 
 .exito {
-  background: var(--verde-claro);
-  color: #205c38;
+  border: 2px solid var(--accion);
 }
 
 .error {
-  background: #fdecea;
-  color: #b3261e;
+  border: 2px solid var(--alerta);
+  color: var(--alerta);
 }
 
-.container button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+@media (max-width: 700px) {
+  .campos {
+    grid-template-columns: 1fr;
+  }
 }
