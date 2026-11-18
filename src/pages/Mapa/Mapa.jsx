@@ -41,7 +41,9 @@ function Mapa() {
   const [estadoUbicacion, setEstadoUbicacion] = useState('')
   const [versionReinicio, setVersionReinicio] = useState(0)
   const [ayuda, setAyuda] = useState(false)
-  const [vehiculo, setVehiculo] = useState(() => (usuario ? leerPreferencias(usuario.id).vehiculo : ''))
+  // La sesión puede terminar de cargar después de montar la vista: el vehículo se deriva.
+  const [vehiculoElegido, setVehiculoElegido] = useState(null)
+  const vehiculo = vehiculoElegido ?? (usuario ? leerPreferencias(usuario.id).vehiculo : '')
   const botonLateral = useRef(null)
   const cuerpo = useRef(null)
   const enfocarTras = useRef(null)
@@ -95,7 +97,7 @@ function Mapa() {
   }, [])
 
   function cambiarVehiculo(valor) {
-    setVehiculo(valor)
+    setVehiculoElegido(valor)
     if (usuario) guardarPreferencias(usuario.id, { vehiculo: valor })
   }
 

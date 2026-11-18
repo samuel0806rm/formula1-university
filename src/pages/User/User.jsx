@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { VentanaAviso, VentanaCampos, VentanaConfirmar, VentanaNFC } from '../../components/Modal/Ventanas'
 import { useSesion } from '../../context/sesion'
@@ -67,6 +67,11 @@ function User() {
   const [ocupado, setOcupado] = useState(false)
   const [errorVentana, setErrorVentana] = useState('')
   const [tarjeta, setTarjeta] = useState(() => tarjetaDe(usuario.id))
+  const cerrarAlSalir = useRef(null)
+
+  // Tras eliminar la cuenta, la sesión se cierra al salir de esta vista; así la ruta
+  // protegida no redirige a Iniciar sesión antes de llegar al Inicio.
+  useEffect(() => () => cerrarAlSalir.current?.(), [])
 
   const preferencias = leerPreferencias(usuario.id)
   const rol = rolDe(preferencias.tipoUsuario)
@@ -288,7 +293,7 @@ function User() {
         <VentanaAviso
           titulo="Cuenta eliminada"
           onAceptar={() => {
-            ventana.finalizar()
+            cerrarAlSalir.current = ventana.finalizar
             navigate('/')
           }}
         >

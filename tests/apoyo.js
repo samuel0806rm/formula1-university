@@ -66,7 +66,7 @@ export async function prepararPagina(page, { tema = 'claro', fallar = false, con
 
     if (camino === '/config') return json(200, { limites: { montoMinimo: 100, montoMaximo: 500000, saldoMaximo: 2000000 } })
     if (!conSesion) return json(401, { error: 'token_requerido' })
-    if (fallar && metodo !== 'GET') return json(500, { error: 'error_interno' })
+    if (fallar && metodo !== 'GET' && camino !== '/auth/login') return json(500, { error: 'error_interno' })
     if (camino === '/auth/me') return json(200, { ...USUARIO, saldo: estado.saldo })
     if (camino.startsWith('/wallet/movements')) {
       const todos = movimientos()
@@ -85,6 +85,12 @@ export async function prepararPagina(page, { tema = 'claro', fallar = false, con
     if (camino === '/users/me' && metodo === 'PUT') return json(200, { ...USUARIO, ...peticion.postDataJSON(), saldo: estado.saldo })
     if (camino === '/auth/password') return json(200, { usuario: { ...USUARIO, saldo: estado.saldo } })
     if (camino === '/auth/logout') return ruta.fulfill({ status: 204 })
+    if (camino === '/auth/login') {
+      const { contrasena } = peticion.postDataJSON()
+      if (contrasena !== 'clave-de-prueba') return json(401, { error: 'credenciales_invalidas' })
+      return json(200, { usuario: { ...USUARIO, saldo: estado.saldo }, acceso: 'ficticio', refresco: 'ficticio' })
+    }
+    if (camino === '/users/me' && metodo === 'DELETE') return ruta.fulfill({ status: 204 })
     return json(404, { error: 'no_encontrado' })
   })
 }

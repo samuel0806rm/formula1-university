@@ -16,6 +16,7 @@ const MENSAJES = {
   demasiadas_peticiones: 'Hay demasiadas peticiones en este momento. Espera un minuto.',
   clave_requerida: 'El servidor no tiene configurada la clave de la API.',
   clave_invalida: 'La clave de la API del servidor no es válida.',
+  error_interno: 'El servicio tuvo un error interno. Inténtalo de nuevo en unos minutos.',
 }
 
 const SIN_SERVICIO = 'No se pudo conectar con el servicio. Revisa que el servidor esté activo e inténtalo de nuevo.'

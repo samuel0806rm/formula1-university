@@ -84,3 +84,13 @@
     animation: none;
   }
 }
+
+/* En oscuro la ventana se separa del fondo con un azul más claro. */
+:global(:root[data-tema='oscuro']) .caja {
+  background: var(--recuadro);
+  box-shadow: 0 0 0 1px #153e90, var(--sombra);
+}
+
+:global(:root[data-tema='oscuro']) .cabecera {
+  background: #153e90;
+}

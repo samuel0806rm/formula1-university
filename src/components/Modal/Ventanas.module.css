@@ -151,3 +151,12 @@
     animation: none;
   }
 }
+
+:global(:root[data-tema='oscuro']) .campo input,
+:global(:root[data-tema='oscuro']) .factura {
+  background: var(--recuadro-interno);
+}
+
+:global(:root[data-tema='oscuro']) .error {
+  color: #ffb3b3;
+}
