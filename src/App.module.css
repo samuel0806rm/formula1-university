@@ -1,9 +1,29 @@
+/* La interfaz ocupa exactamente la ventana: navbar 80px, contenido y pie 48px.
+   La página no hace scroll; solo las listas internas de cada vista. */
 .app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: var(--alto-navbar) minmax(0, 1fr) var(--alto-pie);
+  overflow: hidden;
 }
 
 .content {
-  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Si el espacio no alcanza (ventanas angostas o bajas), la página sí puede hacer
+   scroll y los elementos se reacomodan. */
+@media (max-width: 900px), (max-height: 620px) {
+  .app {
+    height: auto;
+    min-height: 100dvh;
+    grid-template-rows: auto 1fr auto;
+    overflow: visible;
+  }
+  .content {
+    overflow: visible;
+  }
 }

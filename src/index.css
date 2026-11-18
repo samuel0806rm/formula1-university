@@ -15,6 +15,11 @@
   --calles: #153e90;
   --margen: clamp(16px, 6.25vw, 120px);
   --radio: 20px;
+  --alto-navbar: 80px;
+  --alto-pie: 48px;
+  /* Separación vertical de las vistas: se reduce en pantallas bajas para que todo quepa. */
+  --aire: clamp(12px, 2.4vh, 32px);
+  --sombra: 0 6px 24px rgba(0, 7, 23, 0.18);
 
   /* Nombres anteriores: las páginas que aún no se rediseñan heredan la paleta nueva. */
   --azul: var(--navbar-footer);
@@ -45,9 +50,14 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   min-width: 320px;
-  min-height: 100vh;
   margin: 0;
   font-family: 'Gantari', Arial, Helvetica, sans-serif;
   font-size: 18px;
@@ -106,4 +116,44 @@ input, select, textarea {
 .btn-contorno {
   background: var(--recuadro-interno);
   color: var(--accion);
+}
+
+.btn-peligro {
+  border-color: var(--alerta);
+  background: var(--alerta);
+  color: #fff;
+}
+
+.btn-peligro.btn-contorno {
+  background: var(--recuadro-interno);
+  color: var(--alerta);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Texto solo para lectores de pantalla. */
+.solo-lector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Vista estándar dentro del área de contenido: ocupa todo el alto disponible. */
+.vista {
+  height: 100%;
+  padding: var(--aire) var(--margen);
+  overflow: hidden;
+}
+
+@media (max-width: 900px), (max-height: 620px) {
+  .vista {
+    height: auto;
+    overflow: visible;
+  }
 }

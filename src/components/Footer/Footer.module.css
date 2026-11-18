@@ -1,6 +1,6 @@
 .footer {
-  min-height: 48px;
-  padding: 8px var(--margen);
+  height: var(--alto-pie);
+  padding: 0 var(--margen);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -9,4 +9,13 @@
   background: var(--navbar-footer);
   color: #fff;
   font-size: 14px;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .footer {
+    height: auto;
+    min-height: var(--alto-pie);
+    padding-block: 8px;
+  }
 }
