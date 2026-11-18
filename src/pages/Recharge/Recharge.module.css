@@ -140,7 +140,7 @@
 
 .error {
   border: 2px solid var(--alerta);
-  color: var(--alerta);
+  color: var(--texto-alerta);
 }
 
 .volver {

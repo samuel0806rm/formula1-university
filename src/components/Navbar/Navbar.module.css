@@ -3,15 +3,17 @@
 }
 
 .navbar {
-  height: 80px;
-  padding: 0 var(--margen);
+  min-height: 80px;
+  padding: 10px var(--margen);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .brand {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
 }
@@ -20,13 +22,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 0;
 }
 
 .links a {
   display: flex;
   align-items: center;
   height: 44px;
-  padding: 0 20px;
+  padding: 0 14px;
   border-radius: var(--radio) var(--radio) 0 var(--radio);
   color: #fff;
   font-size: 18px;
@@ -42,18 +47,6 @@
   background: var(--accion);
 }
 
-.tema {
-  width: 44px;
-  height: 44px;
-  margin-left: 12px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: var(--accion);
-  color: #fff;
-}
-
 @media (max-width: 640px) {
   .navbar {
     height: auto;
@@ -65,7 +58,8 @@
     padding: 0 12px;
     font-size: 16px;
   }
-  .tema {
-    margin-left: 4px;
+  .links {
+    width: 100%;
+    justify-content: flex-start;
   }
 }

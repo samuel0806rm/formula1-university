@@ -2,13 +2,13 @@
   position: relative;
   overflow: hidden;
   border-radius: var(--radio);
-  background: #fff;
+  background: var(--fondo);
 }
 
 .calles {
   position: absolute;
   inset: 0;
-  background: #153e90;
+  background: var(--calles);
   -webkit-mask-image: url('/img/tunja-calles.svg');
   mask-image: url('/img/tunja-calles.svg');
   -webkit-mask-repeat: no-repeat;

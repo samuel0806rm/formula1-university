@@ -1,0 +1,11 @@
+.tema {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accion);
+  color: var(--texto-boton);
+}

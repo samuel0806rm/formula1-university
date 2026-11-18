@@ -3,6 +3,7 @@ import { pedirPantalla } from '../../services/simulations'
 import { mensajeError } from '../../services/errores'
 import { pesos } from '../../utils/formato'
 import styles from './SimulationScreen.module.css'
+import ThemeToggle from '../../components/ThemeToggle/ThemeToggle'
 
 export default function SimulationScreen() {
   const [clave] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get('pantalla') ?? '')
@@ -47,7 +48,7 @@ export default function SimulationScreen() {
     finally { version.current++; bloqueo.current = false; setOcupado(false) }
   }
   return <main className={styles.page}>
-    <header><strong>PARK&GO</strong><span>{datos?.tipo === 'recarga' ? 'PUNTO DE RECARGA' : 'ACCESO AL PARQUEADERO'} · SIMULACIÓN</span></header>
+    <header><strong>PARK&GO</strong><span>{datos?.tipo === 'recarga' ? 'PUNTO DE RECARGA' : 'ACCESO AL PARQUEADERO'} · SIMULACIÓN</span><ThemeToggle /></header>
     <section className={styles.panel}>
       {!claveValida ? <><h1>Pantalla sin emparejar</h1><p>Abre el enlace de pantalla generado por el administrador en Simulaciones.</p></> : !datos ? <h1>Conectando pantalla…</h1> : <>
         <p className={styles.eyebrow}>{datos.tipo === 'recarga' ? 'ATENCIÓN AL USUARIO' : datos.parqueadero.nombre}</p>

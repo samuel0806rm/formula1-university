@@ -2,18 +2,18 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid var(--gris-borde);
-  border-radius: 8px;
-  background: white;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
 }
 
 .option,
 .active {
   padding: 16px 18px;
   border: 0;
-  border-bottom: 1px solid #eee;
-  background: white;
-  color: #444;
+  border-bottom: 1px solid var(--borde);
+  background: var(--recuadro-interno);
+  color: var(--texto);
   font-size: 15px;
   text-align: left;
 }
@@ -25,6 +25,6 @@
 .active {
   border-left: 4px solid var(--azul);
   background: var(--azul-claro);
-  color: var(--azul);
+  color: var(--titulo-h3);
   font-weight: 700;
 }

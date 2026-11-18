@@ -6,7 +6,7 @@
 .back {
   display: inline-block;
   margin-bottom: 8px;
-  color: var(--azul);
+  color: var(--titulo-h3);
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
@@ -22,7 +22,7 @@
 }
 
 .pageHeader p {
-  color: #666;
+  color: var(--texto-secundario);
   font-size: 13px;
 }
 
@@ -41,20 +41,20 @@
 
 .disclaimer {
   margin-top: 22px;
-  color: #666;
+  color: var(--texto-secundario);
   font-size: 11px;
   line-height: 1.5;
 }
 
 @media (max-width: 760px) {
   .layout {
-  margin-top: 24px;
     grid-template-columns: 1fr;
   }
 }
 
 .selectorParqueadero {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   margin-bottom: 14px;
@@ -65,9 +65,9 @@
 .selectorParqueadero select {
   min-height: 38px;
   padding: 6px 8px;
-  border: 1px solid var(--gris-borde);
+  border: 1px solid var(--borde);
   border-radius: 6px;
-  background: white;
+  background: var(--recuadro-interno);
 }
 
 .confirmacion {
@@ -75,8 +75,8 @@
   margin: 0 auto;
   padding: 24px;
   border: 1px solid var(--verde-borde);
-  border-radius: 8px;
-  background: white;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
 }
 
 .confirmacion h2 {
@@ -93,12 +93,12 @@
   justify-content: space-between;
   gap: 12px;
   padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--borde);
   font-size: 14px;
 }
 
 .confirmacion dt {
-  color: #666;
+  color: var(--texto-secundario);
 }
 
 .confirmacion dd {
@@ -127,11 +127,11 @@
 
 .accionPrincipal {
   background: var(--verde);
-  color: white;
+  color: var(--texto-boton);
 }
 
 .accionSecundaria {
-  border: 2px solid var(--azul);
-  background: white;
-  color: var(--azul);
+  border: 2px solid var(--accion);
+  background: var(--recuadro-interno);
+  color: var(--titulo-h3);
 }

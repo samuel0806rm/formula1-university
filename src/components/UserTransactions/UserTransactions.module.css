@@ -6,10 +6,10 @@
 .container > button {
   margin-bottom: 14px;
   padding: 8px 14px;
-  border: 2px solid var(--azul);
+  border: 2px solid var(--accion);
   border-radius: 6px;
-  background: white;
-  color: var(--azul);
+  background: var(--recuadro-interno);
+  color: var(--titulo-h3);
   font-weight: 700;
 }
 
@@ -20,7 +20,7 @@
   gap: 12px;
   margin-bottom: 8px;
   padding: 12px;
-  border: 1px solid var(--gris-borde);
+  border: 1px solid var(--borde);
   border-radius: 6px;
 }
 
@@ -31,19 +31,19 @@
 
 .transaction p {
   margin: 0 0 4px;
-  color: #666;
+  color: var(--texto-secundario);
   font-size: 13px;
 }
 
 .transaction strong {
-  color: var(--azul);
+  color: var(--titulo-h3);
 }
 
 .badge, .container span {
   padding: 2px 10px;
   border-radius: 999px;
   background: var(--azul-claro);
-  color: var(--azul);
+  color: var(--titulo-h3);
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;

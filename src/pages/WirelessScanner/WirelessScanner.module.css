@@ -1,12 +1,89 @@
-.page { min-height: 100dvh; display: grid; place-items: center; padding: 32px 20px; background: #0d1c2f; color: #eef5ff; }
-.reader { max-width: 440px; text-align: center; }
-.brand { font-size: 12px; letter-spacing: .12em; color: #8ab8ed; }
-.indicador { display: grid; place-items: center; margin: 40px auto 32px; width: 150px; height: 150px; border: 2px solid #456185; border-radius: 50%; color: #8ab8ed; font-size: 52px; font-weight: bold; }
-.esperando { color: #b7f45c; border-color: #b7f45c; box-shadow: 0 0 0 14px #b7f45c12; }
-.reader h1 { font-size: 30px; }
-.reader p { line-height: 1.6; }
-.reader button { width: 100%; min-height: 56px; border: 0; border-radius: 10px; padding: 14px; background: #b7f45c; color: #162600; font-weight: bold; margin: 20px 0; }
-.reader button:disabled { opacity: .5; }
-.reader button:focus-visible { outline: 3px solid #ffce60; outline-offset: 4px; }
-.error { background: #ffe5df; color: #712414; padding: 16px; border-radius: 10px; }
-.ayuda { color: #afc1d8; font-size: 13px; }
+.page {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 24px;
+  place-items: center;
+  padding: 32px 20px;
+  background: var(--fondo);
+  color: var(--texto);
+}
+
+.reader {
+  max-width: 440px;
+  text-align: center;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.brand {
+  font-size: 12px;
+  letter-spacing: .12em;
+  color: var(--titulo-h3);
+}
+
+.indicador {
+  display: grid;
+  place-items: center;
+  margin: 40px auto 32px;
+  width: 150px;
+  height: 150px;
+  border: 2px solid var(--borde);
+  border-radius: 50%;
+  color: var(--titulo-h3);
+  font-size: 52px;
+  font-weight: bold;
+}
+
+.esperando {
+  color: var(--accion);
+  border-color: var(--accion);
+  box-shadow: 0 0 0 14px color-mix(in srgb, var(--accion) 12%, transparent);
+}
+
+.reader h1 {
+  font-size: 30px;
+}
+
+.reader p {
+  line-height: 1.6;
+}
+
+.reader button {
+  width: 100%;
+  min-height: 56px;
+  border: 0;
+  padding: 14px;
+  background: var(--accion);
+  color: var(--texto-boton);
+  font-weight: bold;
+  margin: 20px 0;
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+}
+
+.reader button:disabled {
+  opacity: .5;
+}
+
+.reader button:focus-visible {
+  outline: 3px solid var(--accion);
+  outline-offset: 4px;
+}
+
+.error {
+  background: var(--fondo-alerta);
+  color: var(--texto-alerta);
+  padding: 16px;
+  border-radius: var(--radio);
+}
+
+.ayuda {
+  color: var(--texto-secundario);
+  font-size: 13px;
+}
+
+.apariencia {
+  width: min(440px, 100%);
+  display: flex;
+  justify-content: flex-end;
+}

@@ -91,7 +91,7 @@
 
 .llenos {
   display: block;
-  color: var(--alerta);
+  color: var(--texto-alerta);
   font-weight: 600;
 }
 

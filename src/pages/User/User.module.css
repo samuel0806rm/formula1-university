@@ -15,6 +15,7 @@
 }
 
 .cabecera {
+  flex-wrap: wrap;
   margin-bottom: 24px;
   display: flex;
   align-items: center;
@@ -59,7 +60,7 @@
 .datos {
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: 12px;
 }
 
@@ -111,13 +112,13 @@
 }
 
 .peligro {
-  border-color: var(--alerta);
+  border-color: var(--texto-alerta);
   background: var(--recuadro-interno);
-  color: var(--alerta);
+  color: var(--texto-alerta);
 }
 
 .error {
-  color: var(--alerta);
+  color: var(--texto-alerta);
 }
 
 @media (max-width: 900px) {

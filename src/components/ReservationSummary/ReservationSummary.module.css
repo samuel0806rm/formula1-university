@@ -5,10 +5,10 @@
 }
 
 .summary {
-  border: 1px solid var(--gris-borde);
-  border-radius: 8px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
   padding: 18px;
-  background: white;
+  background: var(--recuadro);
 }
 
 .summary h2 {
@@ -26,12 +26,12 @@
   justify-content: space-between;
   gap: 12px;
   padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--borde);
   font-size: 13px;
 }
 
 .summary dt {
-  color: #666;
+  color: var(--texto-secundario);
 }
 
 .summary dd {
@@ -50,7 +50,7 @@
 }
 
 .amount {
-  color: var(--azul);
+  color: var(--titulo-h3);
   font-size: 24px;
 }
 
@@ -65,7 +65,7 @@
 .confirmButton {
   border: 1px solid var(--verde);
   background: var(--verde);
-  color: white;
+  color: var(--texto-boton);
 }
 
 .confirmButton:disabled {
@@ -74,22 +74,22 @@
 }
 
 .cancelButton {
-  border: 2px solid var(--azul);
-  background: white;
-  color: var(--azul);
+  border: 2px solid var(--accion);
+  background: var(--recuadro-interno);
+  color: var(--titulo-h3);
 }
 
 .validation {
   margin: 0;
-  color: #b3261e;
+  color: var(--texto-alerta);
   font-size: 12px;
 }
 
 .success {
   padding: 10px;
   border: 1px solid var(--verde-borde);
-  background: var(--verde-claro);
-  color: #205c38;
+  background: var(--fondo-exito);
+  color: var(--texto);
   font-size: 12px;
   line-height: 1.5;
 }

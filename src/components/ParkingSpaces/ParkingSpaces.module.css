@@ -1,8 +1,8 @@
 .panel {
-  border: 1px solid var(--gris-borde);
-  border-radius: 8px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
   padding: 16px;
-  background: white;
+  background: var(--recuadro);
 }
 
 .panel h2 {
@@ -25,9 +25,9 @@
   justify-content: center;
   gap: 8px;
   border: 2px solid var(--verde-borde);
-  border-radius: 8px;
+  border-radius: var(--radio);
   background: var(--verde-claro);
-  color: #222;
+  color: var(--texto);
 }
 
 .space strong {
@@ -44,15 +44,15 @@
 }
 
 .space.selected {
-  border-color: var(--azul);
-  background: var(--azul);
-  color: white;
+  border-color: var(--accion);
+  background: var(--accion);
+  color: var(--texto-boton);
 }
 
 .space.occupied {
-  border-color: var(--gris-borde);
+  border-color: var(--borde);
   background: var(--gris-ocupada);
-  color: #777;
+  color: var(--texto-secundario);
   cursor: not-allowed;
 }
 

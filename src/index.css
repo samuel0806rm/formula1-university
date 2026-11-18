@@ -13,6 +13,11 @@
   --alerta: #c90000;
   --blanco: #ffffff;
   --calles: #153e90;
+  --texto-secundario: color-mix(in srgb, var(--texto) 75%, var(--fondo));
+  --borde: color-mix(in srgb, var(--texto) 30%, var(--recuadro));
+  --fondo-exito: color-mix(in srgb, var(--accion) 12%, var(--fondo));
+  --fondo-alerta: color-mix(in srgb, var(--alerta) 12%, var(--fondo));
+  --texto-alerta: var(--alerta);
   --margen: clamp(16px, 6.25vw, 120px);
   --radio: 20px;
 
@@ -38,6 +43,7 @@
   --recuadro: #001a54;
   --recuadro-interno: #153e90;
   --calles: #4f7fe0;
+  --texto-alerta: color-mix(in srgb, var(--alerta) 35%, var(--blanco));
   color-scheme: dark;
 }
 
@@ -80,6 +86,10 @@ input, select, textarea {
   background: var(--recuadro-interno);
   border: 0;
   border-radius: var(--radio);
+}
+
+input[type='checkbox'], input[type='radio'] {
+  accent-color: var(--accion);
 }
 
 :focus-visible {

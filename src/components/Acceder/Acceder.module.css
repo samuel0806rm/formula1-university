@@ -140,7 +140,7 @@
   border: 2px solid var(--alerta);
   border-radius: var(--radio);
   background: var(--recuadro-interno);
-  color: var(--alerta);
+  color: var(--texto-alerta);
   font-size: 16px;
 }
 

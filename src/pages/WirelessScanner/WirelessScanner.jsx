@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { normalizarUid } from '../../services/nfc'
 import { pedirComoLector } from '../../services/admin'
 import styles from './WirelessScanner.module.css'
+import ThemeToggle from '../../components/ThemeToggle/ThemeToggle'
 
 export default function WirelessScanner() {
   const [{ clave, simulacion }] = useState(() => {
@@ -106,6 +107,7 @@ export default function WirelessScanner() {
   }
 
   return <main className={styles.page}>
+    <div className={styles.apariencia}><ThemeToggle /></div>
     <div className={styles.reader}>
       <p className={styles.brand}>PARK&GO · LECTOR INALÁMBRICO</p>
       <div className={`${styles.indicador} ${solicitado ? styles.esperando : ''}`} aria-hidden="true">)))</div>
