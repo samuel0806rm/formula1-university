@@ -258,6 +258,9 @@
   }
 
   .pestanas a {
+    border: 1px solid var(--borde-secundario);
+    background: var(--fondo-secundario);
+    color: var(--texto-secundario);
     min-height: 46px;
     padding: 0 8px;
     display: grid;

@@ -33,8 +33,8 @@ function movimientos() {
  * @param {import('@playwright/test').Page} page
  * @param {{ tema?: 'claro'|'oscuro', fallar?: boolean, conSesion?: boolean }} opciones
  */
-export async function prepararPagina(page, { tema = 'claro', fallar = false, conSesion = true } = {}) {
-  const estado = { saldo: USUARIO.saldo }
+export async function prepararPagina(page, { tema = 'claro', fallar = false, conSesion = true, admin = false, tarjetas = [] } = {}) {
+  const estado = { saldo: USUARIO.saldo, tarjetas }
 
   await page.addInitScript(({ tema, conSesion, usuario }) => {
     if (sessionStorage.getItem('preparado')) return
@@ -68,6 +68,10 @@ export async function prepararPagina(page, { tema = 'claro', fallar = false, con
     if (!conSesion) return json(401, { error: 'token_requerido' })
     if (fallar && metodo !== 'GET' && camino !== '/auth/login') return json(500, { error: 'error_interno' })
     if (camino === '/auth/me') return json(200, { ...USUARIO, saldo: estado.saldo })
+    // Rutas propias del servidor del proyecto (NFC de Javier).
+    if (camino === '/nfc/access') return json(200, { administrador: admin })
+    if (camino === '/nfc/cards') return json(200, { tarjetas: estado.tarjetas })
+    if (camino === '/nfc/card-request') return json(200, { solicitud: null })
     if (camino.startsWith('/wallet/movements')) {
       const todos = movimientos()
       const desde = Number(url.searchParams.get('desde') ?? 0)

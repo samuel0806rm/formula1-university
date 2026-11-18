@@ -31,14 +31,92 @@ npm run test:e2e # pruebas Playwright (la primera vez: npx playwright install ch
   foco atrapado, Esc, X arriba a la izquierda) y 4 tipos: C/C (`VentanaConfirmar`), CON
   (`VentanaCampos`), N (`VentanaNFC`) y A (`VentanaAviso`, con su versión negativa `exito={false}`).
 
-## NFC simulado
+## Celular y PWA
 
-No hay lector NFC real. Todo lo relacionado con la tarjeta se simula con el botón
-**"Simular lectura de tarjeta"** y el estado se guarda en `localStorage` de este navegador
-(clave `parking-tunja:nfc`, ver `src/services/nfc.js`). La API del profesor no se modifica.
+### Diseño móvil
 
-- **Mi Cuenta → Vincular tarjeta**: ventana N; al simular la lectura se genera un código de
-  tarjeta y queda vinculada al usuario.
+La interfaz sigue los wireframes móviles de Figma (390×844, claro y oscuro):
+
+- Cabecera de 64 px con el botón de tema y un **menú hamburguesa** a pantalla completa (incluye
+  "Instalar Park&Go" si la app no está instalada).
+- **Mapa**: el panel "Filtrar y Reservar" es una **hoja inferior**. Se pliega o despliega con
+  la pestaña, con el botón pequeño que tiene encima o **deslizando la pestaña** hacia abajo o
+  hacia arriba. La tecla Tab solo alterna el panel en escritorio.
+- Las vistas se apilan en tarjetas. En celular la página sí hace scroll; en escritorio se
+  mantiene la regla de 100dvh sin scroll de página.
+- Las ventanas emergentes ocupan toda la pantalla, con botones de 46 px.
+- Se respetan las zonas seguras (`env(safe-area-inset-*)`, `viewport-fit=cover`) y los campos
+  usan 16 px para evitar el zoom automático.
+- Revisado sin scroll horizontal en 360×740, 390×844 y 768×1024.
+
+### Instalar la PWA
+
+La app es instalable: `public/manifest.webmanifest`, íconos 192/512/maskable en
+`public/icons/` (generados desde `App_Icono`) y un service worker propio (`public/sw.js`).
+
+- El service worker **solo se registra en la versión compilada** (`npm run build` + `npm start`),
+  no con `npm run dev`.
+- Guarda el "shell" (index, íconos, logo, `offline.html`) y los archivos de `/assets/`. Sin
+  conexión la app abre desde la caché o muestra `offline.html`.
+- **Las llamadas a `/api` nunca se interceptan ni se guardan** (network-only). Los tokens
+  viven en `localStorage` y jamás llegan a la caché.
+- **Android/Chrome**: menú → "Instalar Park&Go" → **Instalar aplicación** (usa
+  `beforeinstallprompt`). En el Inicio aparece un aviso que se puede cerrar y no vuelve a salir.
+- **iPhone (Safari)**: "Instalar aplicación" muestra los pasos: Compartir → **Añadir a pantalla
+  de inicio** → Añadir.
+- Si ya está instalada (modo `standalone`), el aviso y la opción del menú no aparecen.
+
+**Comprobación de instalabilidad.** `tests/pwa.spec.js` consulta a Chrome con
+`Page.getInstallabilityErrors` (la misma verificación del ícono "Instalar"): la lista sale vacía.
+Lighthouse 12+ ya no tiene categoría PWA; la última que la incluye es la 11:
+
+```powershell
+npm.cmd run build; npm.cmd start
+npx lighthouse@11.7.1 http://localhost:3001/ --only-categories=pwa --form-factor=mobile --view
+```
+
+Resultado de Lighthouse: _pendiente de ejecutar en un equipo del equipo (no se pudo correr
+desde el entorno automatizado)._
+
+### Probar en el celular (HTTPS con el túnel)
+
+Web NFC y la instalación exigen HTTPS. Reutiliza el túnel de Javier:
+
+1. Terminal 1: `npm.cmd run build` y luego `npm.cmd start` (puerto 3001).
+2. Terminal 2: `npm.cmd run tunnel` y copia la dirección `https://….trycloudflare.com`.
+3. Abre esa dirección en Chrome del celular. Para instalarla: menú → "Instalar Park&Go".
+
+## NFC: real o simulado
+
+- **Real**: si el navegador tiene **Web NFC** (`NDEFReader`: Chrome en Android, con HTTPS y NFC
+  activado), la app lee el UID de la tarjeta (`src/services/webNfc.js`, UID normalizado con
+  `normalizarUid`).
+- **Simulado**: en cualquier otro navegador (iPhone, PC, HTTP) aparece **"Simular lectura de
+  tarjeta"** con el mismo flujo, y siempre se avisa que la lectura es simulada.
+
+### Registro de tarjeta entre dispositivos (celular → PC)
+
+Se reutiliza el flujo de Javier (`server/wirelessReader.js`):
+
+1. El administrador, desde el PC, entra a **Lector NFC** (`/lector`) y empareja el celular.
+2. El celular abre el enlace `/escaner`. Con Web NFC lee la tarjeta real; sin Web NFC pulsa
+   **Conectar lector simulado** y luego **Simular lectura de tarjeta** (envía un UID de prueba
+   marcado como simulado).
+3. El admin elige al usuario y pide la lectura. El celular envía el UID al servidor, que lo
+   **valida** (formato hexadecimal, sesión de administrador, usuario activo y sin tarjeta) y lo
+   vincula. El PC muestra el resultado ("lectura simulada" si aplica).
+4. El usuario ve la tarjeta en **Mi Cuenta** sin recargar: la vista consulta al servidor cada
+   8 s mientras la pestaña está visible (`src/hooks/useTarjetasServidor.js`).
+
+### Simulación local en Mi Cuenta
+
+Si el usuario no tiene una tarjeta registrada por un administrador, las ventanas de Mi Cuenta
+funcionan con una tarjeta guardada en `localStorage` de este navegador (clave
+`parking-tunja:nfc`, ver `src/services/nfc.js`). Con Web NFC la ventana lee la tarjeta real; si
+no, usa "Simular lectura de tarjeta". La API del profesor no se modifica.
+
+- **Mi Cuenta → Vincular tarjeta**: ventana N; la lectura (real o simulada) deja la tarjeta
+  vinculada al usuario en este navegador.
 - **Mi Cuenta → Desvincular tarjeta**: ventana C/C con nombre, correo y cédula → ventana N
   pidiendo la tarjeta de un Administrador → ventana A de éxito o de fallo.
 - **Iniciar sesión con tarjeta**: la API exige contraseña, así que la lectura simulada solo
@@ -109,6 +187,27 @@ ADMIN_USER_ID=ID_DE_LA_CUENTA_ADMINISTRADORA
 ```
 
 Reemplaza `ID_DE_LA_CUENTA_ADMINISTRADORA` por el ID numérico real del usuario. La cuenta debe existir y estar activa; si todavía no existe, créala desde el registro de la aplicación. Esta variable determina qué usuario tiene acceso a las funciones administrativas del proyecto. Después de modificarla, reinicia el servidor y vuelve a iniciar sesión. Si el ID ya está configurado correctamente, conserva su valor.
+
+### Administradores por correo (`ADMIN_EMAILS`)
+
+Además de `ADMIN_USER_ID`, se pueden declarar varias cuentas administradoras por correo en
+`server/.env`, separadas por coma:
+
+```dotenv
+ADMIN_EMAILS=admin1@ejemplo.com,admin2@ejemplo.com
+```
+
+- La lista vive **solo en el servidor** (`server/admins.js`). El campo `administrador` de la
+  sesión (`/api/nfc/access`) lo calcula el servidor comparando el correo de `/auth/me` sin
+  distinguir mayúsculas; las cuentas bloqueadas nunca son administradoras. El cliente nunca
+  decide quién es admin.
+- Un usuario que no es administrador no puede abrir `/lector` ni `/simulaciones`, ni llamar a
+  `/api/nfc/admin/*` (el servidor responde 403).
+- **Crear las cuentas del equipo:** registra cada correo desde **/registro** con la contraseña
+  acordada por el equipo (no se escribe en ningún archivo). Después agrega los correos a
+  `ADMIN_EMAILS` en tu `server/.env` local, reinicia el servidor y vuelve a iniciar sesión.
+- Reglas de contraseña del registro: al menos 8 caracteres en el formulario. La API además
+  rechaza contraseñas comunes o iguales al correo (`contrasena_debil`).
 
 ## 3. Ejecutar la aplicación y el túnel
 
@@ -206,3 +305,22 @@ Las pruebas automatizadas utilizan datos y servicios aislados, sin mover saldo r
 ```powershell
 npm.cmd run test:nfc
 ```
+
+Pruebas de interfaz (Playwright). La primera vez instala el navegador con `npx playwright install chromium`:
+
+```powershell
+npx playwright test
+```
+
+- `tests/movil.spec.js`: capturas 390×844 claro/oscuro en `tests/capturas/movil/` (para comparar
+  con Figma) y revisión sin scroll horizontal en 360×740 y 768×1024.
+- `tests/capturas.spec.js`: escritorio 1920×1080, 1536×864 y 1366×768 sin scroll vertical.
+- `tests/pwa.spec.js`: manifest, metadatos, instalabilidad, caché sin `/api`, modo sin conexión
+  y flujo de instalación (Android e iPhone).
+- `tests/admin-nfc.spec.js`: administradores por correo y flujo celular → PC con lectura
+  simulada. Usa `tests/servidor-prueba.mjs`: compila la app y ejecuta `server/index.js` contra
+  una **TunjaAPI falsa** (puertos 3101 y 3199), así que no toca la API real ni mueve saldo.
+
+Las pruebas `una entrada válida abre estancia… cobra hora o fracción` y `las estancias
+pertenecen al parqueadero…` de `npm run test:nfc` ya fallaban antes de estos cambios (simulaciones
+de parqueadero); quedan reportadas y sin ocultar.
