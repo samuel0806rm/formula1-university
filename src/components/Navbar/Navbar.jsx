@@ -35,6 +35,9 @@ function Navbar() {
 
           {usuario && (
             <>
+              {usuario.administrador && <NavLink to="/lector">Lector NFC</NavLink>}
+              {usuario.administrador && <NavLink to="/simulaciones">Simulaciones</NavLink>}
+              <NavLink to="/tarjeta">Mi Tarjeta</NavLink>
               <NavLink to="/usuario">
                 {usuario.nombre.split(' ')[0]}
               </NavLink>

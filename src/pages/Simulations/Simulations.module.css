@@ -1,0 +1,16 @@
+.page { max-width: 1050px; margin: auto; padding: 40px 20px 64px; }
+.page h1, .page h2 { color: var(--azul-oscuro); }
+.page p, .page li { line-height: 1.6; }
+.eyebrow { color: var(--azul); font-size: 12px; letter-spacing: .1em; font-weight: bold; }
+.categorias { display: flex; gap: 12px; margin: 24px 0; flex-wrap: wrap; }
+.panel { background: white; border: 1px solid #dce3ed; border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+.page label { display: block; margin-top: 16px; margin-bottom: 8px; }
+.page input:not([type=checkbox]), .page select { display: block; width: 100%; min-height: 48px; border: 1px solid #bac7d8; border-radius: 8px; padding: 12px; margin-top: 8px; background: white; }
+.page button { min-height: 44px; background: var(--azul); color: white; border: 0; border-radius: 8px; padding: 12px 18px; margin: 8px 8px 0 0; font-weight: bold; }
+.page button[aria-pressed=false], .page .secundario { background: #e8eef9; color: var(--azul); }
+.page button:disabled { opacity: .5; cursor: default; }
+.page :focus-visible { outline: 3px solid #6896e6; outline-offset: 3px; }
+.ayuda { color: #526078; font-size: 13px; }
+.revision { padding: 16px; background: #fff7df; border-radius: 8px; margin-top: 16px; overflow-wrap: anywhere; }
+.historial { max-height: 420px; overflow: auto; padding: 16px; border: 1px solid #e4d2a0; background: white; border-radius: 8px; margin-top: 16px; }
+.error { padding: 16px; border-radius: 8px; background: #ffe5df; color: #712414; }

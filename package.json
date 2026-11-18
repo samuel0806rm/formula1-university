@@ -8,7 +8,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "api": "node --env-file=server/.env server/index.js"
+    "api": "node --env-file=server/.env server/index.js",
+    "start": "node --env-file=server/.env server/index.js",
+    "tunnel": "node server/tunnel.js",
+    "test:nfc": "node --test server/nfc.test.js server/cardRequests.test.js server/wirelessReader.test.js server/simulations.test.js server/nfcHttp.test.js"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

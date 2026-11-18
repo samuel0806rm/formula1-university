@@ -35,7 +35,8 @@ function UserAccount() {
   function guardarCambios(evento) {
     evento.preventDefault()
     ejecutar(async () => {
-      setUsuario(await actualizarPerfil({ nombre: nombre.trim(), documento: cedula.trim() }))
+      const perfil = await actualizarPerfil({ nombre: nombre.trim(), documento: cedula.trim() })
+      setUsuario((actual) => ({ ...perfil, administrador: actual?.administrador ?? false }))
       guardarPreferencias(usuario.id, { vehiculo })
     }, 'Los cambios se han guardado.')
   }
@@ -43,7 +44,8 @@ function UserAccount() {
   function guardarContrasena(evento) {
     evento.preventDefault()
     ejecutar(async () => {
-      setUsuario(await cambiarContrasena(contrasenaActual, contrasenaNueva))
+      const perfil = await cambiarContrasena(contrasenaActual, contrasenaNueva)
+      setUsuario((actual) => ({ ...perfil, administrador: actual?.administrador ?? false }))
       setContrasenaActual('')
       setContrasenaNueva('')
     }, 'Tu contraseña se actualizó.')

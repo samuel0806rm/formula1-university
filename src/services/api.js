@@ -83,7 +83,7 @@ function renovarAcceso(accesoRechazado) {
 
 const TOKENS_NO_RENOVABLES = ['token_requerido', 'token_invalido', 'token_caducado_por_cambio']
 
-async function pedirConSesion(ruta, opciones = {}) {
+export async function pedirConSesion(ruta, opciones = {}) {
   const sesion = leerSesion()
   if (!sesion?.acceso) throw caducarSesion()
 

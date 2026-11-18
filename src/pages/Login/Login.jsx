@@ -26,7 +26,10 @@ function Login() {
     }
   }
 
-  if (!cargando && usuario) return <Navigate to="/" replace />
+  const desde = location.state?.desde
+  const destino = typeof desde === 'string' && desde.startsWith('/') && !desde.startsWith('//') && !['/inicio-sesion', '/registro'].includes(desde)
+    ? desde : usuario?.administrador ? '/lector' : '/'
+  if (!cargando && usuario) return <Navigate to={destino} replace />
 
   return (
     <section className={styles.page}>
