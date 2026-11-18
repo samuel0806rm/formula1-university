@@ -6,7 +6,9 @@ import { crearServicioNfc } from './nfc.js'
 import { servirInterfaz } from './static.js'
 
 const { API_BASE_URL, API_TOKEN, PORT = 3001 } = process.env
-const atenderNfc = crearServicioNfc({ base: API_BASE_URL, token: API_TOKEN, adminUserId: process.env.ADMIN_USER_ID })
+const atenderNfc = crearServicioNfc({
+  base: API_BASE_URL, token: API_TOKEN, adminUserId: process.env.ADMIN_USER_ID, adminEmails: process.env.ADMIN_EMAILS,
+})
 
 if (!API_BASE_URL || !API_TOKEN || API_TOKEN === 'DEPOSITA_TU_CLAVE_AQUI') {
   console.error('Falta configurar server/.env (copia server/.env.example y deposita tu clave).')

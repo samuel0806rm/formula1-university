@@ -1,10 +1,11 @@
 import { randomBytes, randomUUID, createHash } from 'node:crypto'
+import { crearVerificadorAdmin } from './admins.js'
 
 const fallo = (error, estado = 400) => Object.assign(new Error(error), { estado })
 const hash = (valor) => createHash('sha256').update(valor).digest('hex')
 
 // Estado de emparejamiento propio del proyecto; ningún endpoint de aquí pertenece a TunjaAPI.
-export function crearLectorInalambrico({ llamar, adminUserId, ahora = Date.now }) {
+export function crearLectorInalambrico({ llamar, adminUserId, adminEmails, esAdministrador = crearVerificadorAdmin({ adminUserId, adminEmails }), ahora = Date.now }) {
   const lectores = new Map()
   const claves = new Map()
   const vinculando = new Set()
@@ -12,7 +13,7 @@ export function crearLectorInalambrico({ llamar, adminUserId, ahora = Date.now }
   async function perfilAdmin(acceso) {
     if (!acceso) throw fallo('token_requerido', 401)
     const perfil = await llamar('/auth/me', { acceso })
-    if (!adminUserId || perfil.id !== Number(adminUserId) || !perfil.activo) throw fallo('administrador_requerido', 403)
+    if (!esAdministrador(perfil)) throw fallo('administrador_requerido', 403)
     return perfil
   }
   function revisar(lector) {
@@ -39,7 +40,7 @@ export function crearLectorInalambrico({ llamar, adminUserId, ahora = Date.now }
       if (metodo !== 'GET') throw fallo('metodo_no_permitido', 405)
       if (!req.headers.authorization) throw fallo('token_requerido', 401)
       const perfil = await llamar('/auth/me', { acceso: req.headers.authorization })
-      return { administrador: Boolean(adminUserId && perfil.id === Number(adminUserId) && perfil.activo) }
+      return { administrador: esAdministrador(perfil) }
     }
     if (ruta.startsWith('/nfc/reader/')) {
       const clave = req.headers['x-reader-key']

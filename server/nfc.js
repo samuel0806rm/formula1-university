@@ -1,10 +1,11 @@
 import { crearAlmacenSolicitudes } from './cardRequests.js'
 import { crearLectorInalambrico } from './wirelessReader.js'
 import { crearSimulaciones } from './simulations.js'
+import { crearVerificadorAdmin } from './admins.js'
 
 const fallo = (error, estado = 400, datos = {}) => Object.assign(new Error(error), { estado, datos })
 
-export function crearServicioNfc({ base, token, adminUserId, fetchApi = fetch, almacenSolicitudes = crearAlmacenSolicitudes(), almacenSimulaciones }) {
+export function crearServicioNfc({ base, token, adminUserId, adminEmails, fetchApi = fetch, almacenSolicitudes = crearAlmacenSolicitudes(), almacenSimulaciones }) {
   async function llamar(ruta, { cuerpo, acceso } = {}) {
     const respuesta = await fetchApi(`${base}${ruta}`, {
       method: cuerpo ? 'POST' : 'GET',
@@ -16,13 +17,14 @@ export function crearServicioNfc({ base, token, adminUserId, fetchApi = fetch, a
     if (!respuesta.ok) throw fallo(datos.error, respuesta.status, datos)
     return datos
   }
+  const esAdministrador = crearVerificadorAdmin({ adminUserId, adminEmails })
   async function perfilAdmin(acceso) {
     if (!acceso) throw fallo('token_requerido', 401)
     const perfil = await llamar('/auth/me', { acceso })
-    if (!adminUserId || perfil.id !== Number(adminUserId) || !perfil.activo) throw fallo('administrador_requerido', 403)
+    if (!esAdministrador(perfil)) throw fallo('administrador_requerido', 403)
     return perfil
   }
-  const atenderInalambrico = crearLectorInalambrico({ llamar, adminUserId })
+  const atenderInalambrico = crearLectorInalambrico({ llamar, esAdministrador })
   const atenderSimulacion = crearSimulaciones({ llamar, perfilAdmin, almacen: almacenSimulaciones })
   return async function atender(ruta, req, cuerpo = {}) {
     if (ruta.startsWith('/nfc/admin/simulation') || ruta.startsWith('/nfc/simulation/')) return atenderSimulacion(ruta, req, cuerpo)
