@@ -1,0 +1,59 @@
+.aviso {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .aviso {
+    margin-bottom: 16px;
+    padding: 10px 8px 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: var(--radio);
+    background: var(--navbar-footer);
+    color: #fff;
+  }
+
+  :global(:root[data-tema='oscuro']) .aviso {
+    background: #153e90;
+  }
+
+  .aviso img {
+    flex: none;
+    border-radius: 10px;
+  }
+
+  .aviso p {
+    flex: 1;
+    margin: 0;
+    font-size: 15px;
+  }
+
+  .instalar {
+    min-height: 44px;
+    padding: 0 14px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radio) var(--radio) 0 var(--radio);
+    background: var(--accion);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .cerrar {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: none;
+    color: #fff;
+  }
+
+  .instalar:focus-visible,
+  .cerrar:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+}

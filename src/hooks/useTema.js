@@ -7,6 +7,8 @@ function temaActual() {
 function aplicarTema(tema) {
   if (tema === 'oscuro') document.documentElement.dataset.tema = 'oscuro'
   else delete document.documentElement.dataset.tema
+  // La barra del navegador (y de la PWA instalada) sigue el tema elegido.
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', tema === 'oscuro' ? '#000e33' : '#153e90')
   window.dispatchEvent(new Event('cambio-tema'))
 }
 

@@ -13,6 +13,7 @@ import Recharge from './pages/Recharge/Recharge'
 import User from './pages/User/User'
 import Notificaciones from './pages/Notificaciones/Notificaciones'
 import NotFound from './pages/NotFound'
+import Instalar from './pages/Instalar/Instalar'
 import Terminal from './pages/Terminal/Terminal'
 import Card from './pages/Card/Card'
 import WirelessScanner from './pages/WirelessScanner/WirelessScanner'
@@ -38,6 +39,7 @@ function PaginasUsuario() {
               <Route path="/recarga" element={<RutaProtegida><Recharge /></RutaProtegida>} />
               <Route path="/usuario" element={<RutaProtegida><User /></RutaProtegida>} />
               <Route path="/notificaciones" element={<RutaProtegida><Notificaciones /></RutaProtegida>} />
+              <Route path="/instalar" element={<Instalar />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

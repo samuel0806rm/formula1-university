@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#153e90" />
+    <title>Sin conexión · Park&amp;Go Tunja</title>
+    <style>
+      :root { color-scheme: light dark; --fondo: #fff; --texto: #000717; --azul: #153e90; }
+      @media (prefers-color-scheme: dark) { :root { --fondo: #000717; --texto: #fff; } }
+      body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 24px; box-sizing: border-box;
+        font-family: 'Gantari', Arial, sans-serif; background: var(--fondo); color: var(--texto); text-align: center; }
+      main { max-width: 340px; display: grid; gap: 16px; justify-items: center; }
+      img { width: 96px; height: 96px; border-radius: 24px; }
+      h1 { margin: 0; color: var(--azul); font-size: 28px; }
+      @media (prefers-color-scheme: dark) { h1 { color: #fff; } }
+      a { display: inline-flex; min-height: 44px; align-items: center; padding: 0 24px; border-radius: 20px 20px 0 20px;
+        background: #07ad2f; color: #fff; font-weight: 700; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/icons/icon-192.png" alt="" />
+      <h1>Sin conexión</h1>
+      <p>Park&amp;Go necesita Internet para consultar parqueaderos, tu saldo y tus reservas. Revisa tu conexión e inténtalo de nuevo.</p>
+      <a href="/">Reintentar</a>
+    </main>
+  </body>
+</html>

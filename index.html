@@ -2,13 +2,26 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover: la app usa env(safe-area-inset-*) en celulares con muesca. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Encuentra, reserva y paga parqueaderos en Tunja con tu saldo y tu tarjeta NFC." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Gantari:wght@400;600;700&display=swap" rel="stylesheet" />
     <title>Park&amp;Go Tunja</title>
-    <link rel="icon" type="image/png" href="/img/App_Icono.png" />
-      <script>try{var t=localStorage.getItem("tema");if(t==="oscuro")document.documentElement.dataset.tema="oscuro"}catch(e){}</script>
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Park&amp;Go" />
+    <!-- Color de la barra del navegador: el script de abajo lo cambia según el tema elegido. -->
+    <meta name="theme-color" content="#153e90" />
+
+    <script>try{var t=localStorage.getItem("tema");if(t==="oscuro"){document.documentElement.dataset.tema="oscuro";document.querySelector('meta[name="theme-color"]').content="#000e33"}}catch(e){}</script>
   </head>
   <body>
     <div id="root"></div>

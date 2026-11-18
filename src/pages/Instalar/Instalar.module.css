@@ -1,0 +1,54 @@
+.pagina {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.pagina h1 {
+  width: min(560px, 100%);
+  margin: 0;
+  font-size: clamp(28px, 4vh, 40px);
+}
+
+.tarjeta {
+  width: min(560px, 100%);
+  padding: 20px 16px;
+  display: grid;
+  gap: 14px;
+  border-radius: var(--radio);
+  background: var(--recuadro);
+}
+
+.tarjeta h2 {
+  margin: 0;
+  font-size: 22px;
+  color: var(--titulo-h3);
+}
+
+.tarjeta p {
+  margin: 0;
+  font-size: 18px;
+}
+
+.tarjeta :global(.btn) {
+  width: 100%;
+  min-height: 46px;
+}
+
+.icono {
+  border-radius: 18px;
+}
+
+.pasos {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 10px;
+  font-size: 18px;
+}
+
+.aviso {
+  font-size: 15px !important;
+}
