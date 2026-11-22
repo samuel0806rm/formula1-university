@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Flecha } from '../../components/Iconos/Iconos'
 import { Factura, VentanaAviso, VentanaConfirmar } from '../../components/Modal/Ventanas'
-import ParkingInfo from '../../components/ParkingInfo/ParkingInfo'
 import ParkingSpaces from '../../components/ParkingSpaces/ParkingSpaces'
 import ReservationForm from '../../components/ReservationForm/ReservationForm'
 import ReservationSummary from '../../components/ReservationSummary/ReservationSummary'
@@ -20,12 +20,24 @@ import {
   plazasReservadas,
 } from '../../services/reservas'
 import { fechaHora, hora, pesos } from '../../utils/formato'
+import {
+  aMinutos,
+  calcularCobro,
+  fechaDeHoy,
+  horarioDe,
+  horasCobradas,
+  horasPorDefecto,
+  textoDuracion,
+  textoHorarioParqueadero,
+  instanteActual,
+  validarHoras,
+} from '../../utils/horario'
 import styles from './Reservation.module.css'
 
-const HORA = 60 * 60 * 1000
 // La API no acepta cobros por debajo de este valor.
 const COBRO_MINIMO = 100
 const FORMATO_PLACA = /^[A-Z]{3} ?(\d{3}|\d{2}[A-Z])$/
+const DURACION_RESALTADO = 1500
 
 function ReservaParqueadero({ parqueadero }) {
   const navigate = useNavigate()
@@ -33,26 +45,42 @@ function ReservaParqueadero({ parqueadero }) {
   const ahora = useAhora()
 
   const [plazaSeleccionada, setPlazaSeleccionada] = useState(null)
-  const [tiempoEspera, setTiempoEspera] = useState(0)
-  const [duracion, setDuracion] = useState(2)
+  const [horas, setHoras] = useState(() => horasPorDefecto(parqueadero))
   const [placa, setPlaca] = useState(() => (usuario ? leerPreferencias(usuario.id).placa : ''))
   const [reservas, setReservas] = useState(listarReservas)
   const [procesando, setProcesando] = useState(false)
   const [error, setError] = useState('')
   const [confirmada, setConfirmada] = useState(null)
   const [ventana, setVentana] = useState(null)
+  // Aviso al pagar sin plaza: el mensaje queda en rojo hasta elegir plaza; el borde y la
+  // sacudida se quitan solos.
+  const [avisoPlaza, setAvisoPlaza] = useState(false)
+  const [resaltada, setResaltada] = useState(false)
+  const temporizador = useRef(null)
+  const cuadricula = useRef(null)
   const enCurso = useRef(false)
 
-  const inicio = ahora + tiempoEspera * HORA
-  const fin = inicio + duracion * HORA
+  useEffect(() => () => clearTimeout(temporizador.current), [])
+
+  const horario = horarioDe(parqueadero)
+  const errores = validarHoras(horas, parqueadero, ahora)
+  const horasValidas = !errores.llegada && !errores.salida
+  const minutoLlegada = aMinutos(horas.llegada) ?? horario.apertura
+  const minutoSalida = aMinutos(horas.salida) ?? minutoLlegada + 60
+  const minutos = Math.max(minutoSalida - minutoLlegada, 0)
+  const inicio = fechaDeHoy(minutoLlegada, ahora)
+  const fin = fechaDeHoy(minutoSalida, ahora)
+  const duracion = textoDuracion(minutos)
+
   const plazas = generarPlazas(parqueadero, plazasReservadas(reservas, parqueadero.id, inicio, fin))
   const plaza = plazas.find((item) => item.id === plazaSeleccionada && item.estado === 'Disponible') ?? null
 
   const placaNormalizada = placa.trim()
   const placaValida = FORMATO_PLACA.test(placaNormalizada)
   const descuento = usuario?.descuento ?? 0
-  const subtotal = duracion * parqueadero.tarifaHora
+  const subtotal = horasValidas ? calcularCobro(minutos, parqueadero.tarifaHora) : 0
   const total = Math.round(subtotal * (1 - descuento / 100))
+  const libres = cuposLibres(parqueadero, reservas, ahora)
 
   function alCambiar(setter) {
     return (valor) => {
@@ -61,12 +89,48 @@ function ReservaParqueadero({ parqueadero }) {
     }
   }
 
+  function elegirPlaza(id) {
+    setPlazaSeleccionada(id)
+    setAvisoPlaza(false)
+    setResaltada(false)
+    setError('')
+  }
+
+  function avisarSinPlaza() {
+    setAvisoPlaza(true)
+    // Se reinicia la animación aunque se pulse varias veces seguidas.
+    setResaltada(false)
+    clearTimeout(temporizador.current)
+    requestAnimationFrame(() => {
+      setResaltada(true)
+      temporizador.current = setTimeout(() => setResaltada(false), DURACION_RESALTADO)
+    })
+    navigator.vibrate?.(200)
+    cuadricula.current?.focus()
+  }
+
+  function pedirConfirmacion() {
+    if (!usuario || procesando) return
+    if (!plaza) {
+      avisarSinPlaza()
+      return
+    }
+    if (!placaValida || !horasValidas || usuario.saldo < total) return
+    setVentana({ tipo: 'confirmar' })
+  }
+
   async function confirmarReserva() {
     if (enCurso.current || !usuario || !plaza || !placaValida) return
 
-    // Se recalcula con la hora y las reservas de este instante, no las de la pantalla.
-    const inicioReal = Date.now() + tiempoEspera * HORA
-    const finReal = inicioReal + duracion * HORA
+    // Se valida con la hora y las reservas de este instante, no las de la pantalla.
+    const momento = instanteActual()
+    const erroresAhora = validarHoras(horas, parqueadero, momento)
+    if (erroresAhora.llegada || erroresAhora.salida) {
+      setVentana({ tipo: 'fallo', mensaje: erroresAhora.llegada || erroresAhora.salida })
+      return
+    }
+    const inicioReal = fechaDeHoy(minutoLlegada, momento)
+    const finReal = fechaDeHoy(minutoSalida, momento)
     const vigentes = listarReservas()
     setReservas(vigentes)
 
@@ -102,7 +166,7 @@ function ReservaParqueadero({ parqueadero }) {
     } else {
       try {
         if (cobrado > 0) {
-          const cobro = await cobrarReserva(cobrado, `Reserva ${plaza.codigo} · ${parqueadero.nombre}`)
+          const cobro = await cobrarReserva(cobrado, `Reserva ${plaza.codigo} · ${parqueadero.nombre} · ${hora(inicioReal)} a ${hora(finReal)}`)
           actualizarSaldo(cobro.saldo)
         }
         guardarPreferencias(usuario.id, { placa: placaNormalizada })
@@ -132,8 +196,8 @@ function ReservaParqueadero({ parqueadero }) {
           <div><dt>Parqueadero</dt><dd>{confirmada.parqueaderoNombre}</dd></div>
           <div><dt>Plaza</dt><dd>{confirmada.plazaCodigo}</dd></div>
           <div><dt>Placa</dt><dd>{confirmada.placa}</dd></div>
-          <div><dt>Desde</dt><dd>{fechaHora(confirmada.inicio)}</dd></div>
-          <div><dt>Hasta</dt><dd>{fechaHora(confirmada.fin)}</dd></div>
+          <div><dt>Hora de llegada</dt><dd>{fechaHora(confirmada.inicio)}</dd></div>
+          <div><dt>Hora de salida</dt><dd>{fechaHora(confirmada.fin)}</dd></div>
           <div><dt>Pagado</dt><dd>{pesos(confirmada.cobrado)}</dd></div>
           <div><dt>Saldo restante</dt><dd>{pesos(usuario?.saldo ?? 0)}</dd></div>
         </dl>
@@ -147,29 +211,37 @@ function ReservaParqueadero({ parqueadero }) {
 
   return (
     <>
-      <ParkingInfo
-        parqueadero={parqueadero}
-        libres={cuposLibres(parqueadero, reservas, ahora)}
-        total={parqueadero.capacidad}
-      />
+      <section className={styles.parqueadero} aria-label="Parqueadero seleccionado">
+        <p className={styles.nombre}>{parqueadero.nombre}</p>
+        <p className={styles.detalle}>
+          {parqueadero.direccion} · Tunja · {pesos(parqueadero.tarifaHora)} por hora
+        </p>
+        <span className={styles.libres}>{libres} de {parqueadero.capacidad} plazas libres</span>
+      </section>
 
       <div className={styles.layout}>
         <div className={styles.formColumn}>
           <ParkingSpaces
             plazas={plazas}
             plazaSeleccionada={plaza?.id ?? null}
-            onSelect={alCambiar(setPlazaSeleccionada)}
+            onSelect={elegirPlaza}
+            mostrarAviso={!plaza}
+            alerta={avisoPlaza && !plaza}
+            resaltada={resaltada}
+            refCuadricula={cuadricula}
           />
           <ReservationForm
-            tiempoEspera={tiempoEspera}
-            setTiempoEspera={alCambiar(setTiempoEspera)}
-            duracion={duracion}
-            setDuracion={alCambiar(setDuracion)}
+            llegada={horas.llegada}
+            setLlegada={alCambiar((valor) => setHoras((actual) => ({ ...actual, llegada: valor })))}
+            salida={horas.salida}
+            setSalida={alCambiar((valor) => setHoras((actual) => ({ ...actual, salida: valor })))}
+            errores={errores}
+            horario={horario}
+            textoHorario={textoHorarioParqueadero(parqueadero)}
+            duracion={horasValidas ? duracion : ''}
             placa={placa}
             setPlaca={alCambiar(setPlaca)}
             placaValida={placaValida}
-            horaInicio={hora(inicio)}
-            horaFin={hora(fin)}
           />
         </div>
 
@@ -178,16 +250,17 @@ function ReservaParqueadero({ parqueadero }) {
           plaza={plaza}
           placa={placaNormalizada}
           placaValida={placaValida}
-          tiempoEspera={tiempoEspera}
+          horaLlegada={hora(inicio)}
+          horaSalida={hora(fin)}
           duracion={duracion}
-          horaInicio={hora(inicio)}
-          horaFin={hora(fin)}
+          horas={horasCobradas(minutos)}
+          horasValidas={horasValidas}
           descuento={descuento}
           total={total}
           usuario={usuario}
           procesando={procesando}
           error={error}
-          onConfirm={() => setVentana({ tipo: 'confirmar' })}
+          onConfirm={pedirConfirmacion}
           onCancel={() => navigate('/mapa')}
         />
       </div>
@@ -207,12 +280,14 @@ function ReservaParqueadero({ parqueadero }) {
               ['Dirección', parqueadero.direccion],
               ['Plaza', plaza.codigo],
               ['Placa', placaNormalizada],
-              ['Horario', `${hora(inicio)} – ${hora(fin)}`],
-              ['Tarifa', `${pesos(parqueadero.tarifaHora)} × ${duracion} h`],
+              ['Hora de llegada', hora(inicio)],
+              ['Hora de salida', hora(fin)],
+              ['Duración', duracion],
+              ['Tarifa', `${pesos(parqueadero.tarifaHora)} × ${horasCobradas(minutos)} h (hora o fracción)`],
               ...(descuento > 0 ? [['Descuento', `${descuento}%`]] : []),
               ['Saldo después del pago', pesos((usuario?.saldo ?? 0) - total)],
             ]}
-            total={['Total a pagar', pesos(total)]}
+            total={['Total', pesos(total)]}
           />
         </VentanaConfirmar>
       )}
@@ -225,7 +300,7 @@ function ReservaParqueadero({ parqueadero }) {
           }}
         >
           <p>Tu plaza <strong>{ventana.reserva.plazaCodigo}</strong> en {ventana.reserva.parqueaderoNombre} quedó reservada.</p>
-          <p>Desde {fechaHora(ventana.reserva.inicio)}. Pagaste {pesos(ventana.reserva.cobrado)}.</p>
+          <p>Llegada {hora(ventana.reserva.inicio)} · salida {hora(ventana.reserva.fin)}. Pagaste {pesos(ventana.reserva.cobrado)}.</p>
         </VentanaAviso>
       )}
       {ventana?.tipo === 'fallo' && (
@@ -239,38 +314,33 @@ function ReservaParqueadero({ parqueadero }) {
 
 function Reservation() {
   const { parqueaderoId } = useParams()
-  const navigate = useNavigate()
   const { usuario, cargando } = useSesion()
-  const parqueadero = parqueaderoId === undefined
-    ? parqueaderos[0]
-    : parqueaderos.find((item) => item.id === Number(parqueaderoId))
+  // El parqueadero llega desde el mapa por la URL; no hay selector en esta página.
+  const parqueadero = parqueaderos.find((item) => String(item.id) === parqueaderoId) ?? null
 
   return (
     <div className={styles.contenedor}>
-    <div className={styles.page}>
-      <Link to="/mapa" className={styles.back}>← Volver al mapa</Link>
-      <header className={styles.pageHeader}>
-        <h1>Reservar una plaza</h1>
-        <p>Selecciona una plaza, define el tiempo y revisa tu reserva.</p>
-      </header>
+      <div className={styles.page}>
+        <Link to="/mapa" className={styles.back}>
+          <Flecha direccion="izquierda" width="18" height="18" />
+          Volver al mapa
+        </Link>
+        <header className={styles.pageHeader}>
+          <h1>Reservar una plaza</h1>
+        </header>
 
-      {!parqueadero && <p>Ese parqueadero no existe. <Link to="/mapa">Elige uno en el mapa</Link>.</p>}
+        {!parqueadero && (
+          <section className={styles.sinParqueadero} role="alert">
+            <h2>No encontramos ese parqueadero</h2>
+            <p>Elige un parqueadero en el mapa y pulsa "Reservar" para continuar.</p>
+            <Link to="/mapa" className="btn">Ir al mapa</Link>
+          </section>
+        )}
 
-      {parqueadero && (
-        <>
-          <label className={styles.selectorParqueadero}>
-            Parqueadero
-            <select value={parqueadero.id} onChange={(evento) => navigate(`/reservas/${evento.target.value}`)}>
-              {parqueaderos.map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}
-            </select>
-          </label>
-
-          {cargando
-            ? <p>Cargando…</p>
-            : <ReservaParqueadero key={`${parqueadero.id}-${usuario?.id ?? 'anonimo'}`} parqueadero={parqueadero} />}
-        </>
-      )}
-    </div>
+        {parqueadero && (cargando
+          ? <p>Cargando…</p>
+          : <ReservaParqueadero key={`${parqueadero.id}-${usuario?.id ?? 'anonimo'}`} parqueadero={parqueadero} />)}
+      </div>
     </div>
   )
 }

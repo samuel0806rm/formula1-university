@@ -1,40 +1,40 @@
+import CampoHora from '../CampoHora/CampoHora'
 import styles from './ReservationForm.module.css'
 
 function ReservationForm({
-  tiempoEspera,
-  setTiempoEspera,
+  llegada,
+  setLlegada,
+  salida,
+  setSalida,
+  errores,
+  horario,
+  textoHorario,
   duracion,
-  setDuracion,
   placa,
   setPlaca,
   placaValida,
-  horaInicio,
-  horaFin,
 }) {
   return (
     <section className={styles.panel}>
       <h2>2. Configura tu reserva</h2>
+      <p className={styles.ayuda}>Reserva para hoy. Horario del parqueadero: {textoHorario}.</p>
       <div className={styles.fields}>
-        <label>
-          Tiempo de espera
-          <select value={tiempoEspera} onChange={(event) => setTiempoEspera(Number(event.target.value))}>
-            <option value={0}>Sin espera</option>
-            <option value={1}>1 hora</option>
-            <option value={2}>2 horas</option>
-            <option value={3}>3 horas</option>
-          </select>
-        </label>
-
-        <label>
-          Tiempo de estadía
-          <select value={duracion} onChange={(event) => setDuracion(Number(event.target.value))}>
-            <option value={1}>1 hora</option>
-            <option value={2}>2 horas</option>
-            <option value={3}>3 horas</option>
-            <option value={4}>4 horas</option>
-            <option value={8}>8 horas</option>
-          </select>
-        </label>
+        <CampoHora
+          etiqueta="Hora de llegada"
+          valor={llegada}
+          onCambiar={setLlegada}
+          error={errores.llegada}
+          minimo={horario.apertura}
+          maximo={horario.cierre}
+        />
+        <CampoHora
+          etiqueta="Hora de salida"
+          valor={salida}
+          onCambiar={setSalida}
+          error={errores.salida}
+          minimo={horario.apertura}
+          maximo={horario.cierre}
+        />
 
         <label>
           Placa del vehículo
@@ -49,9 +49,11 @@ function ReservationForm({
         </label>
       </div>
 
-      <p className={styles.estimated}>
-        Horario estimado: {horaInicio} a {horaFin}
-      </p>
+      {duracion && (
+        <p className={styles.estimated}>
+          Duración: <strong>{duracion}</strong> · se cobra por hora o fracción.
+        </p>
+      )}
     </section>
   )
 }

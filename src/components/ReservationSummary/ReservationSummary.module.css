@@ -68,7 +68,8 @@
   color: #fff;
 }
 
-.confirmButton:disabled {
+.confirmButton:disabled,
+.confirmButton[aria-disabled="true"] {
   opacity: 0.55;
   cursor: not-allowed;
 }
@@ -98,4 +99,9 @@ a.confirmButton {
   display: grid;
   place-items: center;
   text-decoration: none;
+}
+
+.nota {
+  margin: 6px 0 0;
+  font-size: 12px;
 }

@@ -49,3 +49,17 @@
 .fields input[aria-invalid='true'] {
   border-color: var(--alerta);
 }
+
+.ayuda {
+  margin: -6px 0 14px;
+  font-size: 13px;
+}
+
+.fields label {
+  font-weight: 600;
+}
+
+.fields input[type='text'] {
+  min-height: 44px;
+  font-size: 16px;
+}

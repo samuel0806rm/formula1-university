@@ -8,10 +8,11 @@ function ReservationSummary({
   plaza,
   placa,
   placaValida,
-  tiempoEspera,
+  horaLlegada,
+  horaSalida,
   duracion,
-  horaInicio,
-  horaFin,
+  horas,
+  horasValidas,
   descuento,
   total,
   usuario,
@@ -22,7 +23,7 @@ function ReservationSummary({
 }) {
   const location = useLocation()
   const saldoSuficiente = Boolean(usuario) && usuario.saldo >= total
-  const puedeConfirmar = Boolean(plaza) && placaValida && saldoSuficiente && !procesando
+  const puedeConfirmar = Boolean(plaza) && placaValida && horasValidas && saldoSuficiente && !procesando
 
   return (
     <aside className={styles.container}>
@@ -42,20 +43,20 @@ function ReservationSummary({
             <dd>{placa || 'Sin escribir'}</dd>
           </div>
           <div>
-            <dt>Tiempo de espera</dt>
-            <dd>{tiempoEspera === 0 ? 'Sin espera' : `${tiempoEspera} hora(s)`}</dd>
+            <dt>Hora de llegada</dt>
+            <dd>{horasValidas ? horaLlegada : '—'}</dd>
           </div>
           <div>
-            <dt>Tiempo de estadía</dt>
-            <dd>{duracion} hora(s)</dd>
+            <dt>Hora de salida</dt>
+            <dd>{horasValidas ? horaSalida : '—'}</dd>
           </div>
           <div>
-            <dt>Horario estimado</dt>
-            <dd>{horaInicio} - {horaFin}</dd>
+            <dt>Duración</dt>
+            <dd>{horasValidas ? duracion : '—'}</dd>
           </div>
           <div>
             <dt>Tarifa por hora</dt>
-            <dd>{pesos(parqueadero.tarifaHora)}</dd>
+            <dd>{pesos(parqueadero.tarifaHora)}{horasValidas && ` × ${horas} h`}</dd>
           </div>
           {descuento > 0 && (
             <div>
@@ -66,8 +67,9 @@ function ReservationSummary({
         </dl>
         <div className={styles.total}>
           <strong>Total a pagar</strong>
-          <strong className={styles.amount}>{pesos(total)}</strong>
+          <strong className={styles.amount} data-testid="total-reserva">{horasValidas ? pesos(total) : '—'}</strong>
         </div>
+        <p className={styles.nota}>Se cobra por hora o fracción.</p>
       </section>
 
       <section className={styles.summary}>
@@ -75,7 +77,14 @@ function ReservationSummary({
       </section>
 
       {usuario ? (
-        <button className={styles.confirmButton} type="button" onClick={onConfirm} disabled={!puedeConfirmar}>
+        // aria-disabled (no disabled): el botón se puede pulsar para avisar qué falta.
+        <button
+          className={styles.confirmButton}
+          type="button"
+          onClick={onConfirm}
+          aria-disabled={!puedeConfirmar}
+          aria-busy={procesando || undefined}
+        >
           {procesando ? 'Procesando pago…' : 'Pagar y confirmar reserva'}
         </button>
       ) : (
@@ -87,7 +96,6 @@ function ReservationSummary({
         Cancelar
       </button>
 
-      {!plaza && <p className={styles.validation}>Selecciona una plaza disponible para continuar.</p>}
       {plaza && !placaValida && (
         <p className={styles.validation}>Escribe una placa válida, por ejemplo ABC 123 o ABC 12D.</p>
       )}

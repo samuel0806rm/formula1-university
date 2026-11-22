@@ -4,12 +4,29 @@
 }
 
 .back {
-  display: inline-block;
-  margin-bottom: 8px;
-  color: var(--titulo-h3);
-  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-bottom: 12px;
+  padding: 0 20px;
+  border: 2px solid var(--accion);
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  background: var(--recuadro-interno);
+  color: var(--accion-texto);
+  font-size: 18px;
   font-weight: 700;
   text-decoration: none;
+}
+
+.back:hover {
+  background: var(--accion);
+  color: #fff;
+}
+
+.back:focus-visible {
+  outline: 3px solid var(--accion);
+  outline-offset: 3px;
 }
 
 .pageHeader {
@@ -17,7 +34,7 @@
 }
 
 .pageHeader h1 {
-  margin-bottom: 8px;
+  margin: 0;
   font-size: 27px;
 }
 
@@ -51,26 +68,6 @@
   margin-top: 24px;
     grid-template-columns: 1fr;
   }
-}
-
-.selectorParqueadero {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.selectorParqueadero select {
-  flex: 1 1 0;
-  min-width: 0;
-  max-width: 100%;
-  min-height: 38px;
-  padding: 6px 8px;
-  border: 1px solid var(--gris-borde);
-  border-radius: 6px;
-  background: var(--recuadro);
 }
 
 .confirmacion {
@@ -149,11 +146,6 @@
   color: var(--texto);
 }
 
-.selectorParqueadero select {
-  background: var(--recuadro-interno);
-  color: var(--texto);
-}
-
 .confirmacion {
   background: var(--recuadro);
   color: var(--texto);
@@ -168,4 +160,55 @@
     height: auto;
     overflow: visible;
   }
+}
+
+/* Parqueadero elegido en el mapa: nombre grande y destacado. */
+.parqueadero {
+  margin-bottom: 8px;
+}
+
+.nombre {
+  margin: 0;
+  color: var(--titulo-h2);
+  font-size: clamp(30px, 3vw, 36px);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.detalle {
+  margin: 4px 0 8px;
+  font-size: 14px;
+}
+
+.libres {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--recuadro);
+  color: var(--accion-texto);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sinParqueadero {
+  max-width: 560px;
+  padding: 20px;
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  border-radius: var(--radio);
+  background: var(--recuadro);
+}
+
+.sinParqueadero h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.sinParqueadero p {
+  margin: 0;
+}
+
+.sinParqueadero :global(.btn) {
+  min-height: 44px;
 }

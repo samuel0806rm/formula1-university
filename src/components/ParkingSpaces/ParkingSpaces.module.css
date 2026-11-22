@@ -57,6 +57,53 @@
   cursor: not-allowed;
 }
 
+.panel {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grid:focus-visible {
+  outline: 2px solid var(--accion);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+/* Aviso al pagar sin plaza: borde rojo + sacudida corta (~400 ms). */
+.resaltada {
+  border-color: var(--alerta) !important;
+  box-shadow: 0 0 0 2px var(--alerta);
+  animation: sacudir 0.4s ease-in-out;
+}
+
+.aviso,
+.avisoAlerta {
+  margin: 12px 0 0;
+  font-size: 13px;
+}
+
+.avisoAlerta {
+  color: var(--alerta);
+  font-weight: 700;
+}
+
+:global(:root[data-tema='oscuro']) .avisoAlerta {
+  color: #ffb3b3;
+}
+
+@keyframes sacudir {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+
+/* Sin animaciones: solo el borde rojo. */
+@media (prefers-reduced-motion: reduce) {
+  .resaltada {
+    animation: none;
+  }
+}
+
 /* Celular (wireframe "Reserva / Elegir plaza"): cuadrícula de 4 plazas compactas. */
 @media (max-width: 520px) {
   .grid {
