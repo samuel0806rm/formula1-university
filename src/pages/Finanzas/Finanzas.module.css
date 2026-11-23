@@ -69,8 +69,13 @@
 .lateral {
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(0, 1.7fr) auto;
+  /* Las barras conservan su alto; el detalle se desplaza si no cabe. */
+  grid-template-rows: minmax(220px, 1.7fr) minmax(0, auto);
   gap: 24px;
+}
+
+.lateral > section:last-child {
+  overflow-y: auto;
 }
 
 .barras {

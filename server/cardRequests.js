@@ -1,10 +1,11 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 import path from 'node:path'
+import { carpetaDatos } from './simulationStore.js'
 
 // Persistencia propia del proyecto: TunjaAPI no tiene solicitudes de emisión.
 // Un único proceso serializa las escrituras y reemplaza el archivo de forma atómica.
-export function crearAlmacenSolicitudes(directorio = path.resolve('server/data')) {
+export function crearAlmacenSolicitudes(directorio = carpetaDatos()) {
   const archivo = path.join(directorio, 'card-requests.json')
   let cola = Promise.resolve()
   async function leer() {

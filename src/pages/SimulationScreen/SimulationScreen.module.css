@@ -129,3 +129,21 @@
 .exito h2, .error h2 {
   color: inherit;
 }
+
+.comprobante {
+  margin: 8px 0;
+  display: grid;
+  gap: 4px;
+}
+
+.comprobante div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.comprobante dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}

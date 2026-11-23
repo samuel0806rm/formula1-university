@@ -4,7 +4,9 @@ import { VentanaAviso, VentanaConfirmar } from '../../components/Modal/Ventanas'
 import { useSesion } from '../../context/sesion'
 import { obtenerConfig, obtenerMovimientos, recargarSaldo } from '../../services/api'
 import { mensajeError } from '../../services/errores'
-import { pesos } from '../../utils/formato'
+import { hora, pesos } from '../../utils/formato'
+import { obtenerActividad } from '../../services/nfcApi'
+import { refCorta, refDeConcepto } from '../../utils/actividad'
 import styles from './Recharge.module.css'
 
 const fechaCorta = (fecha) =>
@@ -34,6 +36,17 @@ function Recharge() {
   const [total, setTotal] = useState(0)
   const [estadoMov, setEstadoMov] = useState('cargando')
   const [versionMov, setVersionMov] = useState(0)
+  // Entradas y salidas del control de acceso (servidor del proyecto), para dar contexto a los cobros.
+  const [actividad, setActividad] = useState({ estancias: [], cobros: [] })
+  const cobrosPorRef = new Map(actividad.cobros.map((c) => [c.ref, c]))
+
+  useEffect(() => {
+    let activo = true
+    obtenerActividad().then((datos) => activo && setActividad(datos)).catch(() => {})
+    return () => {
+      activo = false
+    }
+  }, [versionMov])
 
   useEffect(() => {
     let activo = true
@@ -184,14 +197,28 @@ function Recharge() {
           {estadoMov === 'listo' && movimientos.length === 0 && <p className={styles.nota}>Aún no tienes movimientos.</p>}
           {estadoMov === 'error' && <p className={styles.error} role="alert">No se pudieron cargar los movimientos.</p>}
           <ul className={styles.movimientos}>
+            {actividad.estancias.map((entrada) => (
+              <li key={`entrada-${entrada.ref}`}>
+                <span className={styles.fecha}>{fechaCorta(entrada.entrada)}</span>
+                <span className={styles.concepto}>
+                  <span className={styles.tipoRecarga}>Entrada</span>
+                  {entrada.parqueadero} · en curso desde las {hora(entrada.entrada)} · Ref. {refCorta(entrada.ref)}
+                </span>
+                <strong>Se cobra al salir</strong>
+              </li>
+            ))}
             {movimientos.map((item) => {
               const suma = item.operacion === 'recarga'
+              // Un cobro de salida NFC se muestra una sola vez, con su entrada y salida.
+              const salida = cobrosPorRef.get(refDeConcepto(item.concepto))
               return (
                 <li key={item.id}>
                   <span className={styles.fecha}>{fechaCorta(item.fecha)}</span>
                   <span className={styles.concepto}>
-                    <span className={suma ? styles.tipoRecarga : styles.tipoCobro}>{TIPOS[item.operacion] ?? item.operacion}</span>
-                    {item.concepto ?? ''}
+                    <span className={suma ? styles.tipoRecarga : styles.tipoCobro}>{salida ? 'Salida' : TIPOS[item.operacion] ?? item.operacion}</span>
+                    {salida
+                      ? `${salida.parqueadero} · entrada ${hora(salida.entrada)} · salida ${hora(salida.salida)} · ${salida.horas} h · Ref. ${refCorta(salida.ref)}`
+                      : item.concepto ?? ''}
                   </span>
                   <strong className={suma ? styles.suma : styles.resta}>
                     {SIGNOS[item.operacion] ?? ''} {pesos(item.monto)}

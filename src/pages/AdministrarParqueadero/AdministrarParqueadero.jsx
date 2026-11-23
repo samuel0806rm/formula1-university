@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { misParqueaderosAsignados } from '../../services/simulations'
+import ParqueaderoAsignado from './ParqueaderoAsignado'
 import { Check } from '../../components/Iconos/Iconos'
 import { VentanaConfirmar } from '../../components/Modal/Ventanas'
 import { useSesion } from '../../context/sesion'
@@ -186,7 +188,35 @@ export default function AdministrarParqueadero() {
   const datos = useGestion()
   const mios = parqueaderosDe(datos, usuario.id)
   const [elegidoId, setElegidoId] = useState(null)
+  const [asignados, setAsignados] = useState(null)
+  const [vista, setVista] = useState('asignado')
+  const [version, setVersion] = useState(0)
   const elegido = mios.find((x) => x.id === elegidoId) ?? mios[0]
+
+  useEffect(() => {
+    let activo = true
+    misParqueaderosAsignados()
+      .then(({ parqueaderos }) => { if (activo) setAsignados(parqueaderos) })
+      .catch(() => { if (activo) setAsignados([]) })
+    return () => { activo = false }
+  }, [version])
+
+  if (asignados === null) return <div className={`vista ${styles.vista}`}><p className={p.nota}>Cargando tu parqueadero…</p></div>
+
+  if (asignados.length && (vista === 'asignado' || !elegido)) {
+    return (
+      <div className={`vista ${styles.vista}`}>
+        {elegido && (
+          <div className={p.pestanas} role="group" aria-label="Parqueaderos">
+            <button type="button" className="btn" aria-pressed="true">Parqueadero asignado</button>
+            <button type="button" className="btn btn-contorno" aria-pressed="false" onClick={() => setVista('registrado')}>Registrados por mí</button>
+          </div>
+        )}
+        <ParqueaderoAsignado parqueaderos={asignados} onCambio={() => setVersion((v) => v + 1)} />
+      </div>
+    )
+  }
+
 
   if (!elegido) {
     return (
@@ -194,7 +224,7 @@ export default function AdministrarParqueadero() {
         <section className={`${p.panel} ${styles.vacioPanel}`}>
           <div className={p.vacio}>
             <h1 className={p.titulo}>Aún no tienes parqueaderos</h1>
-            <p className={p.nota}>Registra tu parqueadero para administrar sus plazas, horario, tarifa y solicitudes.</p>
+            <p className={p.nota}>Pide al administrador que te asigne un parqueadero del mapa (Gestión) o registra uno nuevo para administrar sus plazas, horario, tarifa y solicitudes.</p>
             <Link to="/registro-parqueadero" className="btn">Registrar parqueadero</Link>
           </div>
         </section>
@@ -204,6 +234,12 @@ export default function AdministrarParqueadero() {
 
   return (
     <div className={`vista ${styles.vista}`}>
+      {asignados.length > 0 && (
+        <div className={p.pestanas} role="group" aria-label="Parqueaderos">
+          <button type="button" className="btn btn-contorno" aria-pressed="false" onClick={() => setVista('asignado')}>Parqueadero asignado</button>
+          <button type="button" className="btn" aria-pressed="true">Registrados por mí</button>
+        </div>
+      )}
       {mios.length > 1 && (
         <div className={`${p.campo} ${styles.selector}`}>
           <label htmlFor="miParqueadero">Parqueadero</label>

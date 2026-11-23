@@ -7,18 +7,11 @@ import ReservationForm from '../../components/ReservationForm/ReservationForm'
 import ReservationSummary from '../../components/ReservationSummary/ReservationSummary'
 import { useSesion } from '../../context/sesion'
 import { cuposLibres, generarPlazas } from '../../data/plazas'
-import { parqueaderos } from '../../data/parqueaderos'
 import { useAhora } from '../../hooks/useAhora'
-import { cobrarReserva } from '../../services/api'
+import { useParqueaderos } from '../../hooks/useDisponibilidad'
 import { mensajeError } from '../../services/errores'
 import { guardarPreferencias, leerPreferencias } from '../../services/preferencias'
-import {
-  crearReserva,
-  eliminarReserva,
-  listarReservas,
-  placaOcupada,
-  plazasReservadas,
-} from '../../services/reservas'
+import { crearReserva, plazasOcupadas } from '../../services/reservas'
 import { fechaHora, hora, pesos } from '../../utils/formato'
 import {
   aMinutos,
@@ -34,20 +27,22 @@ import {
 } from '../../utils/horario'
 import styles from './Reservation.module.css'
 
-// La API no acepta cobros por debajo de este valor.
-const COBRO_MINIMO = 100
 const FORMATO_PLACA = /^[A-Z]{3} ?(\d{3}|\d{2}[A-Z])$/
 const DURACION_RESALTADO = 1500
 
 function ReservaParqueadero({ parqueadero }) {
   const navigate = useNavigate()
-  const { usuario, actualizarSaldo } = useSesion()
+  const { usuario } = useSesion()
+  // Reservar NO cobra: solo aparta la plaza (en el servidor). El único descuento es la salida por NFC.
   const ahora = useAhora()
 
   const [plazaSeleccionada, setPlazaSeleccionada] = useState(null)
   const [horas, setHoras] = useState(() => horasPorDefecto(parqueadero))
   const [placa, setPlaca] = useState(() => (usuario ? leerPreferencias(usuario.id).placa : ''))
-  const [reservas, setReservas] = useState(listarReservas)
+  // Plazas tomadas en el horario elegido, según las reservas del servidor.
+  const [ocupadas, setOcupadas] = useState(() => new Set())
+  const [versionOcupacion, setVersionOcupacion] = useState(0)
+  const { vigentes } = useParqueaderos()
   const [procesando, setProcesando] = useState(false)
   const [error, setError] = useState('')
   const [confirmada, setConfirmada] = useState(null)
@@ -72,7 +67,15 @@ function ReservaParqueadero({ parqueadero }) {
   const fin = fechaDeHoy(minutoSalida, ahora)
   const duracion = textoDuracion(minutos)
 
-  const plazas = generarPlazas(parqueadero, plazasReservadas(reservas, parqueadero.id, inicio, fin))
+  useEffect(() => {
+    let activo = true
+    plazasOcupadas(parqueadero.id, inicio, fin)
+      .then(({ plazas }) => { if (activo) setOcupadas(new Set(plazas)) })
+      .catch(() => {})
+    return () => { activo = false }
+  }, [parqueadero.id, inicio, fin, versionOcupacion])
+
+  const plazas = generarPlazas(parqueadero, ocupadas)
   const plaza = plazas.find((item) => item.id === plazaSeleccionada && item.estado === 'Disponible') ?? null
 
   const placaNormalizada = placa.trim()
@@ -80,7 +83,7 @@ function ReservaParqueadero({ parqueadero }) {
   const descuento = usuario?.descuento ?? 0
   const subtotal = horasValidas ? calcularCobro(minutos, parqueadero.tarifaHora) : 0
   const total = Math.round(subtotal * (1 - descuento / 100))
-  const libres = cuposLibres(parqueadero, reservas, ahora)
+  const libres = cuposLibres(parqueadero, vigentes[parqueadero.id])
 
   function alCambiar(setter) {
     return (valor) => {
@@ -131,56 +134,31 @@ function ReservaParqueadero({ parqueadero }) {
     }
     const inicioReal = fechaDeHoy(minutoLlegada, momento)
     const finReal = fechaDeHoy(minutoSalida, momento)
-    const vigentes = listarReservas()
-    setReservas(vigentes)
-
-    if (plazasReservadas(vigentes, parqueadero.id, inicioReal, finReal).has(plaza.id)) {
-      setVentana({ tipo: 'fallo', mensaje: 'Esa plaza acaba de ser reservada. Elige otra.' })
-      return
-    }
-    if (placaOcupada(vigentes, placaNormalizada, inicioReal, finReal)) {
-      setVentana({ tipo: 'fallo', mensaje: 'Esta placa ya tiene una reserva en ese horario.' })
-      return
-    }
 
     enCurso.current = true
     setProcesando(true)
     setError('')
 
-    const cobrado = total >= COBRO_MINIMO ? total : 0
-    // Se guarda antes de cobrar para apartar la plaza y no cobrar sin dejar registro.
-    const reserva = crearReserva({
-      usuarioId: usuario.id,
-      parqueaderoId: parqueadero.id,
-      parqueaderoNombre: parqueadero.nombre,
-      plazaId: plaza.id,
-      plazaCodigo: plaza.codigo,
-      placa: placaNormalizada,
-      inicio: inicioReal,
-      fin: finReal,
-      cobrado,
-    })
-
-    if (!reserva) {
-      setVentana({ tipo: 'fallo', mensaje: 'No se pudo guardar la reserva en este navegador.' })
-    } else {
-      try {
-        if (cobrado > 0) {
-          const cobro = await cobrarReserva(cobrado, `Reserva ${plaza.codigo} · ${parqueadero.nombre} · ${hora(inicioReal)} a ${hora(finReal)}`)
-          actualizarSaldo(cobro.saldo)
-        }
-        guardarPreferencias(usuario.id, { placa: placaNormalizada })
-        setVentana({ tipo: 'exito', reserva })
-      } catch (errorCobro) {
-        eliminarReserva(reserva.id)
-        if (errorCobro.message === 'saldo_insuficiente') actualizarSaldo(errorCobro.datos.saldo)
-        setVentana({ tipo: 'fallo', mensaje: mensajeError(errorCobro) })
-      }
+    // El servidor valida horario, plaza libre, placa sin cruces y saldo para el estimado
+    // (sin descontarlo) y calcula el total.
+    try {
+      const { reserva } = await crearReserva({
+        parqueadero_id: parqueadero.id,
+        plaza_id: plaza.id,
+        placa: placaNormalizada,
+        vehiculo: leerPreferencias(usuario.id).vehiculo || '',
+        llegada: inicioReal,
+        salida: finReal,
+      })
+      guardarPreferencias(usuario.id, { placa: placaNormalizada })
+      setVentana({ tipo: 'exito', reserva: { ...reserva, inicio: reserva.llegada, fin: reserva.salida, estimado: reserva.total, parqueaderoNombre: reserva.parqueadero } })
+    } catch (falloReserva) {
+      setVentana({ tipo: 'fallo', mensaje: mensajeError(falloReserva) })
+    } finally {
+      setVersionOcupacion((v) => v + 1)
+      setProcesando(false)
+      enCurso.current = false
     }
-
-    setReservas(listarReservas())
-    setProcesando(false)
-    enCurso.current = false
   }
 
   function reservarOtra() {
@@ -191,15 +169,17 @@ function ReservaParqueadero({ parqueadero }) {
   if (confirmada) {
     return (
       <section className={styles.confirmacion} role="status">
-        <h2>¡Reserva confirmada!</h2>
+        <h2>¡Solicitud de reserva enviada!</h2>
+        <p>El propietario debe aceptarla antes de tu llegada. Verás la respuesta en Notificaciones.</p>
         <dl>
           <div><dt>Parqueadero</dt><dd>{confirmada.parqueaderoNombre}</dd></div>
           <div><dt>Plaza</dt><dd>{confirmada.plazaCodigo}</dd></div>
           <div><dt>Placa</dt><dd>{confirmada.placa}</dd></div>
+          <div><dt>Estado</dt><dd>Pendiente de aceptación</dd></div>
           <div><dt>Hora de llegada</dt><dd>{fechaHora(confirmada.inicio)}</dd></div>
           <div><dt>Hora de salida</dt><dd>{fechaHora(confirmada.fin)}</dd></div>
-          <div><dt>Pagado</dt><dd>{pesos(confirmada.cobrado)}</dd></div>
-          <div><dt>Saldo restante</dt><dd>{pesos(usuario?.saldo ?? 0)}</dd></div>
+          <div><dt>Estimado (se cobra al salir)</dt><dd>{pesos(confirmada.estimado ?? 0)}</dd></div>
+          <div><dt>Saldo actual</dt><dd>{pesos(usuario?.saldo ?? 0)}</dd></div>
         </dl>
         <div className={styles.acciones}>
           <Link to="/notificaciones" className={styles.accionPrincipal}>Ver mis reservas</Link>
@@ -268,12 +248,12 @@ function ReservaParqueadero({ parqueadero }) {
       {ventana?.tipo === 'confirmar' && plaza && (
         <VentanaConfirmar
           titulo="Confirmar reserva"
-          textoConfirmar="Pagar y reservar"
+          textoConfirmar="Confirmar reserva"
           ocupado={procesando}
           onConfirmar={confirmarReserva}
           onCancelar={() => setVentana(null)}
         >
-          <p>Revisa el resumen de tu reserva antes de pagar con tu saldo.</p>
+          <p>Reservar <strong>no descuenta saldo</strong>. Al salir del parqueadero, el propietario valida tu tarjeta NFC y se cobra una sola vez el tiempo real (hora o fracción).</p>
           <Factura
             filas={[
               ['Parqueadero', parqueadero.nombre],
@@ -285,9 +265,9 @@ function ReservaParqueadero({ parqueadero }) {
               ['Duración', duracion],
               ['Tarifa', `${pesos(parqueadero.tarifaHora)} × ${horasCobradas(minutos)} h (hora o fracción)`],
               ...(descuento > 0 ? [['Descuento', `${descuento}%`]] : []),
-              ['Saldo después del pago', pesos((usuario?.saldo ?? 0) - total)],
+              ['Tu saldo actual', pesos(usuario?.saldo ?? 0)],
             ]}
-            total={['Total', pesos(total)]}
+            total={['Total estimado', pesos(total)]}
           />
         </VentanaConfirmar>
       )}
@@ -299,8 +279,8 @@ function ReservaParqueadero({ parqueadero }) {
             setVentana(null)
           }}
         >
-          <p>Tu plaza <strong>{ventana.reserva.plazaCodigo}</strong> en {ventana.reserva.parqueaderoNombre} quedó reservada.</p>
-          <p>Llegada {hora(ventana.reserva.inicio)} · salida {hora(ventana.reserva.fin)}. Pagaste {pesos(ventana.reserva.cobrado)}.</p>
+          <p>Tu plaza <strong>{ventana.reserva.plazaCodigo}</strong> en {ventana.reserva.parqueaderoNombre} quedó apartada. El propietario debe aceptar tu solicitud antes de la hora de llegada.</p>
+          <p>Llegada {hora(ventana.reserva.inicio)} · salida {hora(ventana.reserva.fin)}. No se descontó saldo: pagarás al salir (estimado {pesos(ventana.reserva.estimado ?? 0)}).</p>
         </VentanaAviso>
       )}
       {ventana?.tipo === 'fallo' && (
@@ -315,6 +295,8 @@ function ReservaParqueadero({ parqueadero }) {
 function Reservation() {
   const { parqueaderoId } = useParams()
   const { usuario, cargando } = useSesion()
+  // Configuración vigente que guardó el propietario (tarifa, horario y plazas deshabilitadas).
+  const { parqueaderos } = useParqueaderos()
   // El parqueadero llega desde el mapa por la URL; no hay selector en esta página.
   const parqueadero = parqueaderos.find((item) => String(item.id) === parqueaderoId) ?? null
 

@@ -11,7 +11,7 @@ async function abrirReserva(page, id = 1, opciones = {}) {
   await page.goto(`/reservas/${id}`)
 }
 
-const botonPagar = (page) => page.getByRole('button', { name: 'Pagar y confirmar reserva' })
+const botonPagar = (page) => page.getByRole('button', { name: 'Confirmar reserva', exact: true }).first()
 const seccionPlazas = (page) => page.locator('section').filter({ has: page.getByRole('heading', { name: '1. Selecciona una plaza' }) })
 const total = (page) => page.getByTestId('total-reserva')
 // Playwright considera "deshabilitado" un botón con aria-disabled y no lo pulsa; un usuario sí
@@ -134,5 +134,24 @@ test.describe('Reserva', () => {
     await page.keyboard.press('Escape')
     await expect(page.getByRole('dialog', { name: 'Elegir hora de llegada' })).toHaveCount(0)
     await expect(page.getByLabel('Hora de llegada', { exact: true })).toHaveValue('10:00')
+  })
+})
+
+test.describe('Reserva sin cobro', () => {
+  test.use({ viewport: { width: 1366, height: 768 } })
+
+  test('(1) reservar NO llama a /wallet/charge: el único cobro es la salida por NFC', async ({ page }) => {
+    const cobros = []
+    page.on('request', (peticion) => { if (peticion.url().includes('/api/wallet/charge')) cobros.push(peticion.url()) })
+    await page.clock.setFixedTime(DIEZ_AM)
+    await prepararPagina(page)
+    await page.goto('/reservas/1')
+    await page.getByRole('button', { name: /^P01/ }).click()
+    const confirmar = page.getByRole('button', { name: 'Confirmar reserva', exact: true })
+    await confirmar.focus()
+    await page.keyboard.press('Enter')
+    await page.getByRole('dialog').getByRole('button', { name: 'Confirmar reserva', exact: true }).click()
+    await expect(page.getByRole('dialog', { name: 'Reserva realizada' })).toBeVisible()
+    expect(cobros, 'la reserva no debe descontar saldo').toEqual([])
   })
 })

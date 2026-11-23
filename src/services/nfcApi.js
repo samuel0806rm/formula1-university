@@ -12,3 +12,4 @@ export const solicitarTarjeta = (datos) => pedirConSesion('/nfc/card-request', {
   metodo: 'POST', cuerpo: datos,
 })
 
+export const obtenerActividad = () => pedirConSesion('/nfc/activity')

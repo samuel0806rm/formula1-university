@@ -33,25 +33,45 @@ npm run test:e2e # pruebas Playwright (la primera vez: npx playwright install ch
 
 ## Roles: sin sesión, Conductor, Propietario y Administrador
 
-El navbar cambia según el rol, como en Figma (página "Navbar"):
+El rol lo calcula el **servidor del proyecto** en `/nfc/access` (no el navegador):
+**Administrador** (correo en `ADMIN_EMAILS`) > **Propietario** (tipo guardado o parqueadero asignado) > **Conductor**.
+Por eso es el mismo desde cualquier navegador o celular. Las preferencias del navegador solo se usan
+si el servidor no responde.
 
-| Rol | Cómo se obtiene | Navbar |
-| --- | --- | --- |
-| Sin sesión | — | Inicio · Mapa · Iniciar sesión · Registrarme |
-| Conductor | Registro con tipo de cuenta "Conductor" | Inicio · Mapa · Saldo y Recarga · Notificaciones · Mi Cuenta |
-| Propietario | Registro con tipo de cuenta "Propietario de parqueadero" | Inicio · Administrar Parqueadero · Finanzas · Registro Parqueadero · Cuenta |
-| Administrador | Correo en `ADMIN_EMAILS` (lo decide el servidor) | Inicio · Mapa · Lector NFC · Simulaciones · Gestión · Cuenta |
+| Rol | Cómo se obtiene | Qué hace | Navbar |
+| --- | --- | --- | --- |
+| Sin sesión | — | Ve el mapa | Inicio · Mapa · Iniciar sesión · Registrarme |
+| Conductor | Se registra como "Conductor" | Reserva **sin pagar**, paga **una vez al salir** con su tarjeta, recarga en Saldo y Recarga | Inicio · Mapa · Saldo y Recarga · Notificaciones · Mi Cuenta |
+| Propietario | Se registra como "Propietario" (sin vehículo) y el Administrador le asigna un parqueadero del mapa | Administra su parqueadero (estado, tarifa, horario, plazas), acepta o rechaza solicitudes, cobra la salida con la tarjeta del conductor y ve Finanzas. Su tarjeta (si tiene) solo lo identifica | Inicio · Administrar Parqueadero · Control de acceso · Finanzas · Registro Parqueadero · Cuenta |
+| Administrador | Solo los correos de `ADMIN_EMAILS` (lo decide el servidor) | Ve todas las cuentas, registra tarjetas NFC de Conductores y Propietarios y asigna parqueaderos. **No reserva ni cobra** | Inicio · Mapa · Lector NFC · Simulaciones · Gestión · Cuenta |
 
-- **Gestión** (`/gestion`, Administrador): pestañas Parqueaderos (buscar, filtrar por estado, habilitar o rechazar), Usuarios (buscar por nombre o correo) y Tarjetas (vincular y desvincular).
-- **Registro Parqueadero** (`/registro-parqueadero`, Propietario): formulario con documentos PDF (máx. 5 MB); al enviar queda "En verificación".
-- **Administrar Parqueadero** (`/administrar-parqueadero`, Propietario): abierto/cerrado, tarifa, horario, plazas (tocar para habilitar o deshabilitar), solicitudes de conductores, guardar y eliminar.
-- **Finanzas** (`/finanzas`, Propietario): totales, movimientos por día/semana/mes o por fecha, ingresos de la semana y detalle.
+**Tipo de cuenta en el servidor** (`server/tiposCuenta.js`, archivo `server/data/tipos-cuenta.json`,
+ignorado por Git): al registrarse, la cuenta guarda su tipo **una sola vez** (`POST /nfc/account-type`
+con su token); después no puede cambiarlo. Solo el Administrador lo cambia en Gestión → Usuarios (con
+confirmación; `POST /nfc/admin/accounts/:id/type`, 403 para cualquier otro). Asignar un parqueadero
+vuelve Propietario a la cuenta automáticamente. Las cuentas creadas antes aparecen como **"Sin definir"**;
+si el navegador recordaba su tipo, se sube una vez al iniciar sesión.
 
-La API del profesor no tiene parqueaderos, plazas, solicitudes ni finanzas, así que estos datos
-se **simulan en el navegador** (`src/services/gestion.js`, clave `parking-tunja:gestion:v1`), como
-la tarjeta NFC. Lo que registra un propietario aparece en Gestión si se usa el mismo navegador.
-Cada ruta muestra "Sin acceso" a quien no tiene el rol. El tipo de cuenta se guarda en el navegador
-al registrarse: si inicias sesión en otro navegador, la cuenta aparece como Conductor.
+- **Gestión** (`/gestion`, Administrador): Parqueaderos (los registrados en el navegador, simulados, y
+  "Parqueaderos del mapa" con su propietario real y el atajo **"Asignar a un propietario"**),
+  **Usuarios** y **Tarjetas** con **datos reales de TunjaAPI**.
+- **Registro Parqueadero** (`/registro-parqueadero`, Propietario): formulario con documentos PDF (máx. 5 MB); al enviar queda "En verificación" (simulado en el navegador).
+- **Administrar Parqueadero** (`/administrar-parqueadero`, Propietario): como en Figma, en tres columnas,
+  todo **guardado en el servidor**: estado Abierto/Cerrado, vehículos (Carro · Moto), tarifa (`$ 2.400`),
+  horario; plazas P01… (Disponibles/Ocupadas/Deshabilitadas, tocar para habilitar o deshabilitar);
+  **Solicitudes de conductores** con Aceptar/Rechazar, "Cambios guardados correctamente.", Guardar cambios
+  y Eliminar parqueadero (ventana "¿Eliminar el parqueadero?"). Pestaña **Reservas de mi parqueadero** con
+  "Cobrar salida" en las reservas en curso.
+- **Control de acceso** (`/control-acceso`, Propietario): empareja pantalla y lector; entradas y salidas
+  **sin reserva** y el cobro de una reserva concreta (`?reserva=<id>`).
+- **Finanzas** (`/finanzas`, Propietario): como en Figma, con los **cobros reales** guardados:
+  Ingresos totales/Hoy/Esta semana/Este mes, Movimientos (Día/Semana/Mes y búsqueda por fecha,
+  "Reserva · Nombre · Placa — $ valor"), barras de la semana (hoy en verde) y Detalle.
+
+Configuración del parqueadero (`server/configParqueaderos.js`, `server/data/configuracion-parqueaderos.json`):
+abierto/cerrado, tarifa, horario y plazas deshabilitadas. La usan el **mapa**, la **reserva** y el **cobro**.
+Solo el propietario asignado puede cambiarla (403 para otro propietario, el conductor o el administrador).
+La tarifa y el horario nuevos aplican a las reservas nuevas; una reserva ya hecha conserva su tarifa.
 
 ## Celular y PWA
 
@@ -107,6 +127,148 @@ Web NFC y la instalación exigen HTTPS. Reutiliza el túnel de Javier:
 1. Terminal 1: `npm.cmd run build` y luego `npm.cmd start` (puerto 3001).
 2. Terminal 2: `npm.cmd run tunnel` y copia la dirección `https://….trycloudflare.com`.
 3. Abre esa dirección en Chrome del celular. Para instalarla: menú → "Instalar Park&Go".
+
+## NFC: quién hace qué (cobro único al salir)
+
+| Rol | Qué hace con NFC | Dónde |
+| --- | --- | --- |
+| Administrador (los 4 de `ADMIN_EMAILS`) | Registra/vincula la tarjeta del conductor, ve las cuentas registradas y elimina cuentas. **No cobra nada.** | Lector NFC, Gestión, Simulaciones (revisión) |
+| Conductor | Recarga su saldo (`/wallet/topup`) y ve sus entradas, salidas y cobros. Su tarjeta usa el saldo de su cuenta. | Saldo y Recarga, Notificaciones |
+| Propietario | Valida la **entrada** y cobra la **salida** en su parqueadero. Sus cobros aparecen en Finanzas. | Control de acceso, Finanzas |
+
+### Flujo de entrada y salida
+
+1. El Propietario entra a **Control de acceso**, elige su parqueadero, pega la dirección HTTPS del
+   túnel y pulsa **Crear credenciales temporales**. Abre el enlace de **pantalla** en el computador del
+   punto de acceso y el de **lector** en el celular (las mismas páginas `/simulador` y `/escaner`).
+2. **Entrada:** en la pantalla, "Validar entrada" → el conductor acerca la tarjeta. Se abre la estancia
+   y **no se mueve saldo**.
+3. **Salida:** "Validar salida y cobrar" → la tarjeta. El servidor calcula el monto (tarifa del
+   parqueadero × horas o fracción, mínimo 1 hora, dentro de los límites de `/config`), cobra **una sola
+   vez** con `/users/:id/wallet/charge` y muestra el **comprobante** (parqueadero, entrada, salida,
+   duración, total, saldo restante y referencia).
+4. **Reservar no cobra.** La reserva solo aparta la plaza y comprueba que el saldo alcance para el
+   estimado. Cancelarla no reembolsa nada porque no se descontó nada.
+
+Reglas del servidor (`server/simulations.js`):
+
+- La **clave de idempotencia** es el id de la estancia; también va en el concepto del cobro como
+  `ref <id>`. Retransmisiones del celular, doble clic o dos pantallas a la vez producen **un solo cobro**.
+- Entrada duplicada → `entrada_ya_registrada`; salida sin entrada o ya cobrada → `sin_entrada_registrada`.
+- **Saldo insuficiente:** se consulta el saldo antes de cobrar; si no alcanza no se llama a la API, la
+  estancia sigue abierta y la pantalla muestra saldo, monto y faltante. Tras recargar se reintenta.
+- **Respuesta perdida:** se busca la referencia en los movimientos del titular (`/users/:id/wallet`).
+  Si aparece, el cobro se da por aplicado; si no aparece pasados 30 s, se da por no aplicado y la
+  siguiente salida cobra normalmente. Nunca se vuelve a cobrar para verificar. La revisión manual del
+  administrador (Simulaciones) es el último recurso y exige un intento automático previo.
+- La tarjeta debe estar **activa y vinculada** (`/cards/:uid`) a un usuario activo. Ningún monto viene
+  del cliente en entradas o salidas.
+
+### Reservas: reserva → solicitud → entrada → cobro
+
+Las reservas se guardan en el **servidor del proyecto** (`server/reservas.js`, archivo
+`server/data/reservas.json`, ignorado por Git); TunjaAPI no tiene reservas. Solo el **Conductor**
+reserva (Administrador y Propietario reciben 403 y la vista les muestra "Sin acceso").
+
+1. **Reserva = solicitud (Conductor):** elige plaza, hora de llegada y de salida. El servidor valida que el
+   parqueadero esté abierto, el horario configurado (mínimo 1 hora), que la plaza no esté deshabilitada
+   ni tomada, que la placa no tenga otra reserva que se cruce y que el saldo alcance para el estimado
+   **sin descontarlo**. Total: `ceil(minutos / 60) × tarifa vigente`. Estado: **`pendiente`** (la plaza
+   queda apartada). **Reservar no cobra.**
+2. **Respuesta del Propietario** (Administrar parqueadero → Solicitudes): **Aceptar** → `aceptada`;
+   **Rechazar** → `rechazada` (la plaza se libera). Si nadie responde antes de la hora de llegada →
+   `vencida` (sin respuesta). El conductor ve el estado en Notificaciones y puede cancelar una
+   solicitud pendiente o aceptada sin costo.
+3. **Entrada:** solo una reserva **aceptada** activa la entrada NFC (con 15 min de tolerancia antes de la
+   llegada) → `en_curso`. Una solicitud pendiente o rechazada entra como estadía normal.
+4. **Cobro:** en cada reserva `en_curso` aparece **"Cobrar salida"** (Reservas de mi parqueadero y
+   Inicio). Abre Control de acceso con esa reserva: la pantalla de cobro (`/simulador#…&reserva=<id>`)
+   pide la tarjeta al lector del celular (o con la lectura simulada del lector). **Solo se acepta la
+   tarjeta del conductor de esa reserva** (`tarjeta_no_corresponde`). Monto:
+   `ceil(max(reservado, real) / 1 h) × tarifa de la reserva`, cobrado **una sola vez** con el id de la
+   reserva como clave de idempotencia (`ref <id>`) → `cobrada` y comprobante. Doble clic, reintentos y
+   lecturas simultáneas cobran una vez; el cobro aparece una vez en Finanzas y una en el historial del
+   conductor.
+5. **Vencida:** una reserva aceptada cuya salida pasó sin entrada → `vencida`, sin cobro.
+
+Las reservas del servidor anteriores a las solicitudes (estado `programada`) se tratan como aceptadas.
+Las antiguas del navegador (`parking-tunja:reservas`) siguen en Notificaciones y se pueden cancelar ahí.
+
+### Quién ve qué
+
+| Rol | Ve |
+| --- | --- |
+| Conductor | Sus reservas, entradas, salidas y cobros (Notificaciones, Saldo y Recarga). |
+| Propietario | Las reservas de **su** parqueadero (Administrar Parqueadero → "Reservas de mi parqueadero" y el Inicio): hora de llegada y de salida, cuánto falta, plaza, y del conductor **solo** nombre, placa y tipo de vehículo. Nunca saldo, correo, documento ni tokens. Si pide reservas de un parqueadero que no tiene asignado: 403. |
+| Administrador | Cuentas, tarjetas y asignaciones (Gestión). No cobra nada. |
+
+### Asignar un parqueadero a un Propietario
+
+El Administrador entra a **Gestión → Usuarios**, elige la cuenta y usa el panel **"Asignar parqueadero"**
+(muestra el propietario actual de cada parqueadero, pide confirmación y permite **"Quitar asignación"**).
+También desde **Gestión → Parqueaderos → Parqueaderos del mapa → "Asignar a un propietario"**, que abre
+Usuarios con ese parqueadero ya elegido. Un parqueadero tiene un solo propietario (reasignarlo a otra
+cuenta da 409). Se guarda en `server/data/asignaciones.json` (ignorado por Git), se verifica con token +
+`ADMIN_EMAILS` y es la fuente que el servidor usa para autorizar al propietario.
+
+### Datos de ejemplo: `npm run sembrar`
+
+```powershell
+npm run sembrar
+npm run sembrar -- --borrar
+```
+
+Script local (`server/sembrar.js`) que lee `server/.env` (no imprime la clave ni escribe contraseñas):
+
+1. Busca la cuenta del archivo `server/data/asignaciones-semilla.json` (o `--correo=cuenta@dominio`) con
+   la **búsqueda tolerante** (correo, parte antes de la @ y recorrido de páginas de `GET /users`). Si no
+   la encuentra explica por qué: **no existe**, está **inactiva** o **la API falló**.
+2. La marca como **Propietario** y le asigna **Parqueadero El Centro** (id 1; `--parqueadero=N` para otro).
+3. Crea ~14 cobros de ejemplo (últimos 25 días, uno hoy; Carlos Pérez ABC 123, Laura Gómez XYZ 45A,
+   Andrés Rojas KLM 908…) y 3 solicitudes pendientes para mañana, todos con `ejemplo: true` y
+   conductores ficticios (id negativo): **no mueven saldo real**. Respeta los cobros `ejemplo` que ya
+   hubiera en `server/data/simulations.json` y no duplica al repetirse.
+
+`--borrar` quita solo los datos `ejemplo: true` (la cuenta y su asignación se quedan). Conviene ejecutarlo
+con `npm run api` detenido. Después, al iniciar sesión con esa cuenta se ven el parqueadero, Finanzas con
+historial e Inicio con Reservas y Billetera.
+
+### Qué es real y qué es simulado
+
+| Real (TunjaAPI) | Servidor del proyecto (`server/data`, ignorado por Git) | Simulado en el navegador |
+| --- | --- | --- |
+| Cuentas, sesión, saldo, recargas, cobros (`/users/:id/wallet/charge`), tarjetas (`/cards`) | Tipo de cuenta, asignaciones, configuración de parqueaderos, reservas y solicitudes, estancias y cobros registrados, datos de ejemplo | Parqueaderos registrados con el formulario y sus documentos, pestaña Parqueaderos de Gestión (habilitar/rechazar), tarjeta "simulada" de Mi Cuenta |
+
+### Límites
+
+- **Rol Propietario:** TunjaAPI no guarda el tipo de cuenta; lo guarda el servidor del proyecto. Aun así,
+  el servidor solo deja actuar al propietario sobre los parqueaderos que el Administrador le **asignó**.
+- **Inicio de sesión con tarjeta:** requiere un endpoint de TunjaAPI. La API no tiene cómo cambiar una
+  tarjeta por una sesión, así que no se inventa. Haría falta, por ejemplo,
+  `POST /auth/card-login` con `{ "uid": "04AB12CD…" }` (desde un lector autorizado con `X-API-Key`) que
+  devuelva `{ usuario, acceso, refresco }` como `/auth/login`. Mientras tanto, la tarjeta de Conductores y
+  Propietarios se registra en Gestión (Lector NFC) y se ve en Mi Cuenta como "Tarjeta NFC: vinculada ·
+  terminada en XXXX". Solo el **Conductor** paga con ella; en Propietario y Administrador solo identifica.
+- **Desvincular tarjeta:** requiere `DELETE /cards/:uid` o `PATCH /cards/:uid` en TunjaAPI.
+
+### Gestión de cuentas y tarjetas (Administrador)
+
+Usa la API real a través del servidor (`server/cuentas.js`); todo se verifica en el servidor
+(token + `ADMIN_EMAILS`) y un no administrador recibe 403.
+
+- **Ver cuentas registradas:** listado paginado (20) con **búsqueda tolerante** por nombre, correo, parte
+  antes de la @ o documento (si la búsqueda de la API no la encuentra, se recorren páginas de `GET /users`),
+  estado, tarjeta y **tipo de cuenta real** (Administrador, Propietario, Conductor o "Sin definir").
+- **Registrar tarjeta:** para Conductores **y** Propietarios, solo con el Lector NFC (`/lector`, con lectura
+  simulada incluida). En el detalle de la cuenta, "Registrar tarjeta NFC" abre el lector con la cuenta elegida.
+- **Cambiar tipo de cuenta** y **Asignar parqueadero:** en el detalle de la cuenta, con confirmación.
+- Acciones que la API no permite quedan **deshabilitadas** con "Requiere un endpoint de la API del profesor".
+- **Eliminar cuenta:** ventana de confirmación; usa `DELETE /users/:id`, el mismo endpoint que el
+  servidor ya usaba para borrar la cuenta propia. No se permite eliminar a otro administrador, la propia
+  cuenta, una cuenta con entrada sin salida, con un cobro pendiente o con tarjeta vinculada.
+- **Desvincular tarjeta:** **deshabilitado** con el aviso "Requiere un endpoint de la API del profesor".
+  TunjaAPI no tiene cómo quitar o bloquear una tarjeta. Haría falta, por ejemplo, `DELETE /cards/:uid` o
+  `PATCH /cards/:uid` con `{ "activa": false }`. El servidor responde 501 en esa ruta; no se simula.
 
 ## NFC: real o simulado
 
@@ -273,34 +435,17 @@ Después de modificar el frontend, vuelve a compilar. Si cambias `.env` o el có
 
 Solo se pueden asignar tarjetas a cuentas creadas con la clave del proyecto. Después de la vinculación, el usuario puede consultar su tarjeta iniciando sesión en **Mi Tarjeta**. El registro de cuentas no lee tarjetas.
 
-### Crear una simulación de parqueadero
+### Entradas, salidas y cobros (Propietario)
 
-1. Entra a **Simulaciones → Parqueadero**.
-2. Selecciona el parqueadero, pega la dirección HTTPS del túnel y pulsa **Crear credenciales temporales**.
-3. Abre el **enlace de pantalla** en el computador que simulará el torniquete y el **enlace de lector** en su celular.
-4. Activa NFC desde el celular y mantén ambas pantallas visibles.
-5. En la pantalla selecciona **Validar entrada** y pulsa **Activar lectura de entrada**. Acerca la tarjeta cuando aparezca **«Acerca tu tarjeta al lector»**.
-6. Para salir, selecciona **Validar salida y cobrar**, activa la lectura y presenta la tarjeta nuevamente.
-
-La entrada abre una estancia sin cobro. La salida cobra **hora o fracción, mínimo una hora**, según la tarifa de entrada. Si el cobro se rechaza, la estancia permanece abierta. Para atender al siguiente usuario prepara otra lectura desde la pantalla.
-
-Puedes cambiar el parqueadero o cerrar la simulación desde administración. Cambiarlo cancela una lectura pendiente y conserva las estancias de cada parqueadero.
-
-### Crear un punto de recarga
-
-1. Entra a **Simulaciones → Punto de recarga**.
-2. Pega la dirección HTTPS del túnel y pulsa **Crear credenciales temporales**.
-3. Abre cada enlace en su dispositivo: **pantalla** en el computador y **lector** en el celular.
-4. Activa NFC en el teléfono.
-5. En la pantalla, el operario selecciona el monto y pulsa **Solicitar lectura para recargar**.
-6. El usuario acerca su tarjeta al celular. El computador muestra el monto aplicado y el saldo, o el rechazo.
-
-Las recargas y los cobros modifican el saldo de la API del proyecto; no realizan pagos bancarios. Cada simulación tiene sus propios enlaces, separados del lector que asigna tarjetas.
+Ya no se crean desde Simulaciones del administrador: cada Propietario lo hace en **Control de acceso**
+(ver "NFC: quién hace qué"). Tampoco existe el punto físico de recarga: el conductor recarga su saldo
+en **Saldo y Recarga**. Las recargas y los cobros modifican el saldo de la API del proyecto; no realizan
+pagos bancarios.
 
 ### Solicitudes de tarjeta y movimientos por verificar
 
 - **Solicitudes de tarjeta:** en Simulaciones pulsa **Consultar solicitudes**. Los usuarios sin tarjeta pueden solicitarla desde **Mi Tarjeta**, con entrega a domicilio o retiro en punto oficial. El envío y la entrega requieren atención del personal.
-- **Movimientos por verificar:** consulta los movimientos del titular, busca la referencia indicada y confirma si se aplicó o no. Esa revisión no vuelve a cobrar ni recargar. No repitas una operación cuyo resultado sea incierto.
+- **Cobros por verificar:** pulsa **Verificar automáticamente** (busca la referencia en los movimientos del titular). Solo si no se puede decidir, abre la revisión manual. Ninguna revisión vuelve a cobrar. No repitas una operación cuyo resultado sea incierto.
 
 ## 5. Reinicios y problemas frecuentes
 
@@ -344,6 +489,13 @@ npx playwright test
   simulada. Usa `tests/servidor-prueba.mjs`: compila la app y ejecuta `server/index.js` contra
   una **TunjaAPI falsa** (puertos 3101 y 3199), así que no toca la API real ni mueve saldo.
 
-Las pruebas `una entrada válida abre estancia… cobra hora o fracción` y `las estancias
-pertenecen al parqueadero…` de `npm run test:nfc` ya fallaban antes de estos cambios (simulaciones
-de parqueadero); quedan reportadas y sin ocultar.
+- `tests/roles-completo.spec.js`: rol decidido por el servidor (vale desde otro navegador), Administrador y
+  Propietario no reservan, el conductor no ve Finanzas ni Administrar, Gestión (tipo de cuenta, asignar,
+  registrar tarjeta), Administrar parqueadero con solicitudes, "Cobrar salida" y estados en Notificaciones,
+  sin scroll en 1366×768, 1920×1080 y 390×844, claro y oscuro.
+- `tests/propietario.spec.js`, `tests/reserva.spec.js`, `tests/historial-cuenta.spec.js`: propietario, reserva e historial.
+
+`npm run test:nfc` incluye `server/tiposCuenta.test.js`, `server/busquedaCuentas.test.js`, `server/sembrar.test.js`
+(contra una TunjaAPI falsa) y las pruebas de solicitudes, configuración y "Cobrar salida" de
+`server/reservas.test.js`. Se ejecuta con `server/pruebas-entorno.js`, que hace que cualquier almacén de
+archivo escriba en una carpeta temporal y nunca en `server/data`.

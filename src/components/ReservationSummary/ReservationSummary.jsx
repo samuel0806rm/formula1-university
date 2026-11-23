@@ -66,10 +66,10 @@ function ReservationSummary({
           )}
         </dl>
         <div className={styles.total}>
-          <strong>Total a pagar</strong>
+          <strong>Total estimado</strong>
           <strong className={styles.amount} data-testid="total-reserva">{horasValidas ? pesos(total) : '—'}</strong>
         </div>
-        <p className={styles.nota}>Se cobra por hora o fracción.</p>
+        <p className={styles.nota}>No se cobra al reservar: se descuenta al salir, por el tiempo real (hora o fracción).</p>
       </section>
 
       <section className={styles.summary}>
@@ -85,7 +85,7 @@ function ReservationSummary({
           aria-disabled={!puedeConfirmar}
           aria-busy={procesando || undefined}
         >
-          {procesando ? 'Procesando pago…' : 'Pagar y confirmar reserva'}
+          {procesando ? 'Confirmando…' : 'Confirmar reserva'}
         </button>
       ) : (
         <Link className={styles.confirmButton} to="/inicio-sesion" state={{ desde: location.pathname }}>

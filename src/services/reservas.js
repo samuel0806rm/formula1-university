@@ -1,9 +1,42 @@
-// La API no tiene rutas de reservas: se guardan en este navegador.
+// Reservas: se guardan en el SERVIDOR del proyecto (server/reservas.js); TunjaAPI no tiene
+// reservas. Reservar no cobra: el único cobro es la salida por NFC en el Control de acceso.
+import { pedirConSesion } from './api'
 import { guardarLocal, leerLocal } from './almacen'
 
+export const crearReserva = (datos) => pedirConSesion('/nfc/reservations', { metodo: 'POST', cuerpo: datos })
+export const misReservas = () => pedirConSesion('/nfc/reservations/mine')
+export const cancelarReserva = (id) => pedirConSesion(`/nfc/reservations/${id}/cancel`, { metodo: 'POST', cuerpo: {} })
+// El propietario acepta o rechaza una solicitud de su parqueadero.
+export const responderSolicitud = (id, aceptar) => pedirConSesion(`/nfc/owner/reservations/${id}/${aceptar ? 'accept' : 'reject'}`, { metodo: 'POST', cuerpo: {} })
+export const reservasDelPropietario = (parqueaderoId) =>
+  pedirConSesion(`/nfc/owner/reservations${parqueaderoId ? `?parqueadero_id=${parqueaderoId}` : ''}`)
+
+// Consultas públicas (sin datos personales): plazas tomadas y reservas vigentes por parqueadero.
+async function pedirPublico(ruta) {
+  const respuesta = await fetch(`/api${ruta}`)
+  const datos = await respuesta.json().catch(() => null)
+  if (!respuesta.ok) throw Object.assign(new Error(datos?.error ?? 'api_no_disponible'), { estado: respuesta.status, datos })
+  return datos
+}
+export const plazasOcupadas = (parqueaderoId, inicio, fin) =>
+  pedirPublico(`/nfc/reservations/occupancy?${new URLSearchParams({ parqueadero_id: parqueaderoId, inicio, fin })}`)
+export const disponibilidad = () => pedirPublico('/nfc/reservations/availability')
+
+// Estados del servidor → texto para la interfaz.
+export const ESTADOS = {
+  pendiente: 'Pendiente',
+  aceptada: 'Aceptada',
+  rechazada: 'Rechazada',
+  programada: 'Aceptada',
+  en_curso: 'En curso',
+  cobrada: 'Cobrada',
+  cancelada: 'Cancelada',
+  vencida: 'Vencida',
+}
+
+// ---- Reservas antiguas guardadas solo en este navegador (antes de usar el servidor) ----
+// No se pierden: se muestran como "guardadas en este navegador" y se pueden cancelar aquí.
 const CLAVE = 'parking-tunja:reservas'
-// Tras reservar hay un margen para arrepentirse aunque la estadía ya haya empezado.
-const MARGEN_REEMBOLSO = 10 * 60 * 1000
 
 export const listarReservas = () => leerLocal(CLAVE, [])
 
@@ -13,43 +46,10 @@ export function reservasDeUsuario(usuarioId) {
     .sort((a, b) => b.creada - a.creada)
 }
 
-const seCruzan = (reserva, inicio, fin) => reserva.inicio < fin && inicio < reserva.fin
-const estaVigente = (reserva, ahora) => !reserva.cancelada && reserva.fin > ahora
-
-export function plazasReservadas(reservas, parqueaderoId, inicio, fin) {
-  return new Set(
-    reservas
-      .filter((r) => r.parqueaderoId === parqueaderoId && !r.cancelada && seCruzan(r, inicio, fin))
-      .map((r) => r.plazaId),
-  )
-}
-
-export function placaOcupada(reservas, placa, inicio, fin) {
-  return reservas.some((r) => r.placa === placa && !r.cancelada && seCruzan(r, inicio, fin))
-}
-
-export function contarReservasVigentes(reservas, parqueaderoId, ahora) {
-  return reservas.filter((r) => r.parqueaderoId === parqueaderoId && estaVigente(r, ahora)).length
-}
-
 export function estadoReserva(reserva, ahora) {
   if (reserva.cancelada) return 'Cancelada'
   if (reserva.fin <= ahora) return 'Finalizada'
   return reserva.inicio > ahora ? 'Programada' : 'En curso'
-}
-
-export function montoReembolsable(reserva) {
-  const ahora = Date.now()
-  return ahora < reserva.inicio || ahora < reserva.creada + MARGEN_REEMBOLSO ? reserva.cobrado : 0
-}
-
-export function crearReserva(datos) {
-  const reserva = { ...datos, id: crypto.randomUUID(), creada: Date.now(), cancelada: false }
-  return guardarLocal(CLAVE, [...listarReservas(), reserva]) ? reserva : null
-}
-
-export function eliminarReserva(id) {
-  guardarLocal(CLAVE, listarReservas().filter((reserva) => reserva.id !== id))
 }
 
 export function marcarCancelada(id) {

@@ -1,21 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Flecha } from '../components/Iconos/Iconos'
 import Logo from '../components/Logo/Logo'
 import MapaCalles from '../components/MapaCalles/MapaCalles'
 import AvisoInstalacion from '../components/AvisoInstalacion/AvisoInstalacion'
 import { useSesion } from '../context/sesion'
 import { cuposLibres } from '../data/plazas'
-import { parqueaderos } from '../data/parqueaderos'
 import { useAhora } from '../hooks/useAhora'
-import { listarReservas } from '../services/reservas'
+import { useParqueaderos } from '../hooks/useDisponibilidad'
+import { useReservasPropietario } from '../hooks/useReservasPropietario'
+import ReservasPropietario from '../components/ReservasPropietario/ReservasPropietario'
+import { consultarCobrosPropietario } from '../services/simulations'
 import { rolDeUsuario } from '../utils/roles'
 import { pesos } from '../utils/formato'
 import styles from './Home.module.css'
 
 const INTERVALO_CARRUSEL = 4000
 
-function Carrusel({ items, ahora }) {
+function Carrusel({ items }) {
   const pista = useRef(null)
   const [posicion, setPosicion] = useState(0)
   const [posiciones, setPosiciones] = useState(1)
@@ -72,7 +74,7 @@ function Carrusel({ items, ahora }) {
         </button>
         <div ref={pista} className={styles.pista} onScroll={alDesplazar}>
           {items.map((parqueadero) => {
-            const cupos = cuposLibres(parqueadero, items.reservas, ahora)
+            const cupos = cuposLibres(parqueadero, items.vigentes[parqueadero.id])
             return (
               <article key={parqueadero.id} className={styles.tarjeta}>
                 <span className={styles.letra}>{parqueadero.nombre[0]}</span>
@@ -115,10 +117,46 @@ const TituloReconocidos = () => (
 )
 
 // Inicio con sesión: saludo, mini mapa, billetera y "Sobre nosotros" desplegable.
+// Inicio del Propietario: en lugar del mini mapa (no usa el mapa) ve las reservas de su
+// parqueadero; la billetera lleva a Finanzas y muestra los ingresos de hoy.
+function ReservasInicio() {
+  const reservas = useReservasPropietario()
+  const navegar = useNavigate()
+  return (
+    <section className={styles.miniMapa} aria-labelledby="tituloReservasInicio">
+      <div className={styles.miniMapaCabecera}>
+        <h2 id="tituloReservasInicio">Reservas</h2>
+        <Link to="/administrar-parqueadero#reservas" className="btn">Ver todas</Link>
+      </div>
+      <div className={styles.reservasInicio}>
+        <ReservasPropietario {...reservas} soloProximas limite={4} compacta onCobrar={(r) => navegar(`/control-acceso?reserva=${r.id}`)} />
+      </div>
+    </section>
+  )
+}
+
+function useIngresosDeHoy(activo) {
+  const [ingresos, setIngresos] = useState(null)
+  useEffect(() => {
+    if (!activo) return undefined
+    let vigente = true
+    consultarCobrosPropietario()
+      .then(({ cobros }) => {
+        const hoy = new Date().toDateString()
+        if (vigente) setIngresos(cobros.filter((c) => new Date(c.salida).toDateString() === hoy).reduce((total, c) => total + c.monto, 0))
+      })
+      .catch(() => { if (vigente) setIngresos(null) })
+    return () => { vigente = false }
+  }, [activo])
+  return ingresos
+}
+
 function InicioUsuario({ usuario, items, ahora }) {
   const [sobreAbierto, setSobreAbierto] = useState(false)
   const rol = rolDeUsuario(usuario)
   const primerNombre = usuario.nombre.split(' ')[0]
+  const esPropietario = rol.clave === 'propietario'
+  const ingresosHoy = useIngresosDeHoy(esPropietario)
 
   return (
     <div className={`vista ${styles.inicio} ${sobreAbierto ? styles.inicioSobre : ''}`}>
@@ -136,16 +174,25 @@ function InicioUsuario({ usuario, items, ahora }) {
         <h2 id="tituloBilletera">Billetera</h2>
         <span>Saldo disponible</span>
         <strong aria-live="polite">{pesos(usuario.saldo)}</strong>
-        <Link to="/recarga" className="btn">Recargar</Link>
+        {esPropietario ? (
+          <>
+            <span className={styles.ingresos}>Ingresos de hoy: <b>{ingresosHoy === null ? '—' : pesos(ingresosHoy)}</b></span>
+            <Link to="/finanzas" className="btn">Ver Finanzas</Link>
+          </>
+        ) : (
+          <Link to="/recarga" className="btn">Recargar</Link>
+        )}
       </section>
 
-      <section className={styles.miniMapa} aria-labelledby="tituloMiniMapa">
-        <div className={styles.miniMapaCabecera}>
-          <h2 id="tituloMiniMapa">Parqueaderos cerca de ti</h2>
-          <Link to="/mapa" className="btn">Ver Mapa</Link>
-        </div>
-        <MapaCalles className={styles.miniMapaDibujo} zoom={160} centro="55% 55%" />
-      </section>
+      {esPropietario ? <ReservasInicio /> : (
+        <section className={styles.miniMapa} aria-labelledby="tituloMiniMapa">
+          <div className={styles.miniMapaCabecera}>
+            <h2 id="tituloMiniMapa">Parqueaderos cerca de ti</h2>
+            {rol.clave !== 'administrador' && <Link to="/mapa" className="btn">Ver Mapa</Link>}
+          </div>
+          <MapaCalles className={styles.miniMapaDibujo} zoom={160} centro="55% 55%" />
+        </section>
+      )}
 
       <details className={styles.sobre} onToggle={(evento) => setSobreAbierto(evento.currentTarget.open)}>
         <summary className="btn btn-contorno">{sobreAbierto ? 'Ocultar Sobre nosotros' : 'Ver Sobre nosotros'}</summary>
@@ -172,8 +219,8 @@ function InicioUsuario({ usuario, items, ahora }) {
 function Home() {
   const { usuario } = useSesion()
   const ahora = useAhora()
-  const reservas = listarReservas()
-  const items = Object.assign([...parqueaderos], { reservas })
+  const { parqueaderos, vigentes } = useParqueaderos()
+  const items = Object.assign([...parqueaderos], { vigentes })
 
   if (usuario) return <InicioUsuario usuario={usuario} items={items} ahora={ahora} />
 

@@ -1,6 +1,10 @@
 import { pedirConSesion } from './api'
 
 export const obtenerAcceso = () => pedirConSesion('/nfc/access')
+// Tipo de cuenta guardado en el servidor del proyecto: la cuenta lo define una sola vez.
+export const definirTipoCuenta = (tipo) => pedirConSesion('/nfc/account-type', { metodo: 'POST', cuerpo: { tipo } })
+// Solo el administrador puede cambiar el tipo de otra cuenta.
+export const cambiarTipoCuenta = (id, tipo) => pedirConSesion(`/nfc/admin/accounts/${id}/type`, { metodo: 'POST', cuerpo: { tipo } })
 export const buscarUsuarios = (q, desde = 0) => pedirConSesion(`/nfc/admin/users?${new URLSearchParams({ q, desde })}`)
 export const consultarUsuario = (id) => pedirConSesion(`/nfc/admin/users/${id}`)
 export const crearLector = () => pedirConSesion('/nfc/admin/readers', { metodo: 'POST', cuerpo: {} })

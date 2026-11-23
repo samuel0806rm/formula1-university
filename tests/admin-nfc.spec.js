@@ -98,7 +98,8 @@ test('flujo celular → PC: el celular lee (simulado), el admin vincula y el usu
   expect(uid).toMatch(/^04[0-9A-F]{12}$/)
 
   // Sin recargar: el sondeo de Mi Cuenta muestra la tarjeta.
-  await expect(usuario.getByText(uid)).toBeVisible({ timeout: 15_000 })
+  // Mi Cuenta muestra solo los últimos 4 caracteres del UID.
+  await expect(usuario.getByText(`····${uid.slice(-4)}`)).toBeVisible({ timeout: 15_000 })
   await expect(usuario.getByText('(registrada por un administrador)')).toBeVisible()
 
   await Promise.all([pc.close(), movil.close(), cuentaUsuario.close()])

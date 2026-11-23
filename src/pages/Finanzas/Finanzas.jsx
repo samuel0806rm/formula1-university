@@ -1,9 +1,13 @@
-import { useMemo, useState } from 'react'
-import { movimientosSimulados, pesosEspaciados } from '../../services/gestion'
+import { useEffect, useState } from 'react'
+import { pesosEspaciados } from '../../services/gestion'
+import { consultarCobrosPropietario } from '../../services/simulations'
+import { mensajeError } from '../../services/errores'
+import { refCorta } from '../../utils/actividad'
 import p from '../../styles/paneles.module.css'
 import styles from './Finanzas.module.css'
 
-// Finanzas del Propietario (Figma "Finanzas"). Los movimientos son simulados.
+// Finanzas del Propietario (Figma "Finanzas"). Muestra los cobros REALES de salida que
+// el servidor aplicó en los puntos de acceso de este propietario (Control de acceso).
 const DIAS = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
 const NOMBRES_DIA = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo']
 const PERIODOS = ['Día', 'Semana', 'Mes']
@@ -19,10 +23,28 @@ const fechaLarga = (t) => {
 }
 const aClaveDia = (t) => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` }
 const suma = (lista) => lista.reduce((total, m) => total + m.valor, 0)
+// Motivo como en Figma: "Reserva · Nombre · Placa" (o "Salida sin reserva" si entró sin reservar).
+const motivo = (m) => [m.reserva ? 'Reserva' : 'Salida sin reserva', m.nombre, m.placa].filter(Boolean).join(' · ')
 
 export default function Finanzas() {
   const [ahora] = useState(() => new Date())
-  const movimientos = useMemo(() => movimientosSimulados(ahora), [ahora])
+  const [movimientos, setMovimientos] = useState([])
+  const [estado, setEstado] = useState('cargando')
+
+  useEffect(() => {
+    let activo = true
+    consultarCobrosPropietario()
+      .then(({ cobros }) => {
+        if (!activo) return
+        setMovimientos(cobros.map((c) => ({
+          id: c.ref, fecha: c.salida, entrada: c.entrada, nombre: c.usuario.nombre, placa: c.placa, vehiculo: c.vehiculo,
+          parqueadero: c.parqueadero, horas: c.horas, valor: c.monto, reserva: Boolean(c.reservaId), plaza: c.plaza, ejemplo: c.ejemplo,
+        })))
+        setEstado('listo')
+      })
+      .catch((fallo) => { if (activo) setEstado(mensajeError(fallo)) })
+    return () => { activo = false }
+  }, [])
   const [periodo, setPeriodo] = useState('Mes')
   const [fecha, setFecha] = useState('')
   const [seleccion, setSeleccion] = useState(null)
@@ -87,12 +109,14 @@ export default function Finanzas() {
                 <li key={m.id}>
                   <button type="button" className={`${p.fila} ${m.id === elegido?.id ? p.filaActiva : ''}`} aria-pressed={m.id === elegido?.id} onClick={() => setSeleccion(m.id)}>
                     <span>{fechaCorta(m.fecha)}</span>
-                    <span className={p.celda}>Reserva · {m.nombre} · {m.placa}</span>
+                    <span className={p.celda}>{motivo(m)}{m.ejemplo ? ' (ejemplo)' : ''}</span>
                     <span className={`${styles.valor} ${styles.derecha}`}>{pesosEspaciados(m.valor)}</span>
                   </button>
                 </li>
               ))}
-              {lista.length === 0 && <li className={p.nota}>No hay movimientos en esa fecha.</li>}
+              {estado === 'cargando' && <li className={p.nota}>Cargando cobros…</li>}
+              {estado !== 'cargando' && estado !== 'listo' && <li className={p.nota} role="alert">{estado}</li>}
+              {estado === 'listo' && lista.length === 0 && <li className={p.nota}>{movimientos.length ? 'No hay cobros en ese periodo.' : 'Aún no hay cobros. Aparecen cuando validas una salida en Control de acceso.'}</li>}
             </ul>
           </div>
         </section>
@@ -114,9 +138,15 @@ export default function Finanzas() {
             <h2 className={p.titulo} id="tituloDetalle">Detalle del movimiento</h2>
             {elegido ? (
               <dl className={styles.detalle}>
-                <div><dt>Reserva</dt><dd>{elegido.nombre} · {elegido.vehiculo} {elegido.placa}</dd></div>
+                <div><dt>{elegido.reserva ? 'Reserva' : 'Salida sin reserva'}</dt><dd>{elegido.nombre}{elegido.placa ? ` · ${elegido.vehiculo ? `${elegido.vehiculo} ` : ''}${elegido.placa}` : ''}</dd></div>
+                {elegido.plaza && <div><dt>Plaza</dt><dd>{elegido.plaza}</dd></div>}
+                <div><dt>Parqueadero</dt><dd>{elegido.parqueadero}</dd></div>
+                <div><dt>Entrada</dt><dd>{fechaLarga(elegido.entrada)}</dd></div>
                 <div><dt>Fecha y hora</dt><dd>{fechaLarga(elegido.fecha)}</dd></div>
+                <div><dt>Horas cobradas</dt><dd>{elegido.horas} h</dd></div>
                 <div><dt>Valor recibido</dt><dd>{pesosEspaciados(elegido.valor)}</dd></div>
+                <div><dt>Referencia</dt><dd>{refCorta(elegido.id)}</dd></div>
+                {elegido.ejemplo && <div><dt>Origen</dt><dd>Dato de ejemplo (npm run sembrar): no movió saldo</dd></div>}
               </dl>
             ) : <p className={p.nota}>Selecciona un movimiento.</p>}
           </section>

@@ -27,7 +27,7 @@ test('sin configuración nadie es administrador', () => {
   assert.equal(esAdmin({ id: 38, email: 'admin.uno@ejemplo.test', activo: true }), false)
 })
 
-function servicioConPerfiles() {
+function servicioConPerfiles(asignadas = {}) {
   const perfiles = {
     'Bearer admin': { id: 5, email: 'Admin.Uno@Ejemplo.test', activo: true },
     'Bearer usuario': { id: 7, email: 'usuario@ejemplo.test', activo: true },
@@ -36,6 +36,8 @@ function servicioConPerfiles() {
     base: 'https://ejemplo.test/api/v1', token: 'secreto', adminEmails: ADMIN_EMAILS,
     almacenSolicitudes: { listar: async () => [], obtener: async () => null, crear: async () => null },
     almacenSimulaciones: { ejecutar: (tarea) => tarea({ estancias: {}, operaciones: {} }, async () => {}) },
+    almacenTipos: { ejecutar: (tarea) => tarea({ tipos: {} }, async () => {}) },
+    almacenAsignaciones: { ejecutar: (tarea) => tarea({ asignaciones: asignadas, semillaAplicada: true }, async () => {}) },
     fetchApi: async (url, opciones) => {
       if (url.endsWith('/auth/me')) {
         const perfil = perfiles[opciones.headers.Authorization]
@@ -48,8 +50,14 @@ function servicioConPerfiles() {
 
 test('el servidor calcula "administrador" de la sesión con ADMIN_EMAILS', async () => {
   const servicio = servicioConPerfiles()
-  assert.deepEqual(await servicio('/nfc/access', { method: 'GET', headers: { authorization: 'Bearer admin' } }), { administrador: true })
-  assert.deepEqual(await servicio('/nfc/access', { method: 'GET', headers: { authorization: 'Bearer usuario' } }), { administrador: false })
+  assert.deepEqual(await servicio('/nfc/access', { method: 'GET', headers: { authorization: 'Bearer admin' } }), { administrador: true, rol: 'administrador' })
+  assert.deepEqual(await servicio('/nfc/access', { method: 'GET', headers: { authorization: 'Bearer usuario' } }), { administrador: false, propietario: false, rol: null, tipo: null })
+})
+
+test('/nfc/access marca como propietario a quien tiene un parqueadero asignado, desde cualquier navegador', async () => {
+  const servicio = servicioConPerfiles({ 1: { parqueaderoId: 1, propietario: { id: 7, nombre: 'Usuario' } } })
+  assert.deepEqual(await servicio('/nfc/access', { method: 'GET', headers: { authorization: 'Bearer usuario' } }), { administrador: false, propietario: true, rol: 'propietario', tipo: 'propietario' })
+  assert.deepEqual(await servicio('/nfc/access', { method: 'GET', headers: { authorization: 'Bearer admin' } }), { administrador: true, rol: 'administrador' })
 })
 
 test('un usuario no administrador no puede usar el lector ni las simulaciones', async () => {

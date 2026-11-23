@@ -1,0 +1,123 @@
+.lista {
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.dia {
+  margin: 0 0 6px;
+  color: var(--titulo-h3);
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.reservas {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  list-style: none;
+}
+
+.reserva {
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 14px;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+  font-size: 15px;
+}
+
+.horas {
+  font-weight: 700;
+}
+
+.conductor {
+  min-width: 0;
+  display: grid;
+}
+
+.conductor strong,
+.conductor span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conductor span {
+  font-size: 13px;
+}
+
+.falta {
+  padding: 3px 12px;
+  border-radius: var(--radio) var(--radio) 0 var(--radio);
+  background: var(--accion);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.aceptada,
+.programada {
+  background: #153e90;
+}
+
+.pendiente {
+  background: var(--fondo-secundario);
+  color: var(--texto);
+  outline: 2px dashed var(--borde-secundario);
+}
+
+.cancelada,
+.vencida,
+.rechazada {
+  background: var(--alerta);
+}
+
+:global(:root[data-tema='oscuro']) .aceptada,
+:global(:root[data-tema='oscuro']) .programada {
+  background: #4f7fe0;
+}
+
+.cobrar {
+  grid-column: 1 / -1;
+  justify-self: end;
+  min-height: 40px;
+}
+
+.compacta .reserva {
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+  padding: 8px 12px;
+}
+
+.nota {
+  margin: 0;
+  font-size: 15px;
+}
+
+.error {
+  margin: 0;
+  color: var(--alerta);
+  font-size: 15px;
+}
+
+@media (max-width: 600px) {
+  .reserva,
+  .compacta .reserva {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .horas {
+    grid-column: 1 / -1;
+  }
+
+  .conductor span {
+    white-space: normal;
+  }
+}

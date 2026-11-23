@@ -4,6 +4,7 @@ import { SesionProvider } from './context/SesionProvider'
 import Navbar from './components/Navbar/Navbar'
 import Footer from './components/Footer/Footer'
 import RutaProtegida from './components/RutaProtegida/RutaProtegida'
+import { SinAdministrador, SoloConductor } from './components/RutaRol/RutaRol'
 import Home from './pages/Home'
 import Mapa from './pages/Mapa/Mapa'
 import Reservation from './pages/Reservation/Reservation'
@@ -24,6 +25,7 @@ import Gestion from './pages/Gestion/Gestion'
 import RegistroParqueadero from './pages/RegistroParqueadero/RegistroParqueadero'
 import AdministrarParqueadero from './pages/AdministrarParqueadero/AdministrarParqueadero'
 import Finanzas from './pages/Finanzas/Finanzas'
+import ControlAcceso from './pages/ControlAcceso/ControlAcceso'
 import styles from './App.module.css'
 
 function PaginasUsuario() {
@@ -34,8 +36,8 @@ function PaginasUsuario() {
           <main className={styles.content}>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/mapa" element={<Mapa />} />
-              <Route path="/reservas/:parqueaderoId?" element={<Reservation />} />
+              <Route path="/mapa" element={<SinAdministrador><Mapa /></SinAdministrador>} />
+              <Route path="/reservas/:parqueaderoId?" element={<SoloConductor><Reservation /></SoloConductor>} />
               <Route path="/registro" element={<RegisterAccount />} />
               <Route path="/lector" element={<RutaProtegida><Terminal /></RutaProtegida>} />
               <Route path="/simulaciones" element={<RutaProtegida><Simulations /></RutaProtegida>} />
@@ -49,6 +51,7 @@ function PaginasUsuario() {
               <Route path="/administrar-parqueadero" element={<RutaRol rol="propietario"><AdministrarParqueadero /></RutaRol>} />
               <Route path="/registro-parqueadero" element={<RutaRol rol="propietario"><RegistroParqueadero /></RutaRol>} />
               <Route path="/finanzas" element={<RutaRol rol="propietario"><Finanzas /></RutaRol>} />
+              <Route path="/control-acceso" element={<RutaRol rol="propietario"><ControlAcceso /></RutaRol>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useSesion } from '../../context/sesion'
 import { buscarUsuarios, consultarUsuario, crearLector, consultarLector, solicitarLectura, cancelarLectura, cerrarLector } from '../../services/admin'
 import { mensajeError } from '../../services/errores'
@@ -23,6 +23,15 @@ function GestionLector() {
   const [aviso, setAviso] = useState('')
   const bloqueo = useRef(false)
   const version = useRef(0)
+  // Desde Gestión → Usuarios ("Registrar tarjeta NFC") llega la cuenta ya elegida.
+  const [parametros] = useSearchParams()
+  const usuarioInicial = Number(parametros.get('usuario'))
+  useEffect(() => {
+    if (!Number.isSafeInteger(usuarioInicial) || usuarioInicial <= 0) return
+    let activo = true
+    consultarUsuario(usuarioInicial).then((datos) => { if (activo) setSeleccion(datos) }, (fallo) => { if (activo) setError(mensajeError(fallo)) })
+    return () => { activo = false }
+  }, [usuarioInicial])
   const lectorId = lector?.id
   const enCurso = ['esperando', 'procesando'].includes(lector?.trabajo?.estado)
   let enlace = ''

@@ -631,3 +631,28 @@
     grid-template-areas: 'saludo' 'billetera' 'mapa' 'sobre';
   }
 }
+
+/* Inicio del Propietario: reservas en el lugar del mini mapa. */
+.reservasInicio {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.ingresos {
+  font-size: 15px;
+}
+
+.ingresos b {
+  color: var(--accion-texto);
+}
+
+@media (max-width: 900px) {
+  .reservasInicio {
+    order: 1;
+    flex: none;
+    overflow: visible;
+  }
+}

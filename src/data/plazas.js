@@ -1,6 +1,5 @@
-import { contarReservasVigentes } from '../services/reservas'
-
-// Arma las plazas de un parqueadero. "reservadas" son las tomadas en el horario consultado.
+// Arma las plazas de un parqueadero. "reservadas" son las tomadas en el horario consultado
+// (vienen del servidor del proyecto, /api/nfc/reservations/occupancy).
 export function generarPlazas(parqueadero, reservadas = new Set()) {
   return Array.from({ length: parqueadero.capacidad }, (_, indice) => {
     const id = indice + 1
@@ -16,7 +15,8 @@ export function generarPlazas(parqueadero, reservadas = new Set()) {
   })
 }
 
-export function cuposLibres(parqueadero, reservas, ahora) {
+// Cupos libres ahora: capacidad − plazas fijas ocupadas − reservas vigentes del servidor.
+export function cuposLibres(parqueadero, vigentes = 0) {
   const libres = parqueadero.capacidad - parqueadero.plazasOcupadas.length
-  return Math.max(0, libres - contarReservasVigentes(reservas, parqueadero.id, ahora))
+  return Math.max(0, libres - (Number(vigentes) || 0))
 }

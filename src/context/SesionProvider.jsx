@@ -9,14 +9,23 @@ import {
   obtenerPerfil,
   registrarUsuario,
 } from '../services/api'
-import { borrarPreferencias, guardarPreferencias } from '../services/preferencias'
+import { borrarPreferencias, guardarPreferencias, leerLocalTipo } from '../services/preferencias'
 import { eliminarReservasDeUsuario } from '../services/reservas'
 import { SesionContext } from './sesion'
-import { obtenerAcceso } from '../services/admin'
+import { definirTipoCuenta, obtenerAcceso } from '../services/admin'
 
+// El rol lo decide el servidor del proyecto (/nfc/access): administrador > propietario
+// (tipo guardado o parqueadero asignado) > conductor. Así es el mismo en cualquier navegador.
 async function agregarPermisos(perfil) {
-  const { administrador } = await obtenerAcceso()
-  return { ...perfil, administrador }
+  const acceso = await obtenerAcceso()
+  let { rol = null } = acceso
+  // Cuentas creadas antes de guardar el tipo en el servidor: se sube una sola vez el tipo
+  // que este navegador recordaba (si el servidor ya tiene uno, manda el del servidor).
+  const local = leerLocalTipo(perfil.id)
+  if (!acceso.administrador && !rol && local) {
+    rol = await definirTipoCuenta(local).then((r) => r.rol ?? local, () => null)
+  }
+  return { ...perfil, administrador: Boolean(acceso.administrador), propietario: Boolean(acceso.propietario) || rol === 'propietario', rol }
 }
 
 export function SesionProvider({ children }) {
@@ -53,9 +62,13 @@ export function SesionProvider({ children }) {
 
   const crearCuenta = useCallback(async ({ vehiculo, tipoUsuario, ...datos }) => {
     const nuevo = await registrarUsuario(datos)
-    guardarPreferencias(nuevo.id, { vehiculo, tipoUsuario })
-    setUsuario(nuevo)
-    return nuevo
+    // El vehículo solo aplica a Conductor; el Propietario se guarda sin él.
+    guardarPreferencias(nuevo.id, { vehiculo: tipoUsuario === 'conductor' ? vehiculo ?? '' : '', tipoUsuario })
+    // El tipo se guarda en el servidor (una sola vez) para que valga en cualquier navegador.
+    const rol = await definirTipoCuenta(tipoUsuario).then((r) => r.rol ?? tipoUsuario, () => tipoUsuario)
+    const conRol = { ...nuevo, administrador: false, propietario: rol === 'propietario', rol }
+    setUsuario(conRol)
+    return conRol
   }, [])
 
   const salir = useCallback(async () => {

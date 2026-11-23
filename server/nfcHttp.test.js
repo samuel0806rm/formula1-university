@@ -9,7 +9,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
-test('flujo HTTP completo con API aislada: permisos, pantalla, lector, cobro y rutas retiradas', { timeout: 15000 }, async () => {
+test('flujo HTTP completo con API aislada: permisos, propietario, entrada, salida con un solo cobro y rutas retiradas', { timeout: 15000 }, async () => {
   const directorio = await mkdtemp(path.join(tmpdir(), 'parking-http-'))
   const llamadas = []
   const api = http.createServer(async (req, res) => {
@@ -21,8 +21,10 @@ test('flujo HTTP completo con API aislada: permisos, pantalla, lector, cobro y r
     let datos
     if (req.url === '/auth/me') datos = { id: req.headers.authorization === 'Bearer admin' ? 38 : 7, activo: true }
     else if (req.url === '/config') datos = { limites: { montoMinimo: 100, montoMaximo: 500000 } }
+    else if (req.url === '/users/7') datos = { id: 7, nombre: 'Usuario de prueba', activo: true }
     else if (req.url === '/cards/04AB12CD') datos = { activa: true, usuario: { id: 7, nombre: 'Usuario de prueba', activo: true } }
-    else if (req.url === '/users/7/wallet/topup') datos = { operacion: 'recarga', monto: cuerpo.monto, saldo: 20000, usuario_id: 7 }
+    else if (req.url.startsWith('/users/7/wallet?')) datos = { usuario_id: 7, saldo: 20000, movimientos: [] }
+    else if (req.url === '/users/7/wallet/charge') datos = { operacion: 'cobro', monto: cuerpo.monto, saldo: 20000 - cuerpo.monto, usuario_id: 7 }
     else { res.writeHead(404, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'ruta_desconocida' })); return }
     res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(JSON.stringify(datos))
   })
@@ -48,19 +50,30 @@ test('flujo HTTP completo con API aislada: permisos, pantalla, lector, cobro y r
       return respuesta.json()
     }
     for (const ruta of ['/simulaciones', '/simulador', '/escaner']) assert.equal((await fetch(origen + ruta)).status, 200)
-    await pedir('/api/nfc/admin/simulations', { esperado: 401 })
-    await pedir('/api/nfc/admin/simulations', { headers: { Authorization: 'Bearer usuario' }, esperado: 403 })
+    await pedir('/api/nfc/owner/sessions', { esperado: 401 })
+    // El administrador ya no crea sesiones de cobro; el conductor no revisa operaciones.
+    await pedir('/api/nfc/owner/sessions', { cuerpo: { parqueadero_id: 1 }, headers: { Authorization: 'Bearer admin' }, esperado: 403 })
+    await pedir('/api/nfc/admin/simulation-operations', { headers: { Authorization: 'Bearer usuario' }, esperado: 403 })
     await pedir('/api/nfc/admin/card-requests', { headers: { Authorization: 'Bearer usuario' }, esperado: 403 })
-    const s = await pedir('/api/nfc/admin/simulations', { cuerpo: { tipo: 'recarga' }, headers: { Authorization: 'Bearer admin' } })
-    await pedir('/api/nfc/simulation/screen/state', { headers: { 'X-Screen-Key': s.pantallaClave } })
+    await pedir('/api/nfc/admin/accounts', { headers: { Authorization: 'Bearer usuario' }, esperado: 403 })
+    // Sin parqueadero asignado el propietario no puede crear sesiones; el admin se lo asigna.
+    await pedir('/api/nfc/owner/sessions', { cuerpo: { parqueadero_id: 1 }, headers: { Authorization: 'Bearer usuario' }, esperado: 403 })
+    await pedir('/api/nfc/admin/assignments', { cuerpo: { parqueadero_id: 1, usuario_id: 7 }, headers: { Authorization: 'Bearer usuario' }, esperado: 403 })
+    await pedir('/api/nfc/admin/assignments', { cuerpo: { parqueadero_id: 1, usuario_id: 7 }, headers: { Authorization: 'Bearer admin' } })
+    const s = await pedir('/api/nfc/owner/sessions', { cuerpo: { parqueadero_id: 1 }, headers: { Authorization: 'Bearer usuario' } })
+    const pantalla = { 'X-Screen-Key': s.pantallaClave }
     const lector = { 'X-Reader-Key': s.lectorClave, 'X-Reader-Ready': '1' }
+    await pedir('/api/nfc/simulation/screen/state', { headers: pantalla })
     assert.deepEqual(await pedir('/api/nfc/simulation/reader/state', { headers: lector }), { solicitud: null })
-    const solicitud = await pedir('/api/nfc/simulation/screen/request', { headers: { 'X-Screen-Key': s.pantallaClave }, cuerpo: { monto: 20000 } })
-    for (let i = 0; i < 2; i++) assert.deepEqual(await pedir('/api/nfc/simulation/reader/scan', { headers: lector, cuerpo: { solicitud: solicitud.trabajo.id, uid: '04AB12CD' } }), { recibido: true })
-    const pantalla = await pedir('/api/nfc/simulation/screen/state', { headers: { 'X-Screen-Key': s.pantallaClave } })
-    assert.equal(pantalla.trabajo.resultado.monto, 20000)
-    assert.equal(pantalla.trabajo.resultado.nombre, 'Usuario de prueba')
-    assert.equal(llamadas.filter((l) => l.ruta.endsWith('/topup')).length, 1)
+    for (const sentido of ['entrada', 'salida']) {
+      const solicitud = await pedir('/api/nfc/simulation/screen/request', { headers: pantalla, cuerpo: { sentido, monto: 999999 } })
+      for (let i = 0; i < 2; i++) assert.deepEqual(await pedir('/api/nfc/simulation/reader/scan', { headers: lector, cuerpo: { solicitud: solicitud.trabajo.id, uid: '04AB12CD' } }), { recibido: true })
+    }
+    const estado = await pedir('/api/nfc/simulation/screen/state', { headers: pantalla })
+    assert.equal(estado.trabajo.resultado.nombre, 'Usuario de prueba')
+    assert.equal(estado.trabajo.resultado.monto, 2500, 'tarifa del servidor, no el monto enviado por la pantalla')
+    assert.equal(llamadas.filter((l) => l.ruta.endsWith('/wallet/charge')).length, 1)
+    assert.equal((await pedir('/api/nfc/owner/charges', { headers: { Authorization: 'Bearer usuario' } })).cobros.length, 1)
     for (const ruta of ['/api/nfc/terminal/cards', '/api/nfc/terminal/transaction', '/api/nfc/terminal/requests']) await pedir(ruta, { cuerpo: {}, esperado: 404 })
   } finally {
     if (proceso) { const cerrado = once(proceso, 'close'); proceso.kill(); await cerrado }

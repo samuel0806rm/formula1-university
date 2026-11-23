@@ -52,3 +52,38 @@
     order: -1;
   }
 }
+
+/* Asignación de parqueadero (detalle de la cuenta). */
+.asignacion {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.asignados {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  list-style: none;
+}
+
+.asignados li {
+  padding: 6px 6px 6px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-radius: var(--radio);
+  background: var(--recuadro-interno);
+}
+
+/* Parqueaderos del mapa (atajo para asignar) y detalle de cuenta con desplazamiento propio. */
+.mapa {
+  max-height: 32vh;
+  overflow-y: auto;
+}
+
+.detalle {
+  overflow-y: auto;
+}

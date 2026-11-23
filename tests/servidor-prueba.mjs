@@ -6,6 +6,9 @@
 import http from 'node:http'
 import { spawn } from 'node:child_process'
 import process from 'node:process'
+import { mkdtempSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 
 const PUERTO_API = 3199
 const PUERTO_APP = 3101
@@ -65,6 +68,8 @@ api.listen(PUERTO_API, '127.0.0.1', () => {
       API_TOKEN: 'clave-de-prueba',
       ADMIN_USER_ID: '',
       ADMIN_EMAILS: 'otro.admin@ejemplo.test,admin.prueba@ejemplo.test',
+      // Datos aislados: nunca se escriben en server/data del proyecto (ni se consume su semilla).
+      PARKING_DATA_DIR: mkdtempSync(path.join(tmpdir(), 'parking-e2e-')),
     },
     stdio: 'inherit',
     windowsHide: true,

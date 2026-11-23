@@ -13,7 +13,10 @@ import styles from './User.module.css'
 
 const AVISO_POLITICA = 'Las opciones de CORREO y ROL no se pueden modificar por políticas de la empresa'
 
-function FormularioEditar({ usuario, rol, preferencias, onGuardar, onCancelar, ocupado }) {
+// Solo se muestran los últimos 4 caracteres del UID de la tarjeta.
+const ultimos4 = (uid) => `····${String(uid).slice(-4)}`
+
+function FormularioEditar({ usuario, rol, preferencias, onGuardar, onCancelar, ocupado, conVehiculo }) {
   const [nombre, setNombre] = useState(usuario.nombre)
   const [cedula, setCedula] = useState(usuario.documento ?? '')
   const [vehiculo, setVehiculo] = useState(preferencias.vehiculo)
@@ -44,13 +47,15 @@ function FormularioEditar({ usuario, rol, preferencias, onGuardar, onCancelar, o
           <label htmlFor="cuentaRol">Rol</label>
           <input id="cuentaRol" value={rol.nombre} readOnly disabled aria-describedby="politicaCuenta" />
         </div>
-        <div className={styles.campo}>
-          <label htmlFor="cuentaVehiculo">Tipo de vehículo</label>
-          <select id="cuentaVehiculo" value={vehiculo} onChange={(e) => setVehiculo(e.target.value)}>
-            <option value="">Sin definir</option>
-            {tiposVehiculo.map((tipo) => <option key={tipo}>{tipo}</option>)}
-          </select>
-        </div>
+        {conVehiculo && (
+          <div className={styles.campo}>
+            <label htmlFor="cuentaVehiculo">Tipo de vehículo</label>
+            <select id="cuentaVehiculo" value={vehiculo} onChange={(e) => setVehiculo(e.target.value)}>
+              <option value="">Sin definir</option>
+              {tiposVehiculo.map((tipo) => <option key={tipo}>{tipo}</option>)}
+            </select>
+          </div>
+        )}
       </div>
       <div className={styles.botonesFormulario}>
         <button type="button" className="btn btn-contorno" onClick={onCancelar} disabled={ocupado}>Cancelar</button>
@@ -78,6 +83,8 @@ function User() {
 
   const preferencias = leerPreferencias(usuario.id)
   const rol = rolDeUsuario(usuario)
+  // Propietario y Administrador no tienen vehículo ni tarjeta NFC propia en Mi Cuenta.
+  const esConductor = rol.clave === 'conductor'
 
   function abrir(siguiente) {
     setErrorVentana('')
@@ -195,6 +202,7 @@ function User() {
             usuario={usuario}
             rol={rol}
             preferencias={preferencias}
+            conVehiculo={esConductor}
             ocupado={ocupado}
             onGuardar={guardarDatos}
             onCancelar={() => setEditando(false)}
@@ -204,10 +212,26 @@ function User() {
             <div><dt>Nombre</dt><dd>{usuario.nombre}</dd></div>
             <div><dt>Correo</dt><dd>{usuario.email}</dd></div>
             <div><dt>Documento</dt><dd>{usuario.documento || 'Sin definir'}</dd></div>
-            <div><dt>Tipo de vehículo</dt><dd>{preferencias.vehiculo || 'Sin definir'}</dd></div>
+            {esConductor && <div><dt>Tipo de vehículo</dt><dd>{preferencias.vehiculo || 'Sin definir'}</dd></div>}
           </dl>
         )}
 
+        {/* Propietario (y Administrador con tarjeta): la tarjeta solo identifica la cuenta. La
+            registra el administrador en Gestión; no se usa para pagar. */}
+        {!esConductor && (rol.clave === 'propietario' || tarjetaServidor) && <>
+        <h2 className={styles.subtitulo}>Tarjeta NFC</h2>
+        <div className={styles.tarjetaNfc} aria-live="polite">
+          <img src="/img/Icon_NFC.png" alt="" width="44" height="44" />
+          <p>
+            {tarjetaServidor
+              ? <>Tarjeta NFC: vinculada · terminada en <strong>{ultimos4(tarjetaServidor.uid)}</strong> · {tarjetaServidor.activa ? 'Activa' : 'Bloqueada'}<small> (identifica tu cuenta; no se usa para pagar)</small></>
+              : <>Sin tarjeta NFC. El administrador puede registrarla en Gestión para identificar tu cuenta; no se usa para pagar.</>}
+          </p>
+        </div>
+        </>}
+
+        {/* La tarjeta NFC del conductor paga la salida; solo la vincula el administrador. */}
+        {esConductor && <>
         <h2 className={styles.subtitulo}>Tarjeta NFC</h2>
         <div className={styles.tarjetaNfc} aria-live="polite">
           <img src="/img/Icon_NFC.png" alt="" width="44" height="44" />
@@ -215,7 +239,7 @@ function User() {
             // Tarjeta vinculada por un administrador desde /lector (servidor del proyecto).
             <>
               <p>
-                Tarjeta <strong>{tarjetaServidor.uid}</strong> vinculada · {tarjetaServidor.activa ? 'Activa' : 'Bloqueada'}
+                Tarjeta NFC: vinculada · terminada en <strong>{ultimos4(tarjetaServidor.uid)}</strong> · {tarjetaServidor.activa ? 'Activa' : 'Bloqueada'}
                 <small> (registrada por un administrador)</small>
               </p>
               <Link to="/tarjeta" className="btn btn-contorno">Ver Mi Tarjeta</Link>
@@ -232,6 +256,7 @@ function User() {
             <button type="button" className="btn btn-contorno" onClick={() => abrir({ tipo: 'vincular' })}>Vincular tarjeta</button>
           )}
         </div>
+        </>}
       </section>
 
       <aside className={styles.cuenta} aria-labelledby="tituloCuenta">

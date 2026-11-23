@@ -15,7 +15,7 @@ function Enlaces({ usuario, cargando, instalada }) {
   return (
     <>
       <li><NavLink to="/" end>Inicio</NavLink></li>
-      {rol !== 'propietario' && <li><NavLink to="/mapa">Mapa</NavLink></li>}
+      {rol !== 'propietario' && rol !== 'administrador' && <li><NavLink to="/mapa">Mapa</NavLink></li>}
       {rol === 'conductor' && (
         <>
           <li><NavLink to="/recarga">Saldo y Recarga</NavLink></li>
@@ -34,6 +34,7 @@ function Enlaces({ usuario, cargando, instalada }) {
       {rol === 'propietario' && (
         <>
           <li><NavLink to="/administrar-parqueadero">Administrar Parqueadero</NavLink></li>
+          <li><NavLink to="/control-acceso">Control de acceso</NavLink></li>
           <li><NavLink to="/finanzas">Finanzas</NavLink></li>
           <li><NavLink to="/registro-parqueadero">Registro Parqueadero</NavLink></li>
           <li><NavLink to="/usuario">Cuenta</NavLink></li>

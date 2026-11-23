@@ -7,7 +7,7 @@ function PaymentMethod({ usuario, total, rutaActual }) {
 
   return (
     <section className={styles.payment}>
-      <h2>4. Pago con saldo</h2>
+      <h2>4. Saldo para el cobro al salir</h2>
       {usuario ? (
         <>
           <div className={styles.saldo}>
@@ -16,13 +16,13 @@ function PaymentMethod({ usuario, total, rutaActual }) {
           </div>
           {falta > 0 && (
             <p className={styles.note}>
-              Te faltan {pesos(falta)}.{' '}
+              Para el estimado te faltan {pesos(falta)}.{' '}
               <Link to="/recarga" state={{ desde: rutaActual, monto: falta }}>Recargar ahora</Link>
             </p>
           )}
         </>
       ) : (
-        <p className={styles.note}>La reserva se paga con el saldo de tu cuenta.</p>
+        <p className={styles.note}>Reservar no cobra. Al salir se descuenta del saldo de tu cuenta con tu tarjeta NFC.</p>
       )}
     </section>
   )

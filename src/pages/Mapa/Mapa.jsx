@@ -5,10 +5,10 @@ import { DatosParqueadero, Filtro } from '../../components/PanelFiltros/PanelFil
 import { Flecha, Triangulo } from '../../components/Iconos/Iconos'
 import { useSesion } from '../../context/sesion'
 import { cuposLibres } from '../../data/plazas'
-import { abiertoAhora, parqueaderos } from '../../data/parqueaderos'
+import { abiertoAhora } from '../../data/parqueaderos'
 import { useAhora } from '../../hooks/useAhora'
 import { guardarPreferencias, leerPreferencias } from '../../services/preferencias'
-import { listarReservas } from '../../services/reservas'
+import { useParqueaderos } from '../../hooks/useDisponibilidad'
 import { distanciaKm } from '../../utils/distancia'
 import styles from './Mapa.module.css'
 
@@ -80,11 +80,11 @@ function Mapa() {
     alternarPanel()
   }
 
-  const reservas = listarReservas()
+  const { parqueaderos, vigentes } = useParqueaderos()
   const texto = filtros.texto.trim().toLowerCase()
   const conDatos = parqueaderos.map((parqueadero) => ({
     ...parqueadero,
-    cupos: cuposLibres(parqueadero, reservas, ahora),
+    cupos: cuposLibres(parqueadero, vigentes[parqueadero.id]),
     abierto: abiertoAhora(parqueadero, ahora),
     distancia: ubicacion ? distanciaKm(ubicacion, parqueadero) : null,
   }))

@@ -199,3 +199,53 @@
     max-width: none;
   }
 }
+
+/* Parqueadero asignado por el administrador + reservas. */
+.asignado {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.36fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.asignado > section {
+  overflow-y: auto;
+}
+
+.fichaAsignada {
+  display: grid;
+  gap: 10px;
+}
+
+@media (max-width: 900px), (max-height: 620px) {
+  .asignado {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Parqueadero asignado: pestañas Administrar / Reservas y solicitudes con Aceptar y Rechazar. */
+.barraAsignado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.solicitudesLista {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.respuesta {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px !important;
+}
+
+.panelReservas {
+  flex: 1;
+  overflow-y: auto;
+}

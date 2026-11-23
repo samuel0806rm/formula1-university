@@ -48,23 +48,6 @@ function semilla() {
       p('boyaca-parking', 'Boyacá Parking', 'Luz Marina Vega', '23.554.190', 35, 2000, 'Habilitado', 'Av. Norte #45-20, Tunja'),
       p('auto-norte', 'Auto Norte', 'Pedro Ramírez', '6.770.315', 20, 1800, 'Rechazado', 'Av. Universitaria #52-10, Tunja'),
     ],
-    usuarios: [
-      { id: 'u1', nombre: 'Samuel Rodríguez', correo: 'samuel.r@correo.com', rol: 'Conductor', estado: 'Activo' },
-      { id: 'u2', nombre: 'Andrea Torres', correo: 'andrea.t@correo.com', rol: 'Propietario', estado: 'Activo' },
-      { id: 'u3', nombre: 'Carlos Pérez', correo: 'carlos.perez@correo.com', rol: 'Conductor', estado: 'Activo' },
-      { id: 'u4', nombre: 'Laura Gómez', correo: 'laura.gomez@correo.com', rol: 'Conductor', estado: 'Activo' },
-      { id: 'u5', nombre: 'Jorge Salcedo', correo: 'jorge.salcedo@correo.com', rol: 'Propietario', estado: 'Pendiente' },
-      { id: 'u6', nombre: 'María Fonseca', correo: 'maria.fonseca@correo.com', rol: 'Propietario', estado: 'Activo' },
-      { id: 'u7', nombre: 'Andrés Rojas', correo: 'andres.rojas@correo.com', rol: 'Conductor', estado: 'Activo' },
-      { id: 'u8', nombre: 'Pedro Ramírez', correo: 'pedro.ramirez@correo.com', rol: 'Propietario', estado: 'Bloqueado' },
-    ],
-    tarjetas: [
-      { codigo: '04:A3:5F:1B:92', usuarioId: 'u1' },
-      { codigo: '04:7C:11:D8:03', usuarioId: 'u3' },
-      { codigo: '04:19:E2:6A:55', usuarioId: 'u4' },
-      { codigo: '04:B0:3D:47:AC', usuarioId: 'u7' },
-      { codigo: '04:52:9A:C1:7E', usuarioId: 'u2' },
-    ],
   }
 }
 
@@ -139,27 +122,6 @@ export function eliminarParqueadero(id) {
 
 export const parqueaderosDe = (d, usuarioId) => d.parqueaderos.filter((p) => p.propietarioId === usuarioId)
 
-// ---- Tarjetas (Gestión del administrador) ----
-export function normalizarCodigo(texto) {
-  const limpio = String(texto ?? '').replace(/[^0-9a-f]/gi, '').toUpperCase()
-  if (limpio.length < 8 || limpio.length > 20 || limpio.length % 2) return null
-  return limpio.match(/../g).join(':')
-}
-
-export function vincularTarjetaGestion(usuarioId, codigoTexto) {
-  const codigo = normalizarCodigo(codigoTexto)
-  if (!codigo) throw new Error('codigo_invalido')
-  const { tarjetas } = leer()
-  if (tarjetas.some((t) => t.codigo === codigo)) throw new Error('codigo_en_uso')
-  if (tarjetas.some((t) => t.usuarioId === usuarioId)) throw new Error('usuario_con_tarjeta')
-  escribir((d) => ({ tarjetas: [...d.tarjetas, { codigo, usuarioId }] }))
-  return codigo
-}
-
-export function desvincularTarjetaGestion(codigo) {
-  escribir((d) => ({ tarjetas: d.tarjetas.filter((t) => t.codigo !== codigo) }))
-}
-
 // ---- Horas y formato ----
 export function textoHora(h) {
   if (h === 24 || h === 0) return '12:00 a. m.'
@@ -173,27 +135,3 @@ export const textoHorario = (p) => p.apertura === 0 && p.cierre === 24
   : `${p.dias} · ${textoHora(p.apertura)} – ${textoHora(p.cierre)}`
 
 export const pesosEspaciados = (valor) => `$ ${Number(valor).toLocaleString('es-CO')}`
-
-// ---- Finanzas (movimientos simulados, relativos a hoy para que Día/Semana/Mes tengan datos) ----
-const CLIENTES = [
-  ['Carlos Pérez', 'ABC 123'], ['Laura Gómez', 'XYZ 45A'], ['Andrés Rojas', 'KLM 908'],
-  ['Samuel Rodríguez', 'DEF 456'], ['Marta Díaz', 'GHI 789'],
-]
-const VALORES = [7500, 2000, 8400, 5625, 4800, 3600, 1200, 6000, 2400, 9600]
-
-export function movimientosSimulados(ahora = new Date()) {
-  const lista = []
-  let k = 0
-  for (let dia = 0; dia < 45; dia++) {
-    const cantidad = 1 + ((dia * 7 + 3) % 3)
-    for (let j = 0; j < cantidad; j++, k++) {
-      const fecha = new Date(ahora)
-      fecha.setDate(ahora.getDate() - dia)
-      fecha.setHours(8 + ((k * 5) % 12), (k * 17) % 60, 0, 0)
-      if (fecha > ahora) fecha.setHours(Math.max(0, ahora.getHours() - 1 - j))
-      const [nombre, placa] = CLIENTES[k % CLIENTES.length]
-      lista.push({ id: `m${k}`, fecha: fecha.getTime(), nombre, placa, vehiculo: placa.endsWith('A') ? 'Moto' : 'Carro', valor: VALORES[k % VALORES.length] })
-    }
-  }
-  return lista.sort((a, b) => b.fecha - a.fecha)
-}

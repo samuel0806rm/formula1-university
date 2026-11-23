@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useSesion } from '../../context/sesion'
 import { tiposVehiculo } from '../../data/vehiculos'
 import { mensajeError } from '../../services/errores'
+import { TIPOS_CUENTA } from '../../utils/roles'
 import { Acceder, Aviso, CampoContrasena } from '../../components/Acceder/Acceder'
 import estilosAcceder from '../../components/Acceder/Acceder.module.css'
 
@@ -31,11 +32,13 @@ function RegisterAccount() {
       evento.currentTarget.elements.nombreCompleto.focus()
       return
     }
-    if (!tiposVehiculo.includes(formulario.tipoVehiculo)) {
+    // El tipo de vehículo solo aplica a Conductor; el Propietario no lo necesita.
+    const esConductor = formulario.tipoUsuario === 'conductor'
+    if (esConductor && !tiposVehiculo.includes(formulario.tipoVehiculo)) {
       setError('Selecciona un tipo de vehículo válido.')
       return
     }
-    if (!['usuario', 'propietario de parqueadero'].includes(formulario.tipoUsuario)) {
+    if (!TIPOS_CUENTA.some((tipo) => tipo.valor === formulario.tipoUsuario)) {
       setError('Selecciona un tipo de usuario válido.')
       evento.currentTarget.elements.tipoUsuario.focus()
       return
@@ -54,7 +57,7 @@ function RegisterAccount() {
         contrasena: formulario.contrasena,
         nombre,
         documento: formulario.cedula,
-        vehiculo: formulario.tipoVehiculo,
+        vehiculo: formulario.tipoUsuario === 'conductor' ? formulario.tipoVehiculo : '',
         tipoUsuario: formulario.tipoUsuario,
       })
     } catch (errorRegistro) {
@@ -121,8 +124,7 @@ function RegisterAccount() {
               <label htmlFor="tipoUsuario">Tipo de cuenta</label>
               <select id="tipoUsuario" name="tipoUsuario" required value={formulario.tipoUsuario} onChange={actualizarCampo} aria-describedby="ayudaTipoUsuario">
                 <option value="" disabled>Selecciona tu tipo de cuenta</option>
-                <option value="usuario">usuario</option>
-                <option value="propietario de parqueadero">propietario de parqueadero</option>
+                {TIPOS_CUENTA.map((tipo) => <option key={tipo.valor} value={tipo.valor}>{tipo.nombre}</option>)}
               </select>
               <small id="ayudaTipoUsuario">Se guardará en este navegador.</small>
             </div>
@@ -131,14 +133,14 @@ function RegisterAccount() {
               <CampoContrasena id="contrasena" name="contrasena" autoComplete="new-password" required minLength={8} value={formulario.contrasena} onChange={actualizarCampo} aria-describedby="ayudaContrasena" />
               <small id="ayudaContrasena">Usa al menos 8 caracteres. Evita contraseñas comunes y no uses tu correo electrónico.</small>
             </div>
-            <div className={campo}>
+            {formulario.tipoUsuario !== 'propietario' && <div className={campo}>
               <label htmlFor="tipoVehiculo">Tipo de vehículo</label>
-              <select id="tipoVehiculo" name="tipoVehiculo" required value={formulario.tipoVehiculo} onChange={actualizarCampo} aria-describedby="ayudaVehiculo">
+              <select id="tipoVehiculo" name="tipoVehiculo" required={formulario.tipoUsuario === 'conductor'} value={formulario.tipoVehiculo} onChange={actualizarCampo} aria-describedby="ayudaVehiculo">
                 <option value="" disabled>Selecciona tu tipo de vehículo</option>
                 {tiposVehiculo.map((tipo) => <option key={tipo} value={tipo}>{tipo}</option>)}
               </select>
               <small id="ayudaVehiculo">Se guardará en este navegador.</small>
-            </div>
+            </div>}
           </div>
         </fieldset>
         {error && <Aviso>{error}</Aviso>}

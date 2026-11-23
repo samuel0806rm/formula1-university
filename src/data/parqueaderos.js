@@ -16,6 +16,8 @@ export const parqueaderos = [
 ]
 
 export function abiertoAhora(parqueadero, ahora = Date.now()) {
+  // El propietario puede marcarlo "Cerrado" en Administrar parqueadero.
+  if (parqueadero.abierto === false) return false
   const fecha = new Date(ahora)
   const hora = fecha.getHours() + fecha.getMinutes() / 60
   return hora >= parqueadero.apertura && hora < parqueadero.cierre

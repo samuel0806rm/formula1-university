@@ -109,3 +109,22 @@
   background: var(--fondo-alerta);
   color: var(--texto-alerta);
 }
+
+/* En escritorio el área de contenido no hace scroll de página: esta vista se desplaza por dentro. */
+.conScroll {
+  height: 100%;
+  max-width: none;
+  overflow-y: auto;
+}
+
+.conScroll > * {
+  max-width: 1050px;
+  margin-inline: auto;
+}
+
+@media (max-width: 900px), (max-height: 620px) {
+  .conScroll {
+    height: auto;
+    overflow: visible;
+  }
+}
